@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Automated Rules{% endblock %}
+
+{% block breadcrumb %}
+    <span>Ads Manager</span> / <span>Automated Rules</span>
+{% endblock %}
+
+{% block content %}
+<div class="automated-rules-container">
+    <div class="card">
+        <div class="header-actions">
+            <h2>Automated Rules</h2>
+            <div class="header-buttons">
+                <button class="btn btn-primary" id="createRule">
+                    <i class="fas fa-plus"></i> Create Rule
+                </button>
+            </div>
+        </div>
+        
+        <!-- Template Rules Section - Always visible -->
+        <div class="section-title">
+            <h3>Quick Create with Templates</h3>
+            <p class="section-description">Choose a template to quickly set up common optimization rules</p>
+        </div>
+        
+        <div id="templateRulesContainer" class="template-rules-container">
+            <div class="template-rules-grid">
+                <!-- Cost Control Templates -->
+                <div class="template-category">
+                    <h4>Cost Control</h4>
+                    <div class="template-rule-item" data-id="high-cpc">
+                        <div class="template-name">High CPC Control</div>
+                        <div class="template-description">When Cost Per Click > $2, turn off ads</div>
+                    </div>
+                    <div class="template-rule-item" data-id="high-cpr">
+                        <div class="template-name">High CPR Alert</div>
+                        <div class="template-description">When Cost Per Registration > $50, turn off ads in campaign</div>
+                    </div>
+                    <div class="template-rule-item" data-id="high-cpa">
+                        <div class="template-name">High CPA Control</div>
+                        <div class="template-description">When Cost Per Acquisition > $100, decrease budget by 25%</div>
+                    </div>
+                </div>
+                
+                <!-- ROAS Optimization -->
+                <div class="template-category">
+                    <h4>ROAS Optimization</h4>
+                    <div class="template-rule-item" data-id="roas-budget-increase">
+                        <div class="template-name">ROAS Budget Scaler</div>
+                        <div class="template-description">When 3-day ROAS > 2.0, increase budget by 20%</div>
+                    </div>
+                    <div class="template-rule-item" data-id="low-roas-alert">
+                        <div class="template-name">Low ROAS Alert</div>
+                        <div class="template-description">When 7-day ROAS < 1.0, send notification</div>
+                    </div>
+                    <div class="template-rule-item" data-id="roas-bid-optimization">
+                        <div class="template-name">ROAS Bid Optimizer</div>
+                        <div class="template-description">Automatically scale bid toward target 0.8 ROAS</div>
+                    </div>
+                </div>
+                
+                <!-- Performance Optimization -->
+                <div class="template-category">
+                    <h4>Performance Optimization</h4>
+                    <div class="template-rule-item" data-id="low-ctr-fix">
+                        <div class="template-name">Low CTR Adjuster</div>
+                        <div class="template-description">When CTR < 1%, decrease bid by 10%</div>
+                    </div>
+                    <div class="template-rule-item" data-id="frequency-cap">
+                        <div class="template-name">Frequency Cap</div>
+                        <div class="template-description">When ad frequency > 3, pause the ad</div>
+                    </div>
+                    <div class="template-rule-item" data-id="spend-milestone">
+                        <div class="template-name">Spend Milestone Alert</div>
+                        <div class="template-description">Send notification when campaign spend reaches $1000</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">
+            <h3>Your Rules</h3>
+        </div>
+        
+        <div class="rules-list">
+            <table class="rules-table">
+                <thead>
+                    <tr>
+                        <th>Rule Name</th>
+                        <th>Status</th>
+                        <th>Conditions</th>
+                        <th>Actions</th>
+                        <th>Schedule</th>
+                        <th>Last Run</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="rulesList">
+                    <!-- Rules will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/automated_rules.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/automated_rules.js') }}"></script>
+{% endblock %} 

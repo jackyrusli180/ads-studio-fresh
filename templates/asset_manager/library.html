@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Asset Library{% endblock %}
+
+{% block breadcrumb %}
+    <span>Asset Manager</span> / <span>Asset Library</span>
+{% endblock %}
+
+{% block content %}
+<div class="asset-library-container">
+    <div class="library-header">
+        <!-- Remove the h1 heading -->
+        <!-- <h1>Asset Library</h1> -->
+        <div class="library-controls">
+            <div class="search-filters">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchAssets" placeholder="Search assets..." class="form-control">
+                </div>
+                <div class="filters">
+                    <select id="typeFilter" class="form-control">
+                        <option value="all">All Types</option>
+                        <option value="image">Images</option>
+                        <option value="video">Videos</option>
+                    </select>
+                    <select id="statusFilter" class="form-control">
+                        <option value="all">All Status</option>
+                        <option value="approved">Approved</option>
+                        <option value="pending">Pending</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    <select id="resolutionFilter" class="form-control">
+                        <option value="all">All Resolutions</option>
+                        <option value="16:9">16:9</option>
+                        <option value="9:16">9:16</option>
+                        <option value="1:1">1:1</option>
+                    </select>
+                </div>
+            </div>
+            <div class="action-controls">
+                <div class="view-controls">
+                    <button id="gridView" class="view-btn active"><i class="fas fa-th"></i></button>
+                    <button id="listView" class="view-btn"><i class="fas fa-list"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selection mode controls - initially hidden -->
+        <div id="selectionControls" class="selection-controls" style="display: none;">
+            <div class="selection-info">
+                <span id="selectionCount">0</span> assets selected
+                <small>(Only approved assets can be selected)</small>
+            </div>
+            <div class="selection-actions">
+                <button id="cancelSelectionBtn" class="btn btn-secondary">Cancel</button>
+                <button id="nextBtn" class="btn btn-primary" disabled>Ads Builder</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="assetContent" class="asset-content">
+        <!-- The asset grid or list will be rendered here -->
+    </div>
+
+    <!-- Hidden form for submission -->
+    <form id="createAdsForm" action="/ads_builder" method="post">
+        <!-- Selected assets will be added here dynamically -->
+    </form>
+</div>
+
+<!-- Asset Preview Modal -->
+<div class="modal hidden" id="previewModal">
+    <div class="modal-content preview-modal">
+        <div class="modal-header">
+            <h3>Asset Preview</h3>
+            <button class="close-modal"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="preview-container"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Add loading states -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p>Loading assets...</p>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/asset_library.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/asset_library.js') }}"></script>
+{% endblock %} 

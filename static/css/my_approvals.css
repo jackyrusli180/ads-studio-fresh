@@ -1,0 +1,138 @@
+.my-approvals-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.assets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.asset-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.asset-preview {
+    height: 200px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f3f4f6;
+}
+
+.asset-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.asset-details {
+    padding: 16px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.asset-details h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rejection-details {
+    margin-bottom: 16px;
+    flex-grow: 1;
+}
+
+.rejection-comment {
+    margin: 8px 0;
+    color: #4b5563;
+    font-size: 14px;
+    border-left: 3px solid #ef4444;
+    padding-left: 8px;
+}
+
+.rejection-reasons {
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+.rejection-reasons ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.rejection-reasons li {
+    margin-bottom: 4px;
+}
+
+.asset-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    color: #6b7280;
+}
+
+.empty-state i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: #10b981;
+}
+
+/* Edit Text Modal specific styles */
+#editTextModal .modal-content {
+    width: 500px;
+}
+
+#editTextModal .form-group {
+    margin-bottom: 20px;
+}
+
+#editTextModal label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+/* Character count display */
+.char-count {
+    text-align: right;
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+/* Buttons */
+.btn-accent {
+    background-color: #8b5cf6;
+    color: white;
+}
+
+.btn-accent:hover {
+    background-color: #7c3aed;
+} 
