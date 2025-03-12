@@ -7,7 +7,10 @@ from dotenv import load_dotenv
 
 class OpenAIVision:
     def __init__(self):
-        load_dotenv()  # Load environment variables
+        # Get the project root directory
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        # Load environment variables from the project root
+        load_dotenv(os.path.join(project_root, '.env'))
         api_key = os.getenv('OPENAI_API_KEY')
         if not api_key:
             raise ValueError("OpenAI API key not found in environment variables")

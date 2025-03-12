@@ -2081,10 +2081,9 @@ def apply_template():
 @app.route("/api/vision/analyze", methods=["POST"])
 def analyze_image():
     try:
-        # Initialize OpenAI client with API key
-        client = OpenAI(
-            api_key=os.environ.get("OPENAI_API_KEY")
-        )
+        # Use the OpenAIVision class instead of initializing the client directly
+        vision = OpenAIVision()
+        client = vision.client
 
         data = request.json
         image_path = data.get("image")
