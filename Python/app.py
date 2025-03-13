@@ -1,3 +1,4 @@
+import atexit
 from flask import Flask, render_template, request, jsonify, session
 import os
 from dotenv import load_dotenv
@@ -45,7 +46,8 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
 # Add TikTok Business API SDK to Python path
-sys.path.append("/Users/jackyrusli/Ads Studio/tiktok-business-api-sdk/python_sdk")
+sys.path.append(
+    "/Users/jackyrusli/Ads Studio/tiktok-business-api-sdk/python_sdk")
 
 # Load environment variables
 load_dotenv()
@@ -85,7 +87,8 @@ logging.basicConfig(
 
 
 def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+    return "." in filename and filename.rsplit(
+        ".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route("/")
@@ -112,7 +115,9 @@ def aigc_ai_image():
                 "file_path": asset.get("file_path"),
             }
 
-    return render_template("aigc/ai_image.html", regeneration_data=regeneration_data)
+    return render_template(
+        "aigc/ai_image.html",
+        regeneration_data=regeneration_data)
 
 
 @app.route("/aigc/ai_video")
@@ -183,15 +188,18 @@ def templates_comfy():
         logging.error(f"Error initializing ComfyUI: {error}")
 
     return render_template(
-        "templates/comfy.html", error=error, **debug_info, comfy_port=comfy_port
-    )
+        "templates/comfy.html",
+        error=error,
+        **debug_info,
+        comfy_port=comfy_port)
 
 
 @app.route("/api/create_campaign", methods=["POST"])
 def create_campaign():
     """API endpoint to create a new campaign"""
     try:
-        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        project_root = os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__)))
         form_data = request.form
 
         # Debug: Print all form key/value pairs to understand structure
@@ -227,8 +235,7 @@ def create_campaign():
         if library_asset_ids:
             media_library = get_media_library()
             library_assets = [
-                asset for asset in media_library if asset.get("id") in library_asset_ids
-            ]
+                asset for asset in media_library if asset.get("id") in library_asset_ids]
             logging.info(f"Found {len(library_assets)} assets from library")
 
         # If we have neither uploads nor library assets, fail
@@ -263,13 +270,12 @@ def create_campaign():
                     )
                     if not account_details:
                         raise ValueError(
-                            f"Invalid Meta Advertiser Account ID: {meta_advertiser_id}"
-                        )
+                            f"Invalid Meta Advertiser Account ID: {meta_advertiser_id}")
 
                     # Log account details for debugging
                     logging.info(
-                        f"Using Meta account: {account_details['name']} (ID: {meta_advertiser_id})"
-                    )
+                        f"Using Meta account: {
+                            account_details['name']} (ID: {meta_advertiser_id})")
 
                     # Determine which Meta template to use
                     if template == "ios_skan":
@@ -296,17 +302,20 @@ def create_campaign():
                         if asset["type"] == "image":
                             # Get the file path
                             file_path = asset["file_path"]
-                            logging.info(f"Original file_path from asset: {file_path}")
+                            logging.info(
+                                f"Original file_path from asset: {file_path}")
 
                             # Fix path construction based on file_path format
                             if file_path.startswith("/static/"):
                                 # Already starts with /static/ - just append to
                                 # project_root
-                                full_path = os.path.join(project_root, file_path[1:])
+                                full_path = os.path.join(
+                                    project_root, file_path[1:])
                             elif file_path.startswith("static/"):
                                 # Already contains static/ prefix - just append
                                 # to project_root
-                                full_path = os.path.join(project_root, file_path)
+                                full_path = os.path.join(
+                                    project_root, file_path)
                             elif os.path.isabs(file_path):
                                 # Absolute path - use as is
                                 full_path = file_path
@@ -319,8 +328,10 @@ def create_campaign():
                             logging.info(f"Using image path: {full_path}")
                             # Make sure the file exists
                             if not os.path.exists(full_path):
-                                logging.error(f"Image file not found: {full_path}")
-                                raise ValueError(f"Image file not found: {full_path}")
+                                logging.error(
+                                    f"Image file not found: {full_path}")
+                                raise ValueError(
+                                    f"Image file not found: {full_path}")
                             image_paths.append(full_path)
 
                     # Upload images to Meta
@@ -330,27 +341,34 @@ def create_campaign():
                         try:
                             if template == "ios_onelink":
                                 # For iOS Onelink, use upload_media
-                                media_info = builder.upload_media(ad_account, path)
+                                media_info = builder.upload_media(
+                                    ad_account, path)
                                 media_infos.append(media_info)
                             else:
                                 # For other templates, use upload_image
-                                image_hash = builder.upload_image(ad_account, path)
+                                image_hash = builder.upload_image(
+                                    ad_account, path)
                                 media_infos.append(
                                     {"hash": image_hash, "type": "image"}
                                 )
                         except Exception as e:
-                            logging.error(f"Error uploading image {path}: {str(e)}")
+                            logging.error(
+                                f"Error uploading image {path}: {
+                                    str(e)}")
                             raise
 
                     if not media_infos:
-                        logging.error("No images were successfully uploaded to Meta")
+                        logging.error(
+                            "No images were successfully uploaded to Meta")
                         raise ValueError("Failed to upload any images to Meta")
 
                     # Create campaign, adset, and ad based on operation type
                     if operation_type == "3":  # New campaign, adset, ad
                         # Create campaign
-                        campaign_id = builder.create_campaign(ad_account, campaign_name)
-                        logging.info(f"Meta campaign created with ID: {campaign_id}")
+                        campaign_id = builder.create_campaign(
+                            ad_account, campaign_name)
+                        logging.info(
+                            f"Meta campaign created with ID: {campaign_id}")
                         result["campaign_id"] = campaign_id
 
                         # Get adgroup data
@@ -384,7 +402,8 @@ def create_campaign():
                                     adgroup_id = match.group(1)
                                     landing_page_urls[adgroup_id] = value
                             elif key.startswith("ad_landing_page_urls["):
-                                # Extract ID from ad_landing_page_urls[adgroup-1-ad-1]
+                                # Extract ID from
+                                # ad_landing_page_urls[adgroup-1-ad-1]
                                 match = re.search(r"\[(.*?)\]", key)
                                 if match:
                                     ad_id = match.group(1)
@@ -402,7 +421,8 @@ def create_campaign():
                         # Parse asset assignments for each ad
                         for key, values in form_data.lists():
                             if key.startswith("asset_assignments["):
-                                # Extract ID from asset_assignments[adgroup-1-ad-1][]
+                                # Extract ID from
+                                # asset_assignments[adgroup-1-ad-1][]
                                 match = re.search(r"\[(.*?)\]", key)
                                 if match:
                                     ad_id = match.group(1)
@@ -411,12 +431,14 @@ def create_campaign():
                         # Log parsed data
                         logging.info(f"Parsed adgroup names: {adgroup_names}")
                         logging.info(f"Parsed ad names: {ad_names}")
-                        logging.info(f"Parsed adgroup budgets: {adgroup_budgets}")
-                        logging.info(f"Parsed asset assignments: {asset_assignments}")
-                        logging.info(f"Parsed landing page URLs: {landing_page_urls}")
                         logging.info(
-                            f"Parsed ad-level landing page URLs: {ad_landing_page_urls}"
-                        )
+                            f"Parsed adgroup budgets: {adgroup_budgets}")
+                        logging.info(
+                            f"Parsed asset assignments: {asset_assignments}")
+                        logging.info(
+                            f"Parsed landing page URLs: {landing_page_urls}")
+                        logging.info(
+                            f"Parsed ad-level landing page URLs: {ad_landing_page_urls}")
 
                         # Create a dictionary to map asset IDs to media infos
                         asset_id_to_media_info = {}
@@ -424,11 +446,11 @@ def create_campaign():
                         # Map asset IDs to media infos
                         for i, asset in enumerate(library_assets):
                             if i < len(media_infos):
-                                asset_id_to_media_info[asset["id"]] = media_infos[i]
+                                asset_id_to_media_info[asset["id"]
+                                                       ] = media_infos[i]
 
                         logging.info(
-                            f"Asset ID to media info mapping: {asset_id_to_media_info}"
-                        )
+                            f"Asset ID to media info mapping: {asset_id_to_media_info}")
 
                         # Create adsets and ads for each adgroup
                         adset_ids = []
@@ -437,7 +459,8 @@ def create_campaign():
                         # Group ads by adgroup
                         ads_by_adgroup = {}
                         for ad_id, assets in asset_assignments.items():
-                            # Extract adgroup ID from ad ID (format: adgroup-1-ad-1)
+                            # Extract adgroup ID from ad ID (format:
+                            # adgroup-1-ad-1)
                             adgroup_id = ad_id.split("-ad-")[0]
                             if adgroup_id not in ads_by_adgroup:
                                 ads_by_adgroup[adgroup_id] = []
@@ -452,7 +475,8 @@ def create_campaign():
                                 }
                             )
 
-                        logging.info(f"Ads grouped by adgroup: {ads_by_adgroup}")
+                        logging.info(
+                            f"Ads grouped by adgroup: {ads_by_adgroup}")
 
                         try:
                             for adgroup_id, ads in ads_by_adgroup.items():
@@ -464,20 +488,22 @@ def create_campaign():
                                     adgroup_id, f"Ad Group {len(adset_ids) + 1}"
                                 )
 
-                                # Convert budget to cents (Meta expects budget in cents)
+                                # Convert budget to cents (Meta expects budget
+                                # in cents)
                                 try:
                                     budget = (
-                                        float(adgroup_budgets.get(adgroup_id, "500"))
-                                        * 100
-                                    )  # Convert to cents
+                                        float(
+                                            adgroup_budgets.get(
+                                                adgroup_id,
+                                                "500")) *
+                                        100)  # Convert to cents
                                 except ValueError:
                                     budget = (
                                         50000  # Default to $500 if conversion fails
                                     )
 
                                 logging.info(
-                                    f"Creating adset '{adgroup_name}' with budget {budget} cents"
-                                )
+                                    f"Creating adset '{adgroup_name}' with budget {budget} cents")
 
                                 try:
                                     # Get country selection
@@ -487,20 +513,18 @@ def create_campaign():
 
                                     # Country code mapping
                                     country_mapping = {
-                                        "United States": {"meta": "US", "tiktok": "7"},
-                                        "Turkey": {"meta": "TR", "tiktok": "298795"},
-                                        "Brazil": {"meta": "BR", "tiktok": "31"},
-                                        "United Arab Emirates": {
-                                            "meta": "AE",
-                                            "tiktok": "298796",
-                                        },
-                                        "Australia": {"meta": "AU", "tiktok": "12"},
-                                        "Netherlands": {"meta": "NL", "tiktok": "178"},
-                                        "Vietnam": {"meta": "VN", "tiktok": "306"},
-                                        "Argentina": {"meta": "AR", "tiktok": "10"},
-                                    }
+                                        "United States": {
+                                            "meta": "US", "tiktok": "7"}, "Turkey": {
+                                            "meta": "TR", "tiktok": "298795"}, "Brazil": {
+                                            "meta": "BR", "tiktok": "31"}, "United Arab Emirates": {
+                                            "meta": "AE", "tiktok": "298796", }, "Australia": {
+                                            "meta": "AU", "tiktok": "12"}, "Netherlands": {
+                                            "meta": "NL", "tiktok": "178"}, "Vietnam": {
+                                            "meta": "VN", "tiktok": "306"}, "Argentina": {
+                                            "meta": "AR", "tiktok": "10"}, }
 
-                                    # Get the appropriate country code based on platform
+                                    # Get the appropriate country code based on
+                                    # platform
                                     country_code = None
                                     if country_name in country_mapping:
                                         if platform == "meta":
@@ -513,10 +537,10 @@ def create_campaign():
                                             ]["tiktok"]
 
                                     logging.info(
-                                        f"Creating adset with name: {adgroup_name}, budget: {budget}, country: {country_code}"
-                                    )
+                                        f"Creating adset with name: {adgroup_name}, budget: {budget}, country: {country_code}")
 
-                                    # Create adset with the specified name and budget
+                                    # Create adset with the specified name and
+                                    # budget
                                     if template == "ios_skan":
                                         created_adgroup_id = builder.create_adset(
                                             ad_account,
@@ -553,8 +577,7 @@ def create_campaign():
                                             )
 
                                     logging.info(
-                                        f"Adset created with ID: {created_adgroup_id}"
-                                    )
+                                        f"Adset created with ID: {created_adgroup_id}")
                                     adset_ids.append(created_adgroup_id)
 
                                     # Create ads for this adgroup
@@ -565,12 +588,12 @@ def create_campaign():
 
                                         if not assigned_assets:
                                             logging.warning(
-                                                f"No assets assigned to ad {ad_id}, skipping"
-                                            )
+                                                f"No assets assigned to ad {ad_id}, skipping")
                                             continue
 
                                         try:
-                                            # Collect all media info for assigned assets
+                                            # Collect all media info for
+                                            # assigned assets
                                             adgroup_media_infos = []
                                             adgroup_image_hashes = []
 
@@ -583,42 +606,43 @@ def create_campaign():
                                                         media_info
                                                     )
 
-                                                    # Extract image hash for non-onelink templates
+                                                    # Extract image hash for
+                                                    # non-onelink templates
                                                     if (
-                                                        template != "ios_onelink"
-                                                        and "hash" in media_info
-                                                    ):
+                                                            template != "ios_onelink" and "hash" in media_info):
                                                         adgroup_image_hashes.append(
-                                                            media_info["hash"]
-                                                        )
+                                                            media_info["hash"])
 
                                             if adgroup_media_infos:
                                                 try:
                                                     # Create ad
                                                     if template == "ios_onelink":
-                                                        # For iOS Onelink, pass all media_infos directly
+                                                        # For iOS Onelink, pass
+                                                        # all media_infos
+                                                        # directly
                                                         logging.info(
-                                                            f"Creating Meta ad with multiple media infos for iOS Onelink"
-                                                        )
+                                                            f"Creating Meta ad with multiple media infos for iOS Onelink")
 
-                                                        # First check for ad-level landing page URL
+                                                        # First check for
+                                                        # ad-level landing page
+                                                        # URL
                                                         custom_link_url = (
                                                             ad_landing_page_urls.get(
                                                                 ad_id
                                                             )
                                                         )
                                                         logging.info(
-                                                            f"Looking for ad-level landing page URL with key '{ad_id}'"
-                                                        )
+                                                            f"Looking for ad-level landing page URL with key '{ad_id}'")
                                                         logging.info(
                                                             f"Available ad-level landing page URL keys: {list(ad_landing_page_urls.keys())}"
                                                         )
 
-                                                        # If not found, fall back to adgroup-level landing page URL
+                                                        # If not found, fall
+                                                        # back to adgroup-level
+                                                        # landing page URL
                                                         if not custom_link_url:
                                                             adgroup_id = ad_id.split(
-                                                                "-ad-"
-                                                            )[0]
+                                                                "-ad-")[0]
                                                             custom_link_url = (
                                                                 landing_page_urls.get(
                                                                     adgroup_id
@@ -626,14 +650,13 @@ def create_campaign():
                                                             )
                                                             if custom_link_url:
                                                                 logging.info(
-                                                                    f"Using adgroup-level landing page URL for ad {ad_id}: {custom_link_url}"
-                                                                )
+                                                                    f"Using adgroup-level landing page URL for ad {ad_id}: {custom_link_url}")
                                                             else:
                                                                 logging.info(
-                                                                    f"No landing page URL found for ad {ad_id}"
-                                                                )
+                                                                    f"No landing page URL found for ad {ad_id}")
 
-                                                        # Create ad with multiple media infos
+                                                        # Create ad with
+                                                        # multiple media infos
                                                         ad_id = builder.create_ad(
                                                             ad_account,
                                                             created_adgroup_id,  # Use created_adgroup_id instead of adset_id
@@ -642,7 +665,11 @@ def create_campaign():
                                                             custom_link_url,
                                                         )
                                                     else:
-                                                        # For other templates, pass all image hashes if available, otherwise just the first one
+                                                        # For other templates,
+                                                        # pass all image hashes
+                                                        # if available,
+                                                        # otherwise just the
+                                                        # first one
                                                         if (
                                                             template == "android"
                                                             and len(
@@ -651,9 +678,11 @@ def create_campaign():
                                                             > 0
                                                         ):
                                                             logging.info(
-                                                                f"Creating Meta ad with multiple image hashes: {adgroup_image_hashes}"
-                                                            )
-                                                            # Make sure we have at least 2 images for Flexible Ad Format
+                                                                f"Creating Meta ad with multiple image hashes: {adgroup_image_hashes}")
+                                                            # Make sure we have
+                                                            # at least 2 images
+                                                            # for Flexible Ad
+                                                            # Format
                                                             if (
                                                                 len(
                                                                     adgroup_image_hashes
@@ -661,41 +690,31 @@ def create_campaign():
                                                                 >= 2
                                                             ):
                                                                 ad_id = builder.create_ad(
-                                                                    ad_account,
-                                                                    created_adgroup_id,
-                                                                    adgroup_image_hashes,
-                                                                    ad_name,
-                                                                )
+                                                                    ad_account, created_adgroup_id, adgroup_image_hashes, ad_name, )
                                                             else:
                                                                 # If we only have one image, duplicate it to ensure we have at least 2 images
-                                                                # This is required for Flexible Ad Format
+                                                                # This is
+                                                                # required for
+                                                                # Flexible Ad
+                                                                # Format
                                                                 logging.info(
-                                                                    f"Only one image hash available, duplicating it for Flexible Ad Format"
-                                                                )
+                                                                    f"Only one image hash available, duplicating it for Flexible Ad Format")
                                                                 ad_id = builder.create_ad(
-                                                                    ad_account,
-                                                                    created_adgroup_id,
-                                                                    adgroup_image_hashes
-                                                                    * 2,
-                                                                    ad_name,
-                                                                )
+                                                                    ad_account, created_adgroup_id, adgroup_image_hashes * 2, ad_name, )
                                                         else:
-                                                            # Fallback to first image hash for other templates or if no hashes available
+                                                            # Fallback to first
+                                                            # image hash for
+                                                            # other templates
+                                                            # or if no hashes
+                                                            # available
                                                             logging.info(
-                                                                f"Creating Meta ad with single image hash: {adgroup_media_infos[0]['hash']}"
-                                                            )
+                                                                f"Creating Meta ad with single image hash: {
+                                                                    adgroup_media_infos[0]['hash']}")
                                                             ad_id = builder.create_ad(
-                                                                ad_account,
-                                                                created_adgroup_id,
-                                                                adgroup_media_infos[0][
-                                                                    "hash"
-                                                                ],
-                                                                ad_name,
-                                                            )
+                                                                ad_account, created_adgroup_id, adgroup_media_infos[0]["hash"], ad_name, )
 
                                                     logging.info(
-                                                        f"Meta ad created with ID: {ad_id}"
-                                                    )
+                                                        f"Meta ad created with ID: {ad_id}")
                                                     ad_ids.append(ad_id)
                                                 except Exception as e:
                                                     logging.error(
@@ -706,24 +725,25 @@ def create_campaign():
                                                     )
                                             else:
                                                 logging.error(
-                                                    f"No media info found for any assigned assets in ad {ad_id}"
-                                                )
+                                                    f"No media info found for any assigned assets in ad {ad_id}")
                                         except Exception as e:
                                             logging.error(
-                                                f"Error processing assets for ad {ad_name}: {str(e)}"
-                                            )
+                                                f"Error processing assets for ad {ad_name}: {
+                                                    str(e)}")
                                             result["errors"].append(
                                                 f"Error processing assets for ad {ad_name}: {str(e)}"
                                             )
                                 except Exception as e:
                                     logging.error(
-                                        f"Error creating adset {adgroup_name}: {str(e)}"
-                                    )
+                                        f"Error creating adset {adgroup_name}: {
+                                            str(e)}")
                                     result["errors"].append(
                                         f"Error creating adset {adgroup_name}: {str(e)}"
                                     )
                         except Exception as e:
-                            logging.error(f"Error creating adsets and ads: {str(e)}")
+                            logging.error(
+                                f"Error creating adsets and ads: {
+                                    str(e)}")
                             result["errors"].append(
                                 f"Error creating adsets and ads: {str(e)}"
                             )
@@ -731,9 +751,8 @@ def create_campaign():
 
                         # Update result with the created IDs
                         if adset_ids:
-                            result["adset_id"] = adset_ids[
-                                0
-                            ]  # Use the first adset ID for backward compatibility
+                            # Use the first adset ID for backward compatibility
+                            result["adset_id"] = adset_ids[0]
                         if ad_ids:
                             result["ad_id"] = ad_ids[
                                 0
@@ -746,11 +765,9 @@ def create_campaign():
                     else:
                         # Handle other operation types (1 and 2)
                         logging.error(
-                            f"Operation type {operation_type} not yet implemented for Meta"
-                        )
+                            f"Operation type {operation_type} not yet implemented for Meta")
                         raise ValueError(
-                            f"Operation type {operation_type} not yet implemented for Meta"
-                        )
+                            f"Operation type {operation_type} not yet implemented for Meta")
 
                 # Handle TikTok campaigns
                 elif platform == "tiktok":
@@ -762,17 +779,15 @@ def create_campaign():
 
                     # Get account details for the selected advertiser ID
                     account_details = tiktok_account_config.get_account_details(
-                        tiktok_advertiser_id
-                    )
+                        tiktok_advertiser_id)
                     if not account_details:
                         raise ValueError(
-                            f"Invalid TikTok Advertiser Account ID: {tiktok_advertiser_id}"
-                        )
+                            f"Invalid TikTok Advertiser Account ID: {tiktok_advertiser_id}")
 
                     # Log account details for debugging
                     logging.info(
-                        f"Using TikTok account: {account_details['name']} (ID: {tiktok_advertiser_id})"
-                    )
+                        f"Using TikTok account: {
+                            account_details['name']} (ID: {tiktok_advertiser_id})")
 
                     # Determine which TikTok template to use
                     if template == "ios_skan":
@@ -803,17 +818,20 @@ def create_campaign():
                         if asset["type"] == "image":
                             # Get the file path
                             file_path = asset["file_path"]
-                            logging.info(f"Original file_path from asset: {file_path}")
+                            logging.info(
+                                f"Original file_path from asset: {file_path}")
 
                             # Fix path construction based on file_path format
                             if file_path.startswith("/static/"):
                                 # Already starts with /static/ - just append to
                                 # project_root
-                                full_path = os.path.join(project_root, file_path[1:])
+                                full_path = os.path.join(
+                                    project_root, file_path[1:])
                             elif file_path.startswith("static/"):
                                 # Already contains static/ prefix - just append
                                 # to project_root
-                                full_path = os.path.join(project_root, file_path)
+                                full_path = os.path.join(
+                                    project_root, file_path)
                             elif os.path.isabs(file_path):
                                 # Absolute path - use as is
                                 full_path = file_path
@@ -830,41 +848,34 @@ def create_campaign():
                                 # Try alternative path constructions if the
                                 # file wasn't found
                                 alt_paths = [
-                                    os.path.join(project_root, file_path),
-                                    file_path,
                                     os.path.join(
-                                        project_root,
-                                        "static",
-                                        os.path.basename(file_path),
-                                    ),
-                                    os.path.join(
-                                        project_root, os.path.basename(file_path)
-                                    ),
-                                ]
+                                        project_root, file_path), file_path, os.path.join(
+                                        project_root, "static", os.path.basename(file_path), ), os.path.join(
+                                        project_root, os.path.basename(file_path)), ]
 
                                 found = False
                                 for alt_path in alt_paths:
-                                    logging.info(f"Trying alternative path: {alt_path}")
+                                    logging.info(
+                                        f"Trying alternative path: {alt_path}")
                                     if os.path.exists(alt_path):
                                         full_path = alt_path
                                         found = True
                                         logging.info(
-                                            f"Found file at alternative path: {full_path}"
-                                        )
+                                            f"Found file at alternative path: {full_path}")
                                         break
 
                                 if not found:
                                     logging.error(
-                                        f"Image file not found at any attempted path: {file_path}"
-                                    )
+                                        f"Image file not found at any attempted path: {file_path}")
                                     logging.error(
                                         f"Attempted paths: {
-        [full_path] + alt_paths}"
+                                            [full_path] + alt_paths}"
                                     )
                                     continue  # Skip this asset instead of failing the whole operation
 
                             image_paths.append(full_path)
-                            logging.info(f"Added image path to list: {full_path}")
+                            logging.info(
+                                f"Added image path to list: {full_path}")
 
                     if not image_paths:
                         logging.error(
@@ -892,29 +903,24 @@ def create_campaign():
                             # based on template
                             if template == "ios_skan":
                                 logging.info(
-                                    f"Calling create_ios14_app_install_campaign with args: apis, advertiser_id={advertiser_id}, name={campaign_name}"
-                                )
+                                    f"Calling create_ios14_app_install_campaign with args: apis, advertiser_id={advertiser_id}, name={campaign_name}")
                                 campaign_id = builder.create_ios14_app_install_campaign(
-                                    apis, advertiser_id, campaign_name
-                                )
+                                    apis, advertiser_id, campaign_name)
                             elif template == "ios_onelink":
                                 logging.info(
-                                    f"Calling create_campaign with args: apis, advertiser_id={advertiser_id}, name={campaign_name}"
-                                )
+                                    f"Calling create_campaign with args: apis, advertiser_id={advertiser_id}, name={campaign_name}")
                                 campaign_id = builder.create_campaign(
                                     apis, advertiser_id, campaign_name
                                 )
                             else:  # android
                                 logging.info(
-                                    f"Calling create_android_app_install_campaign with args: apis, advertiser_id={advertiser_id}, name={campaign_name}"
-                                )
+                                    f"Calling create_android_app_install_campaign with args: apis, advertiser_id={advertiser_id}, name={campaign_name}")
                                 campaign_id = (
                                     builder.create_android_app_install_campaign(
-                                        apis, advertiser_id, campaign_name
-                                    )
-                                )
+                                        apis, advertiser_id, campaign_name))
 
-                            logging.info(f"Campaign created with ID: {campaign_id}")
+                            logging.info(
+                                f"Campaign created with ID: {campaign_id}")
 
                             # Get adgroup data
                             adgroup_names = {}
@@ -946,13 +952,15 @@ def create_campaign():
                                         adgroup_id = match.group(1)
                                     adgroup_budgets[adgroup_id] = value
                                 elif key.startswith("landing_page_urls["):
-                                    # Extract ID from landing_page_urls[adgroup-1]
+                                    # Extract ID from
+                                    # landing_page_urls[adgroup-1]
                                     match = re.search(r"\[(.*?)\]", key)
                                     if match:
                                         adgroup_id = match.group(1)
                                         landing_page_urls[adgroup_id] = value
                                 elif key.startswith("ad_landing_page_urls["):
-                                    # Extract ID from ad_landing_page_urls[adgroup-1-ad-1]
+                                    # Extract ID from
+                                    # ad_landing_page_urls[adgroup-1-ad-1]
                                     match = re.search(r"\[(.*?)\]", key)
                                     if match:
                                         ad_id = match.group(1)
@@ -971,18 +979,17 @@ def create_campaign():
                                         asset_assignments[ad_id] = values
 
                             # Add detailed logging of parsed data
-                            logging.info(f"Parsed adgroup names: {adgroup_names}")
+                            logging.info(
+                                f"Parsed adgroup names: {adgroup_names}")
                             logging.info(f"Parsed ad names: {ad_names}")
-                            logging.info(f"Parsed adgroup budgets: {adgroup_budgets}")
                             logging.info(
-                                f"Parsed asset assignments: {asset_assignments}"
-                            )
+                                f"Parsed adgroup budgets: {adgroup_budgets}")
                             logging.info(
-                                f"Parsed landing page URLs: {landing_page_urls}"
-                            )
+                                f"Parsed asset assignments: {asset_assignments}")
                             logging.info(
-                                f"Parsed ad-level landing page URLs: {ad_landing_page_urls}"
-                            )
+                                f"Parsed landing page URLs: {landing_page_urls}")
+                            logging.info(
+                                f"Parsed ad-level landing page URLs: {ad_landing_page_urls}")
 
                             # Log the raw form data for landing page URLs
                             landing_page_url_keys = [
@@ -991,20 +998,18 @@ def create_campaign():
                                 if k.startswith("landing_page_urls[")
                             ]
                             logging.info(
-                                f"Raw landing page URL keys: {landing_page_url_keys}"
-                            )
+                                f"Raw landing page URL keys: {landing_page_url_keys}")
                             for key in landing_page_url_keys:
                                 logging.info(
-                                    f"Raw landing page URL: key='{key}', value='{form_data.get(key)}'"
-                                )
+                                    f"Raw landing page URL: key='{key}', value='{
+                                        form_data.get(key)}'")
 
                             # If we have adgroup assignments, create multiple
                             # adgroups and ads
                             if asset_assignments:
                                 logging.info(
                                     f"Creating {
-        len(asset_assignments)} adgroups based on user assignments"
-                                )
+                                        len(asset_assignments)} adgroups based on user assignments")
 
                                 result_adgroups = []
                                 result_ads = []
@@ -1024,7 +1029,7 @@ def create_campaign():
 
                                 logging.info(
                                     f"Built asset ID to path map with {
-        len(asset_id_to_path)} entries"
+                                        len(asset_id_to_path)} entries"
                                 )
 
                                 # Create each adgroup and its ads
@@ -1035,46 +1040,49 @@ def create_campaign():
                                     if not assigned_assets:
                                         continue
 
-                                    # Extract the parent adgroup ID from the ad ID (format: adgroup-1-ad-1)
-                                    parent_adgroup_id = adgroup_id.split("-ad-")[0]
+                                    # Extract the parent adgroup ID from the ad
+                                    # ID (format: adgroup-1-ad-1)
+                                    parent_adgroup_id = adgroup_id.split(
+                                        "-ad-")[0]
 
-                                    # Skip if we've already processed this adgroup
+                                    # Skip if we've already processed this
+                                    # adgroup
                                     if parent_adgroup_id in [
                                         ag["id"]
                                         for ag in result_adgroups
                                         if isinstance(ag, dict) and "id" in ag
                                     ]:
                                         logging.info(
-                                            f"Skipping duplicate adgroup creation for {parent_adgroup_id}, already processed"
-                                        )
+                                            f"Skipping duplicate adgroup creation for {parent_adgroup_id}, already processed")
                                         continue
 
                                     # Use custom adgroup budget or default
                                     try:
-                                        # Fix: Use parent_adgroup_id for consistent lookup
+                                        # Fix: Use parent_adgroup_id for
+                                        # consistent lookup
                                         logging.info(
-                                            f"Checking budget for adgroup ID: '{parent_adgroup_id}', available budget keys: {list(adgroup_budgets.keys())}"
-                                        )
+                                            f"Checking budget for adgroup ID: '{parent_adgroup_id}', available budget keys: {
+                                                list(
+                                                    adgroup_budgets.keys())}")
 
                                         if parent_adgroup_id in adgroup_budgets:
-                                            # Use the specific budget for this adgroup
+                                            # Use the specific budget for this
+                                            # adgroup
                                             adgroup_budget_value = adgroup_budgets[
                                                 parent_adgroup_id
                                             ]
-                                            adgroup_budget = float(adgroup_budget_value)
+                                            adgroup_budget = float(
+                                                adgroup_budget_value)
                                             logging.info(
-                                                f"Using adgroup-specific budget: {adgroup_budget} for adgroup {parent_adgroup_id}"
-                                            )
+                                                f"Using adgroup-specific budget: {adgroup_budget} for adgroup {parent_adgroup_id}")
                                         else:
                                             # No specific budget, use default
                                             adgroup_budget = 500.00
                                             logging.info(
-                                                f"No budget specified for adgroup {parent_adgroup_id}, using default: {adgroup_budget}"
-                                            )
+                                                f"No budget specified for adgroup {parent_adgroup_id}, using default: {adgroup_budget}")
                                     except (ValueError, TypeError) as e:
                                         logging.error(
-                                            f"Invalid budget value for adgroup {parent_adgroup_id}: {e}, using default 500.00"
-                                        )
+                                            f"Invalid budget value for adgroup {parent_adgroup_id}: {e}, using default 500.00")
                                         adgroup_budget = 500.00
 
                                     # Use custom adgroup name or default
@@ -1083,8 +1091,7 @@ def create_campaign():
                                         f"Ad Group {len(result_adgroups) + 1}",
                                     )
                                     logging.info(
-                                        f"Creating adgroup '{adgroup_name}' with budget {adgroup_budget}"
-                                    )
+                                        f"Creating adgroup '{adgroup_name}' with budget {adgroup_budget}")
 
                                     # Get country for this adgroup
                                     country_code = None
@@ -1094,20 +1101,18 @@ def create_campaign():
 
                                     # Country code mapping
                                     country_mapping = {
-                                        "United States": {"meta": "US", "tiktok": "7"},
-                                        "Turkey": {"meta": "TR", "tiktok": "298795"},
-                                        "Brazil": {"meta": "BR", "tiktok": "31"},
-                                        "United Arab Emirates": {
-                                            "meta": "AE",
-                                            "tiktok": "298796",
-                                        },
-                                        "Australia": {"meta": "AU", "tiktok": "12"},
-                                        "Netherlands": {"meta": "NL", "tiktok": "178"},
-                                        "Vietnam": {"meta": "VN", "tiktok": "306"},
-                                        "Argentina": {"meta": "AR", "tiktok": "10"},
-                                    }
+                                        "United States": {
+                                            "meta": "US", "tiktok": "7"}, "Turkey": {
+                                            "meta": "TR", "tiktok": "298795"}, "Brazil": {
+                                            "meta": "BR", "tiktok": "31"}, "United Arab Emirates": {
+                                            "meta": "AE", "tiktok": "298796", }, "Australia": {
+                                            "meta": "AU", "tiktok": "12"}, "Netherlands": {
+                                            "meta": "NL", "tiktok": "178"}, "Vietnam": {
+                                            "meta": "VN", "tiktok": "306"}, "Argentina": {
+                                            "meta": "AR", "tiktok": "10"}, }
 
-                                    # Get the appropriate country code based on platform
+                                    # Get the appropriate country code based on
+                                    # platform
                                     if country_name and country_name in country_mapping:
                                         if platform == "meta":
                                             country_code = country_mapping[
@@ -1119,10 +1124,10 @@ def create_campaign():
                                             ]["tiktok"]
 
                                     logging.info(
-                                        f"Using country code {country_code} for adgroup {adgroup_name}"
-                                    )
+                                        f"Using country code {country_code} for adgroup {adgroup_name}")
 
-                                    # Call the appropriate adgroup creation function based on template
+                                    # Call the appropriate adgroup creation
+                                    # function based on template
                                     if template == "ios_skan":
                                         if platform == "meta":
                                             created_adgroup_id = builder.create_adset(
@@ -1169,9 +1174,9 @@ def create_campaign():
                                             )
 
                                     logging.info(
-                                        f"Adgroup created with ID: {created_adgroup_id}"
-                                    )
-                                    # Store adgroup info with its ID for later reference
+                                        f"Adgroup created with ID: {created_adgroup_id}")
+                                    # Store adgroup info with its ID for later
+                                    # reference
                                     result_adgroups.append(
                                         {
                                             "id": parent_adgroup_id,
@@ -1179,10 +1184,12 @@ def create_campaign():
                                         }
                                     )
 
-                                    # Now find all ads that belong to this adgroup and create them
+                                    # Now find all ads that belong to this
+                                    # adgroup and create them
                                     ads_for_this_adgroup = []
                                     for ad_id, assets in asset_assignments.items():
-                                        if ad_id.split("-ad-")[0] == parent_adgroup_id:
+                                        if ad_id.split(
+                                                "-ad-")[0] == parent_adgroup_id:
                                             ads_for_this_adgroup.append(
                                                 {
                                                     "ad_id": ad_id,
@@ -1195,8 +1202,8 @@ def create_campaign():
                                             )
 
                                     logging.info(
-                                        f"Found {len(ads_for_this_adgroup)} ads for adgroup {parent_adgroup_id}"
-                                    )
+                                        f"Found {
+                                            len(ads_for_this_adgroup)} ads for adgroup {parent_adgroup_id}")
 
                                     # Process each ad in this adgroup
                                     for ad_info in ads_for_this_adgroup:
@@ -1206,8 +1213,7 @@ def create_campaign():
 
                                         if not ad_assets:
                                             logging.warning(
-                                                f"No assets assigned to ad {ad_id}, skipping"
-                                            )
+                                                f"No assets assigned to ad {ad_id}, skipping")
                                             continue
 
                                         # Get assets for this ad
@@ -1220,8 +1226,7 @@ def create_campaign():
                                         # Skip duplicates
                                         if asset_id in processed_asset_ids:
                                             logging.info(
-                                                f"Skipping duplicate asset ID: {asset_id}"
-                                            )
+                                                f"Skipping duplicate asset ID: {asset_id}")
                                             continue
 
                                         processed_asset_ids.add(asset_id)
@@ -1229,23 +1234,20 @@ def create_campaign():
                                         if asset_id in asset_id_to_path:
                                             asset_path = asset_id_to_path[asset_id]
                                             if os.path.exists(asset_path):
-                                                ad_asset_paths.append(asset_path)
+                                                ad_asset_paths.append(
+                                                    asset_path)
                                                 logging.info(
-                                                    f"Found asset path for ID {asset_id}: {asset_path}"
-                                                )
+                                                    f"Found asset path for ID {asset_id}: {asset_path}")
                                             else:
                                                 logging.warning(
-                                                    f"Asset path exists in map but file not found: {asset_path}"
-                                                )
+                                                    f"Asset path exists in map but file not found: {asset_path}")
                                         else:
                                             logging.warning(
-                                                f"Asset ID not found in map: {asset_id}"
-                                            )
+                                                f"Asset ID not found in map: {asset_id}")
 
                                         if not ad_asset_paths:
                                             logging.warning(
-                                                f"No valid assets found for ad {ad_id}"
-                                            )
+                                                f"No valid assets found for ad {ad_id}")
                                             continue
 
                                         # Upload media for this ad
@@ -1256,8 +1258,7 @@ def create_campaign():
                                     for path in ad_asset_paths:
                                         try:
                                             logging.info(
-                                                f"Uploading asset to {platform}: {path}"
-                                            )
+                                                f"Uploading asset to {platform}: {path}")
                                             if path.lower().endswith((".mp4", ".mov")):
                                                 # Handle video upload
                                                 media_id, cover_url = (
@@ -1267,16 +1268,17 @@ def create_campaign():
                                                 )
                                                 media_ids.append(media_id)
 
-                                                # Create thumbnail from video cover
+                                                # Create thumbnail from video
+                                                # cover
                                                 try:
-                                                    # Create temporary cover image
+                                                    # Create temporary cover
+                                                    # image
                                                     temp_cover_path = (
                                                         path.rsplit(".", 1)[0]
                                                         + "_cover.jpg"
                                                     )
                                                     cover_data = get_image_from_url(
-                                                        cover_url
-                                                    )
+                                                        cover_url)
                                                     with open(
                                                         temp_cover_path, "wb"
                                                     ) as f:
@@ -1292,12 +1294,14 @@ def create_campaign():
                                                     )
 
                                                     # Clean up temp file
-                                                    if os.path.exists(temp_cover_path):
-                                                        os.remove(temp_cover_path)
+                                                    if os.path.exists(
+                                                            temp_cover_path):
+                                                        os.remove(
+                                                            temp_cover_path)
                                                 except Exception as cover_err:
                                                     logging.error(
-                                                        f"Error processing video cover: {str(cover_err)}"
-                                                    )
+                                                        f"Error processing video cover: {
+                                                            str(cover_err)}")
                                             else:
                                                 # Handle image upload
                                                 media_id, media_url = (
@@ -1309,13 +1313,12 @@ def create_campaign():
                                                 media_urls.append(media_url)
                                         except Exception as media_err:
                                             logging.error(
-                                                f"Error uploading media {path}: {str(media_err)}"
-                                            )
+                                                f"Error uploading media {path}: {
+                                                    str(media_err)}")
 
                                     if not media_ids:
                                         logging.error(
-                                            f"Failed to upload any media for ad {ad_id}"
-                                        )
+                                            f"Failed to upload any media for ad {ad_id}")
                                         continue
 
                                     # Create ad for this adgroup
@@ -1335,32 +1338,33 @@ def create_campaign():
                                             "thumbnail_id": thumbnail_id,
                                         }
 
-                                        # Get custom landing page URL if provided (for iOS Onelink)
+                                        # Get custom landing page URL if
+                                        # provided (for iOS Onelink)
                                         custom_landing_page_url = None
                                         if template == "ios_onelink":
-                                            # For TikTok, only use ad-level landing page URLs
+                                            # For TikTok, only use ad-level
+                                            # landing page URLs
                                             custom_landing_page_url = (
                                                 ad_landing_page_urls.get(ad_id)
                                             )
                                             if custom_landing_page_url:
                                                 logging.info(
-                                                    f"Found ad-level landing page URL for ad {ad_id}: {custom_landing_page_url}"
-                                                )
+                                                    f"Found ad-level landing page URL for ad {ad_id}: {custom_landing_page_url}")
                                             else:
                                                 logging.info(
-                                                    f"No ad-level landing page URL found for ad {ad_id}"
-                                                )
+                                                    f"No ad-level landing page URL found for ad {ad_id}")
 
-                                            logging.info(f"Using ad name: {ad_name}")
+                                            logging.info(
+                                                f"Using ad name: {ad_name}")
 
-                                            # For iOS Onelink with custom landing page URL
+                                            # For iOS Onelink with custom
+                                            # landing page URL
                                             if (
                                                 template == "ios_onelink"
                                                 and custom_landing_page_url
                                             ):
                                                 logging.info(
-                                                    f"Passing custom landing page URL to create_ad: '{custom_landing_page_url}'"
-                                                )
+                                                    f"Passing custom landing page URL to create_ad: '{custom_landing_page_url}'")
                                                 created_ad_id = builder.create_ad(
                                                     apis,
                                                     advertiser_id,
@@ -1371,24 +1375,18 @@ def create_campaign():
                                                 )
                                             else:
                                                 created_ad_id = builder.create_ad(
-                                                    apis,
-                                                    advertiser_id,
-                                                    created_adgroup_id,
-                                                    media_info,
-                                                    ad_name,
-                                                )
+                                                    apis, advertiser_id, created_adgroup_id, media_info, ad_name, )
 
                                             logging.info(
-                                                f"Ad created with ID: {created_ad_id}"
-                                            )
+                                                f"Ad created with ID: {created_ad_id}")
                                             result_ads.append(created_ad_id)
                                     except Exception as ad_err:
                                         logging.error(
-                                            f"Error creating ad for adgroup {created_adgroup_id}: {str(ad_err)}"
-                                        )
+                                            f"Error creating ad for adgroup {created_adgroup_id}: {
+                                                str(ad_err)}")
                                         result["errors"].append(
-                                            f"Error creating ad for adgroup {created_adgroup_id}: {str(ad_err)}"
-                                        )
+                                            f"Error creating ad for adgroup {created_adgroup_id}: {
+                                                str(ad_err)}")
                                         continue
 
                                 # Use the results for the response
@@ -1403,32 +1401,37 @@ def create_campaign():
 
                                     result["success"] = True
                                     result["message"] = (
-                                        f"Successfully created {len(result_adgroups)} ad groups and {len(result_ads)} ads"
-                                    )
+                                        f"Successfully created {
+                                            len(result_adgroups)} ad groups and {
+                                            len(result_ads)} ads")
 
                                     # Add detailed adgroup info
                                     result["adgroups"] = []
-                                    for i, ag_info in enumerate(result_adgroups):
+                                    for i, ag_info in enumerate(
+                                            result_adgroups):
                                         ag_info["ad_id"] = result_ads[i]
                                         result["adgroups"].append(ag_info)
 
-                                # Legacy single adgroup creation code removed - we now only use the multi-adgroup flow
+                                # Legacy single adgroup creation code removed -
+                                # we now only use the multi-adgroup flow
 
                     except NotImplementedError as e:
                         result["message"] = str(e)
                         result["success"] = False
                         result["errors"].append(str(e))
                     except Exception as e:
-                        # Extract specific error messages from TikTok API exceptions
+                        # Extract specific error messages from TikTok API
+                        # exceptions
                         error_message = str(e)
                         logging.error(
-                            f"Error in TikTok campaign creation: {error_message}"
-                        )
+                            f"Error in TikTok campaign creation: {error_message}")
                         logging.error(f"Traceback: {traceback.format_exc()}")
 
-                        # Extract user-friendly messages from specific TikTok API errors
+                        # Extract user-friendly messages from specific TikTok
+                        # API errors
                         if "budget setting must not be less than" in error_message:
-                            # Budget error - extract the minimum budget requirement
+                            # Budget error - extract the minimum budget
+                            # requirement
                             min_budget = (
                                 error_message.split("must not be less than")[1].strip()
                                 if "must not be less than" in error_message
@@ -1442,8 +1445,7 @@ def create_campaign():
                         else:
                             # Generic error message for other cases
                             result["user_message"] = (
-                                f"Error creating TikTok campaign: {error_message}"
-                            )
+                                f"Error creating TikTok campaign: {error_message}")
 
                         result["errors"].append(error_message)
 
@@ -1505,7 +1507,8 @@ def save_settings():
 
         # Here you would typically save these tokens securely
         # For now, we'll just return success
-        return jsonify({"success": True, "message": "Settings saved successfully"})
+        return jsonify({"success": True,
+                        "message": "Settings saved successfully"})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -1535,8 +1538,7 @@ def get_adsets():
         platform = request.args.get("platform")
         campaign_id = request.args.get("campaign_id")
         logging.info(
-            f"Fetching ad sets for platform: {platform}, campaign: {campaign_id}"
-        )
+            f"Fetching ad sets for platform: {platform}, campaign: {campaign_id}")
 
         if platform == "meta":
             adsets = meta_data_fetcher.get_adsets(campaign_id)
@@ -1554,7 +1556,8 @@ def get_adsets():
 def log_action():
     try:
         data = request.json
-        logging.info(f"User Action: {data['action']} - Details: {data['details']}")
+        logging.info(
+            f"User Action: {data['action']} - Details: {data['details']}")
         return jsonify({"success": True})
     except Exception as e:
         logging.error(f"Error logging action: {str(e)}")
@@ -1637,7 +1640,8 @@ def get_media_library():
 
         # Filter by type and status if specified
         if media_type != "all":
-            media_library = [m for m in media_library if m["type"] == media_type]
+            media_library = [
+                m for m in media_library if m["type"] == media_type]
         if status != "all":
             media_library = [m for m in media_library if m["status"] == status]
 
@@ -1685,15 +1689,17 @@ def generate_image():
         data = request.json
         flux = FluxAPI()
         image_url = flux.generate_image(
-            prompt=data["prompt"], resolution=data["resolution"], model=data["model"]
-        )
+            prompt=data["prompt"],
+            resolution=data["resolution"],
+            model=data["model"])
 
         if image_url:
             # Download and save the image
             response = requests.get(image_url)
             if response.status_code == 200:
                 # Create filename with timestamp
-                filename = f"aigc_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+                filename = f"aigc_{
+                    datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
                 file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
 
                 # Save image file
@@ -1711,7 +1717,9 @@ def generate_image():
                         {
                             "id": str(datetime.now().timestamp()),
                             "url": image_url,
-                            "local_path": f"uploads/{filename}",  # This path will be prefixed with /static/ in frontend
+                            # This path will be prefixed with /static/ in
+                            # frontend
+                            "local_path": f"uploads/{filename}",
                             "prompt": data["prompt"],
                             "timestamp": datetime.now().isoformat(),
                         }
@@ -1754,9 +1762,8 @@ def generate_video():
 
         # TODO: Implement video generation
         # For now, return mock response
-        return jsonify(
-            {"success": True, "message": "Video generation not yet implemented"}
-        )
+        return jsonify({"success": True,
+                        "message": "Video generation not yet implemented"})
 
     except Exception as e:
         logging.error(f"Error generating video: {str(e)}")
@@ -1804,7 +1811,7 @@ def check_comfyui_running():
     try:
         response = requests.get("http://127.0.0.1:8188/", timeout=1)
         return response.ok
-    except:
+    except BaseException:
         return False
 
 
@@ -1815,7 +1822,8 @@ def start_flux_workflow():
         # First check if server is actually running
         if check_comfyui_running():
             server_running = True
-            return jsonify({"success": True, "message": "ComfyUI already running"})
+            return jsonify({"success": True,
+                            "message": "ComfyUI already running"})
 
         # First, start ComfyUI if it's not running
         if not server_running:
@@ -1830,7 +1838,7 @@ def start_flux_workflow():
                 try:
                     comfyui_process.terminate()
                     time.sleep(1)  # Give it time to shut down
-                except:
+                except BaseException:
                     pass
 
             comfyui_process = subprocess.Popen(
@@ -1891,10 +1899,10 @@ def cleanup_processes(exception=None):
         try:
             comfyui_process.terminate()
             comfyui_process.wait(timeout=5)  # Wait for process to terminate
-        except:
+        except BaseException:
             try:
                 comfyui_process.kill()  # Force kill if terminate doesn't work
-            except:
+            except BaseException:
                 pass
         finally:
             comfyui_process = None
@@ -1905,7 +1913,6 @@ def cleanup_processes(exception=None):
 app.teardown_appcontext(cleanup_processes)
 
 # Also register cleanup on program exit
-import atexit
 
 atexit.register(cleanup_processes)
 
@@ -1970,7 +1977,8 @@ class ComfyWorkflowExecutor:
                                 ]
                     elif isinstance(node["inputs"], dict):
                         for input_name, input_data in node["inputs"].items():
-                            if isinstance(input_data, list) and len(input_data) >= 2:
+                            if isinstance(
+                                    input_data, list) and len(input_data) >= 2:
                                 node_data["inputs"][input_name] = [
                                     str(input_data[0]),
                                     input_data[1],
@@ -2015,7 +2023,8 @@ def apply_template():
         images = data.get("images", [])
 
         if not images:
-            return jsonify({"success": False, "error": "No images selected"}), 400
+            return jsonify(
+                {"success": False, "error": "No images selected"}), 400
 
         results = []
 
@@ -2029,7 +2038,11 @@ def apply_template():
         )
         with open(template_path, "r") as f:
             workflow = json.load(f)
-            logging.info(f"Loaded workflow structure: {json.dumps(workflow, indent=2)}")
+            logging.info(
+                f"Loaded workflow structure: {
+                    json.dumps(
+                        workflow,
+                        indent=2)}")
 
         # Copy logo to uploads directory if needed
         logo_filename = "okx_logo.png"
@@ -2042,7 +2055,8 @@ def apply_template():
             # Generate output filename
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             output_filename = f"branded_{timestamp}_{image}"
-            output_path = os.path.join(app.config["UPLOAD_FOLDER"], output_filename)
+            output_path = os.path.join(
+                app.config["UPLOAD_FOLDER"], output_filename)
 
             # Create a copy of the workflow for this execution
             current_workflow = json.loads(json.dumps(workflow))
@@ -2060,8 +2074,10 @@ def apply_template():
             logo_node["widgets_values"][0] = logo_filename
 
             # Execute workflow
-            if workflow_executor.execute_workflow(current_workflow, output_path):
-                results.append({"filename": output_filename, "original": image})
+            if workflow_executor.execute_workflow(
+                    current_workflow, output_path):
+                results.append(
+                    {"filename": output_filename, "original": image})
             else:
                 logging.error(f"Failed to process image: {image}")
 
@@ -2081,7 +2097,8 @@ def apply_template():
 @app.route("/api/vision/analyze", methods=["POST"])
 def analyze_image():
     try:
-        # Use the OpenAIVision class instead of initializing the client directly
+        # Use the OpenAIVision class instead of initializing the client
+        # directly
         vision = OpenAIVision()
         client = vision.client
 
@@ -2128,9 +2145,8 @@ def analyze_image():
             max_tokens=300,
         )
 
-        return jsonify(
-            {"success": True, "suggestions": response.choices[0].message.content}
-        )
+        return jsonify({"success": True,
+                        "suggestions": response.choices[0].message.content})
 
     except Exception as e:
         logging.error(f"Error analyzing image: {str(e)}")
@@ -2255,7 +2271,8 @@ except Exception as e:
 @app.route("/api/comfy/load_template")
 def load_comfy_template():
     try:
-        template_path = os.path.join(app.static_folder, "workflows", "Template 1.json")
+        template_path = os.path.join(
+            app.static_folder, "workflows", "Template 1.json")
         with open(template_path, "r") as f:
             template = json.load(f)
         return jsonify(template)
@@ -2281,12 +2298,16 @@ def setup_comfyui():
         os.makedirs(CUSTOM_NODES_PATH, exist_ok=True)
 
         # Ensure TextOverlay node is in place
-        text_overlay_path = os.path.join(CUSTOM_NODES_PATH, "ComfyUI-TextOverlay")
+        text_overlay_path = os.path.join(
+            CUSTOM_NODES_PATH, "ComfyUI-TextOverlay")
         if not os.path.exists(text_overlay_path):
             os.makedirs(text_overlay_path, exist_ok=True)
 
             # Copy node files if they don't exist
-            if not os.path.exists(os.path.join(text_overlay_path, "__init__.py")):
+            if not os.path.exists(
+                os.path.join(
+                    text_overlay_path,
+                    "__init__.py")):
                 shutil.copy2(
                     os.path.join(
                         os.path.dirname(__file__),
@@ -2323,14 +2344,19 @@ def approval_flow():
     assets = get_media_library()
 
     # Count assets by status
-    pending_assets = [asset for asset in assets if asset.get("status") == "pending"]
-    approved_assets = [asset for asset in assets if asset.get("status") == "approved"]
-    rejected_assets = [asset for asset in assets if asset.get("status") == "rejected"]
+    pending_assets = [
+        asset for asset in assets if asset.get("status") == "pending"]
+    approved_assets = [
+        asset for asset in assets if asset.get("status") == "approved"]
+    rejected_assets = [
+        asset for asset in assets if asset.get("status") == "rejected"]
 
     # Log counts for debugging
     logging.info(
-        f"Asset counts - Pending: {len(pending_assets)}, Approved: {len(approved_assets)}, Rejected: {len(rejected_assets)}"
-    )
+        f"Asset counts - Pending: {
+            len(pending_assets)}, Approved: {
+            len(approved_assets)}, Rejected: {
+                len(rejected_assets)}")
 
     return render_template(
         "asset_manager/approval_flow.html",
@@ -2408,7 +2434,8 @@ def api_reject_asset(asset_id):
             return jsonify({"error": "Comment is required for rejection"}), 400
 
         if not rejection_reasons:
-            return jsonify({"error": "At least one rejection reason is required"}), 400
+            return jsonify(
+                {"error": "At least one rejection reason is required"}), 400
 
         assets = get_media_library()
         asset_index = next(
@@ -2420,7 +2447,8 @@ def api_reject_asset(asset_id):
 
         # Update asset status
         assets[asset_index]["status"] = "rejected"
-        assets[asset_index]["rejected_at"] = datetime.now(timezone.utc).isoformat()
+        assets[asset_index]["rejected_at"] = datetime.now(
+            timezone.utc).isoformat()
         assets[asset_index]["rejected_by"] = "Admin"
         assets[asset_index]["rejection_comment"] = comment
         assets[asset_index]["rejection_reasons"] = rejection_reasons
@@ -2497,18 +2525,22 @@ class AssetLibrary:
 
             # Generate thumbnail
             thumbnail_filename = f"thumb_{filename}"
-            thumbnail_path = os.path.join(self.storage_path, thumbnail_filename)
-            self._generate_thumbnail(file_path, thumbnail_path, metadata["mime_type"])
+            thumbnail_path = os.path.join(
+                self.storage_path, thumbnail_filename)
+            self._generate_thumbnail(
+                file_path, thumbnail_path, metadata["mime_type"])
 
             # Create asset
             asset = Asset(
-                id=str(uuid.uuid4()),
+                id=str(
+                    uuid.uuid4()),
                 name=original_filename,
                 file_path=f"/static/uploads/{filename}",
                 thumbnail=f"/static/uploads/{thumbnail_filename}",
                 type="image" if metadata["mime_type"].startswith("image/") else "video",
                 status="pending",
-                created_at=datetime.now(timezone.utc).isoformat(),
+                created_at=datetime.now(
+                    timezone.utc).isoformat(),
                 tags=[],
                 metadata=metadata,
                 created_by="system",
@@ -2518,7 +2550,9 @@ class AssetLibrary:
             return asset
 
         except Exception as e:
-            logging.error(f"Error processing file {original_filename}: {str(e)}")
+            logging.error(
+                f"Error processing file {original_filename}: {
+                    str(e)}")
             return None
 
     def _get_file_metadata(self, file_path: str) -> Dict:
@@ -2557,8 +2591,7 @@ class AssetLibrary:
 
                     probe = ffmpeg.probe(file_path)
                     video_info = next(
-                        s for s in probe["streams"] if s["codec_type"] == "video"
-                    )
+                        s for s in probe["streams"] if s["codec_type"] == "video")
                     metadata.update(
                         {
                             "width": int(video_info["width"]),
@@ -2576,7 +2609,11 @@ class AssetLibrary:
             logging.error(f"Error getting metadata: {str(e)}")
             return {"mime_type": "application/octet-stream"}
 
-    def _generate_thumbnail(self, source_path: str, thumb_path: str, mime_type: str):
+    def _generate_thumbnail(
+            self,
+            source_path: str,
+            thumb_path: str,
+            mime_type: str):
         """Generate thumbnail based on file type"""
         try:
             if mime_type.startswith("video/"):
@@ -2649,8 +2686,9 @@ class AssetLibrary:
 
             # Try to load a system font
             try:
-                font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 24)
-            except:
+                font = ImageFont.truetype(
+                    "/System/Library/Fonts/Helvetica.ttc", 24)
+            except BaseException:
                 font = ImageFont.load_default()
 
             # Get file type from mime type
@@ -2676,8 +2714,8 @@ class AssetLibrary:
 
 # Initialize the asset library
 asset_library = AssetLibrary(
-    storage_path=app.config["UPLOAD_FOLDER"], media_library_file=MEDIA_LIBRARY_FILE
-)
+    storage_path=app.config["UPLOAD_FOLDER"],
+    media_library_file=MEDIA_LIBRARY_FILE)
 
 
 @app.route("/api/assets/upload", methods=["POST"])
@@ -2699,7 +2737,8 @@ def upload_assets():
                     results.append(asset_dict)  # Add dict to results
 
         if not results:
-            return jsonify({"error": "No files were successfully processed"}), 500
+            return jsonify(
+                {"error": "No files were successfully processed"}), 500
 
         return jsonify({"success": True, "assets": results})
 
@@ -2772,7 +2811,7 @@ def format_datetime(value, format="%Y-%m-%d %H:%M:%S"):
     if isinstance(value, str):
         try:
             value = datetime.fromisoformat(value.replace("Z", "+00:00"))
-        except:
+        except BaseException:
             return value
     return value.strftime(format)
 
@@ -2795,7 +2834,9 @@ def ads_builder_with_assets():
         # Store in session for use later
         session["selected_assets"] = [a.get("id") for a in selected_assets]
 
-    return render_template("ads_builder/index.html", selected_assets=selected_assets)
+    return render_template(
+        "ads_builder/index.html",
+        selected_assets=selected_assets)
 
 
 @app.route("/analytics")
@@ -2839,7 +2880,8 @@ def apply_branding():
         output_path = comfy.apply_branding(image_path, headline, tc_text)
 
         if not output_path:
-            return jsonify({"success": False, "error": "Failed to apply branding"})
+            return jsonify({"success": False,
+                            "error": "Failed to apply branding"})
 
         # Convert server path to URL path for frontend
         branded_url = output_path.replace(app.static_folder, "/static")
@@ -2862,7 +2904,8 @@ def submit_for_approval():
         image_name = data.get("image_name", "Branded Asset")
 
         if not image_path:
-            return jsonify({"success": False, "error": "No image path provided"})
+            return jsonify(
+                {"success": False, "error": "No image path provided"})
 
         # Create a unique ID for the asset
         asset_id = str(uuid.uuid4())
@@ -2873,7 +2916,9 @@ def submit_for_approval():
         new_filename = f"{timestamp}_{slugify(image_name)}{file_ext}"
 
         # Source path is relative to static folder
-        source_path = os.path.join(app.static_folder, image_path.lstrip("/static/"))
+        source_path = os.path.join(
+            app.static_folder,
+            image_path.lstrip("/static/"))
 
         # Destination in uploads folder
         dest_path = os.path.join(app.static_folder, "uploads", new_filename)
@@ -2911,7 +2956,8 @@ def submit_for_approval():
 
         # Save to your media library (this part depends on your implementation)
         # For this example, I'll assume you have a JSON file
-        media_library_path = os.path.join(app.static_folder, "media_library.json")
+        media_library_path = os.path.join(
+            app.static_folder, "media_library.json")
         try:
             with open(media_library_path, "r") as f:
                 media_library = json.load(f)
@@ -2962,7 +3008,8 @@ def my_approvals():
     """Render the my approvals page"""
     # Get rejected assets from the media library
     assets = get_media_library()
-    rejected_assets = [asset for asset in assets if asset.get("status") == "rejected"]
+    rejected_assets = [
+        asset for asset in assets if asset.get("status") == "rejected"]
 
     return render_template(
         "asset_manager/my_approvals.html", rejected_assets=rejected_assets
@@ -2993,7 +3040,8 @@ def update_asset_text(asset_id):
             assets[asset_index]["tc_text"] = tc_text
 
         # Mark text as updated
-        assets[asset_index]["text_updated_at"] = datetime.now(timezone.utc).isoformat()
+        assets[asset_index]["text_updated_at"] = datetime.now(
+            timezone.utc).isoformat()
 
         # Save to file
         with open(MEDIA_LIBRARY_FILE, "w") as f:
@@ -3017,8 +3065,7 @@ def resubmit_asset(asset_id):
             else:
                 data = {}
                 logging.warning(
-                    f"Empty or non-JSON request body received for asset {asset_id}"
-                )
+                    f"Empty or non-JSON request body received for asset {asset_id}")
         except Exception as e:
             logging.error(f"Error parsing JSON request: {str(e)}")
             data = {}
@@ -3055,7 +3102,8 @@ def resubmit_asset(asset_id):
                         "thumbnail"
                     ] = f"/static/uploads/thumb_{filename}"
 
-                logging.info(f"Updated asset with local branded image: {branded_path}")
+                logging.info(
+                    f"Updated asset with local branded image: {branded_path}")
             else:
                 # For external URLs, download and save the image
                 try:
@@ -3064,7 +3112,8 @@ def resubmit_asset(asset_id):
                         # Create a unique filename
                         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                         filename = f"branded_{timestamp}_{uuid.uuid4().hex[:8]}.jpg"
-                        file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+                        file_path = os.path.join(
+                            app.config["UPLOAD_FOLDER"], filename)
 
                         # Save the image
                         with open(file_path, "wb") as f:
@@ -3084,15 +3133,15 @@ def resubmit_asset(asset_id):
                         assets[asset_index]["file_path"] = branded_path
                         assets[asset_index]["thumbnail"] = branded_thumbnail
                         logging.info(
-                            f"Updated asset with downloaded branded image: {branded_path}"
-                        )
+                            f"Updated asset with downloaded branded image: {branded_path}")
                 except Exception as e:
                     logging.error(f"Error downloading branded image: {str(e)}")
                     # Continue without updating the image
 
         # Change status back to pending
         assets[asset_index]["status"] = "pending"
-        assets[asset_index]["resubmitted_at"] = datetime.now(timezone.utc).isoformat()
+        assets[asset_index]["resubmitted_at"] = datetime.now(
+            timezone.utc).isoformat()
 
         # Keep track of revision history
         if "revision_history" not in assets[asset_index]:
@@ -3103,10 +3152,11 @@ def resubmit_asset(asset_id):
                 "rejected_at": assets[asset_index].get("rejected_at"),
                 "rejected_by": assets[asset_index].get("rejected_by"),
                 "rejection_comment": assets[asset_index].get("rejection_comment"),
-                "rejection_reasons": assets[asset_index].get("rejection_reasons", []),
+                "rejection_reasons": assets[asset_index].get(
+                    "rejection_reasons",
+                    []),
                 "resubmitted_at": assets[asset_index]["resubmitted_at"],
-            }
-        )
+            })
 
         # Save to file
         with open(MEDIA_LIBRARY_FILE, "w") as f:
@@ -3153,7 +3203,9 @@ def update_asset_image(asset_id):
             f.write(image_response.content)
 
         # Create a thumbnail
-        thumbnail_path = os.path.join(app.config["UPLOAD_FOLDER"], f"thumb_{filename}")
+        thumbnail_path = os.path.join(
+            app.config["UPLOAD_FOLDER"],
+            f"thumb_{filename}")
         create_thumbnail(file_path, thumbnail_path)
 
         # Update the asset
@@ -3162,12 +3214,15 @@ def update_asset_image(asset_id):
         ]  # Keep track of original
         assets[asset_index]["file_path"] = f"/static/uploads/{filename}"
         assets[asset_index]["thumbnail"] = f"/static/uploads/thumb_{filename}"
-        assets[asset_index]["original_prompt"] = assets[asset_index].get("prompt", "")
+        assets[asset_index]["original_prompt"] = assets[asset_index].get(
+            "prompt", "")
         assets[asset_index]["prompt"] = prompt
-        assets[asset_index]["regenerated_at"] = datetime.now(timezone.utc).isoformat()
+        assets[asset_index]["regenerated_at"] = datetime.now(
+            timezone.utc).isoformat()
 
         # Important: we do NOT change the status to pending here anymore
-        # The status will be changed only when the user clicks the resubmit button
+        # The status will be changed only when the user clicks the resubmit
+        # button
 
         # Save to file
         with open(MEDIA_LIBRARY_FILE, "w") as f:
@@ -3205,7 +3260,8 @@ def api_approve_asset(asset_id):
             json.dump(assets, f, indent=2)
 
         # Return success response
-        return jsonify({"success": True, "message": "Asset approved successfully"})
+        return jsonify({"success": True,
+                        "message": "Asset approved successfully"})
     except Exception as e:
         logging.error(f"Error approving asset: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -3217,10 +3273,12 @@ def get_tiktok_account_details():
     try:
         advertiser_id = request.args.get("advertiser_id")
         if not advertiser_id:
-            return jsonify({"success": False, "error": "Advertiser ID is required"})
+            return jsonify({"success": False,
+                            "error": "Advertiser ID is required"})
 
         # Get account details from config
-        account_details = tiktok_account_config.get_account_details(advertiser_id)
+        account_details = tiktok_account_config.get_account_details(
+            advertiser_id)
         if not account_details:
             return jsonify(
                 {
@@ -3241,14 +3299,14 @@ def get_meta_account_details():
     try:
         account_id = request.args.get("account_id")
         if not account_id:
-            return jsonify({"success": False, "error": "Account ID is required"})
+            return jsonify(
+                {"success": False, "error": "Account ID is required"})
 
         # Get account details from config
         account_details = meta_account_config.get_account_details(account_id)
         if not account_details:
-            return jsonify(
-                {"success": False, "error": f"Invalid Meta Account ID: {account_id}"}
-            )
+            return jsonify({"success": False,
+                            "error": f"Invalid Meta Account ID: {account_id}"})
 
         return jsonify({"success": True, "account_details": account_details})
     except Exception as e:
