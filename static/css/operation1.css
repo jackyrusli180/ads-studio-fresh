@@ -533,4 +533,174 @@ body[data-operation="1"] .adset-drop-zone-empty i {
     font-size: 32px;
     margin-bottom: 12px;
     color: #cbd5e1;
+}
+
+/* Campaign selector styles (migrated from campaign_selector.css) */
+body[data-operation="1"] .campaign-selector-container {
+    margin-bottom: 24px;
+}
+
+body[data-operation="1"] .platform-section {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+body[data-operation="1"] .platform-section h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #333;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 8px;
+}
+
+body[data-operation="1"] .campaign-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+body[data-operation="1"] .campaign-item {
+    background-color: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+body[data-operation="1"] .campaign-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: #f1f5f9;
+    cursor: pointer;
+}
+
+body[data-operation="1"] .campaign-name {
+    font-weight: 500;
+    color: #333;
+}
+
+body[data-operation="1"] .toggle-button {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+body[data-operation="1"] .toggle-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+body[data-operation="1"] .adsets-container {
+    padding: 16px;
+    border-top: 1px solid #e1e1e1;
+}
+
+body[data-operation="1"] .adset-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+body[data-operation="1"] .adset-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background-color: #f9f9f9;
+    transition: all 0.2s ease;
+}
+
+body[data-operation="1"] .adset-item:hover {
+    border-color: #007bff;
+    background-color: #f0f7ff;
+    cursor: pointer;
+}
+
+body[data-operation="1"] .adset-item.selected {
+    border-color: #007bff;
+    background-color: #e6f2ff;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+}
+
+body[data-operation="1"] .adset-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body[data-operation="1"] .campaign-checkbox,
+body[data-operation="1"] .adset-checkbox {
+    margin-right: 8px;
+}
+
+body[data-operation="1"] .campaign-status,
+body[data-operation="1"] .adset-status {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+body[data-operation="1"] .status-active {
+    background-color: #e6f4ea;
+    color: #137333;
+}
+
+body[data-operation="1"] .status-paused {
+    background-color: #fef7e0;
+    color: #b06000;
+}
+
+body[data-operation="1"] .campaign-id,
+body[data-operation="1"] .adset-id {
+    font-size: 12px;
+    color: #777;
+    margin-left: 8px;
+}
+
+body[data-operation="1"] .adset-name {
+    font-weight: 500;
+}
+
+/* Fix for campaign selection styling */
+body[data-operation="1"] .campaign-selection {
+    margin-bottom: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 15px;
+}
+
+body[data-operation="1"] .campaign-selection h4 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+body[data-operation="1"] .campaign-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    transition: background-color 0.2s;
+}
+
+body[data-operation="1"] .campaign-label:hover {
+    background-color: #f0f0f0;
+}
+
+body[data-operation="1"] .campaign-label input[type="checkbox"] {
+    margin-right: 8px;
 } 
