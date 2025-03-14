@@ -1,0 +1,536 @@
+/* Styles for Operation Type 1 */
+body[data-operation="1"] #adgroupsSection,
+body[data-operation="1"] #dragConnector,
+body[data-operation="1"] .drag-connector,
+body[data-operation="1"] .drag-assets-down {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Three-column layout for Operation Type 1 */
+body[data-operation="1"] .op1-columns-container {
+    display: flex !important;
+    gap: 10px !important;
+    height: calc(100vh - 350px) !important;
+}
+
+body[data-operation="1"] .op1-left-column,
+body[data-operation="1"] .op1-middle-column,
+body[data-operation="1"] .op1-right-column {
+    flex: 1 !important;
+    min-width: 0 !important;
+    max-width: 33% !important;
+    overflow: auto !important;
+}
+
+/* Fix for console errors */
+body[data-operation="1"] .campaign-list,
+body[data-operation="1"] .adset-container {
+    width: 100% !important;
+}
+
+/* Prevent null reference errors */
+body[data-operation="1"] [data-null-check="true"] {
+    display: none !important;
+}
+
+/* Make sure the creative section is visible */
+body[data-operation="1"] .form-group:has(#selectFromLibraryBtn) {
+    display: block !important;
+}
+
+/* Compact styles for Operation Type 1 */
+body[data-operation="1"] {
+    font-size: 12px;
+}
+
+body[data-operation="1"] .form-control {
+    padding: 4px 8px;
+    height: auto;
+    font-size: 12px;
+}
+
+body[data-operation="1"] .btn {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+body[data-operation="1"] .form-group {
+    margin-bottom: 8px;
+}
+
+body[data-operation="1"] label {
+    margin-bottom: 3px;
+    font-size: 12px;
+}
+
+/* Make the preview items smaller */
+body[data-operation="1"] .preview-item {
+    width: 80px !important;
+    height: 80px !important;
+    margin: 2px !important;
+}
+
+body[data-operation="1"] .asset-content {
+    height: 60px !important;
+}
+
+body[data-operation="1"] .asset-info {
+    padding: 2px 4px !important;
+}
+
+body[data-operation="1"] .asset-name {
+    font-size: 10px !important;
+}
+
+/* Update adset-item styling with more spacious, elegant design */
+body[data-operation="1"] .adset-item {
+    margin-bottom: 30px;
+    padding: 24px;
+    border-radius: 16px;
+    background-color: #ffffff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+    transition: all 0.3s ease-in-out;
+    border: 1px solid #f0f0f0;
+    position: relative;
+    overflow: visible;
+    max-width: 100%;
+    width: calc(100% - 10px); /* Ensure some margin from container edge */
+}
+
+body[data-operation="1"] .adset-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-color: #e0e0e0;
+}
+
+body[data-operation="1"] .adset-header {
+    display: flex;
+    flex-direction: column; /* Stack vertically for better space usage */
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+body[data-operation="1"] .adset-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: #111111;
+    white-space: normal; /* Allow text to wrap */
+    line-height: 1.4;
+    word-break: break-word; /* Break long words if needed */
+    overflow-wrap: break-word;
+    margin-bottom: 8px; /* Space between name and status */
+}
+
+body[data-operation="1"] .adset-status {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    align-self: flex-start; /* Align to the start of flex container */
+    display: inline-block;
+}
+
+body[data-operation="1"] .adset-status.active {
+    background-color: #ecfdf5;
+    color: #057a55;
+}
+
+body[data-operation="1"] .adset-status.paused {
+    background-color: #fffbeb;
+    color: #d97706;
+}
+
+body[data-operation="1"] .adset-drop-zone-container {
+    padding-top: 14px;
+    margin-top: 8px;
+}
+
+body[data-operation="1"] .adset-drop-zone {
+    min-height: 180px; /* Increased height for more space */
+    border: 2px dashed #e4e4e7;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #fafafa;
+    padding: 35px 24px; /* Increased padding */
+    transition: all 0.3s ease;
+}
+
+body[data-operation="1"] .adset-drop-zone:hover {
+    border-color: #a1a1aa;
+    background-color: #f4f4f5;
+}
+
+body[data-operation="1"] .adset-drop-zone.drag-over {
+    border-color: #3b82f6;
+    background-color: rgba(59, 130, 246, 0.05);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+body[data-operation="1"] .adset-drop-zone h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #64748b;
+    text-align: center;
+}
+
+/* Ad container improvements */
+body[data-operation="1"] .ad-container {
+    background-color: #f8fafc;
+    border-radius: 12px;
+    padding: 22px;
+    margin-top: 20px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+body[data-operation="1"] .ad-container.active {
+    background-color: #f0f9ff;
+    border-color: #bae6fd;
+}
+
+body[data-operation="1"] .ad-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+}
+
+body[data-operation="1"] .ad-name-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 220px; /* Minimum width to prevent squashing */
+    margin-bottom: 8px;
+}
+
+body[data-operation="1"] .ad-name-container label {
+    font-size: 15px;
+    font-weight: 500;
+    margin: 0;
+    white-space: nowrap;
+}
+
+body[data-operation="1"] .ad-name-container input {
+    flex: 1;
+    font-size: 15px;
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+body[data-operation="1"] .ad-name-container input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    outline: none;
+}
+
+body[data-operation="1"] .ad-actions {
+    display: flex;
+    gap: 10px;
+}
+
+body[data-operation="1"] .ad-actions button {
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+body[data-operation="1"] .ad-assets-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+/* Mini asset improvements */
+body[data-operation="1"] .mini-asset {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+body[data-operation="1"] .mini-asset:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+body[data-operation="1"] .mini-asset img,
+body[data-operation="1"] .mini-asset video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+body[data-operation="1"] .mini-asset-remove {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: #ff4d4f;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    line-height: 1;
+    border: 2px solid white;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s ease;
+}
+
+body[data-operation="1"] .mini-asset:hover .mini-asset-remove {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Campaign header improvements */
+body[data-operation="1"] .adset-campaign-header {
+    margin: 24px 0 16px;
+    padding: 14px 18px;
+    background-color: #f1f5f9;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: #334155;
+    border-left: 4px solid #3b82f6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+body[data-operation="1"] .platform-badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.5px;
+}
+
+body[data-operation="1"] .platform-badge.meta {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
+
+body[data-operation="1"] .platform-badge.tiktok {
+    background-color: #fce7f3;
+    color: #be185d;
+}
+
+body[data-operation="1"] .adset-campaign-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Campaign checkbox styling */
+body[data-operation="1"] .campaign-checkbox {
+    margin-right: 8px !important;
+    cursor: pointer !important;
+    width: 16px !important;
+    height: 16px !important;
+    flex-shrink: 0 !important;
+}
+
+/* Platform campaigns section styling */
+body[data-operation="1"] .platform-campaigns {
+    margin-bottom: 10px !important;
+}
+
+body[data-operation="1"] .platform-header {
+    font-size: 14px !important;
+    margin: 5px 0 !important;
+    padding: 3px 5px !important;
+    background-color: #f0f0f0 !important;
+    border-radius: 3px !important;
+    border-left: 3px solid #007bff !important;
+}
+
+/* No campaigns/adsets message styles */
+body[data-operation="1"] .no-campaigns,
+body[data-operation="1"] .no-adsets,
+body[data-operation="1"] .no-accounts-selected {
+    padding: 10px !important;
+    text-align: center !important;
+    color: #666 !important;
+    background-color: #f8f9fa !important;
+    border: 1px dashed #dee2e6 !important;
+    border-radius: 4px !important;
+    margin: 5px 0 !important;
+}
+
+/* Adset campaign header styles */
+body[data-operation="1"] .adset-campaign-header {
+    background-color: #f8f9fa !important;
+    padding: 8px 10px !important;
+    margin-bottom: 10px !important;
+    border-radius: 4px !important;
+    border-left: 3px solid #007bff !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+body[data-operation="1"] .adset-campaign-name {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+}
+
+/* Publish button styles */
+body[data-operation="1"] .op1-publish-btn-container {
+    margin-top: 20px !important;
+    padding: 15px !important;
+    text-align: center !important;
+    background-color: #f8f9fa !important;
+    border-radius: 8px !important;
+    border-top: 1px solid #dee2e6 !important;
+}
+
+body[data-operation="1"] #publishAdsButton {
+    padding: 12px 30px !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
+    border-radius: 50px !important;
+    box-shadow: 0 4px 6px rgba(40, 167, 69, 0.25) !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+body[data-operation="1"] #publishAdsButton:hover {
+    background-color: #218838 !important;
+    border-color: #1e7e34 !important;
+    box-shadow: 0 6px 8px rgba(40, 167, 69, 0.3) !important;
+    transform: translateY(-2px) !important;
+}
+
+body[data-operation="1"] #publishAdsButton:active {
+    transform: translateY(1px) !important;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2) !important;
+}
+
+body[data-operation="1"] #publishAdsButton i {
+    margin-right: 10px !important;
+}
+
+/* Loading overlay styles */
+body .loading-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 9999 !important;
+}
+
+body .loading-overlay div {
+    background-color: white !important;
+    padding: 20px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) !important;
+    max-width: 80% !important;
+    text-align: center !important;
+}
+
+body .loading-overlay h3 {
+    margin-top: 0 !important;
+    color: #007bff !important;
+}
+
+body .loading-overlay p {
+    margin-bottom: 0 !important;
+}
+
+body .loading-overlay i.fa-spinner {
+    animation: spin 1.5s linear infinite !important;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Message styles */
+body .message {
+    position: fixed !important;
+    top: 20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    padding: 12px 20px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    z-index: 9999 !important;
+    max-width: 80% !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    animation: slideDown 0.3s ease forwards !important;
+}
+
+body .message-success {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+body .message-error {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+@keyframes slideDown {
+    0% { transform: translate(-50%, -20px); opacity: 0; }
+    100% { transform: translate(-50%, 0); opacity: 1; }
+}
+
+/* Improve drop zone empty state message */
+body[data-operation="1"] .adset-drop-zone-empty {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+body[data-operation="1"] .adset-drop-zone-empty i {
+    font-size: 32px;
+    margin-bottom: 12px;
+    color: #cbd5e1;
+} 

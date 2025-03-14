@@ -1,0 +1,666 @@
+/* Campaign Selector Styles */
+.campaign-selector-container {
+    margin-bottom: 24px;
+}
+
+.platform-section {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.platform-section h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #333;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 8px;
+}
+
+.campaign-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.campaign-item {
+    background-color: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.campaign-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: #f1f5f9;
+    cursor: pointer;
+}
+
+.campaign-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.toggle-button {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.toggle-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.adsets-container {
+    padding: 16px;
+    border-top: 1px solid #e1e1e1;
+}
+
+.adset-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.adset-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background-color: #f9f9f9;
+    transition: all 0.2s ease;
+}
+
+.adset-item:hover {
+    border-color: #007bff;
+    background-color: #f0f7ff;
+    cursor: pointer;
+}
+
+.adset-item.selected {
+    border-color: #007bff;
+    background-color: #e6f2ff;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+}
+
+.adset-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.adset-checkbox {
+    margin: 0;
+    cursor: pointer;
+}
+
+.adset-name {
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-paused {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.status-archived, .status-deleted {
+    background-color: #dc3545;
+    color: white;
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #6b7280;
+}
+
+.loading::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border: 2px solid #e5e7eb;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.error, .no-campaigns, .no-adsets {
+    padding: 12px;
+    border-radius: 6px;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+}
+
+.error {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.no-campaigns, .no-adsets {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+
+.error i, .no-campaigns i, .no-adsets i {
+    margin-right: 8px;
+}
+
+/* Adset Drop Zones */
+.adset-drop-zones-container {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: #f9f9f9;
+}
+
+.adset-drop-zones-container h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #333;
+}
+
+.drop-instructions {
+    margin-bottom: 16px;
+    padding: 10px 15px;
+    background-color: #e8f4ff;
+    border-left: 4px solid #007bff;
+    border-radius: 4px;
+    color: #0056b3;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.drop-instructions i {
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+.adset-drop-zone {
+    background-color: #fff;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: relative;
+}
+
+.drop-zone-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.platform-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-right: 10px;
+    text-transform: uppercase;
+}
+
+.platform-meta {
+    background-color: #e8f4ff;
+    color: #0066ff;
+}
+
+.platform-tiktok {
+    background-color: #ffe8f4;
+    color: #ff0066;
+}
+
+.drop-zone-name {
+    font-weight: 500;
+    font-size: 16px;
+    color: #333;
+}
+
+.ad-name-container {
+    margin-bottom: 12px;
+}
+
+.ad-name-container label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #333;
+}
+
+.ad-name-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.assets-container {
+    min-height: 100px;
+    border: 2px dashed #dee2e6;
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.assets-container.drag-over {
+    background-color: rgba(0, 123, 255, 0.1);
+    border-color: #007bff;
+}
+
+.mini-asset {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.mini-asset img, 
+.mini-asset video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mini-remove-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: rgba(220, 53, 69, 0.8);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.mini-remove-btn:hover {
+    opacity: 1;
+}
+
+.drop-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 14px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 10px;
+}
+
+.drop-placeholder i {
+    margin-left: 5px;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Asset Library Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 50px auto;
+    width: 80%;
+    max-width: 1000px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.library-modal {
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 24px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.library-filters {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.search-bar {
+    position: relative;
+    flex-grow: 1;
+}
+
+.search-bar i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+.search-bar input {
+    padding-left: 36px;
+}
+
+.library-assets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.library-asset {
+    border: 2px solid #e1e1e1;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.library-asset:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.library-asset.selected {
+    border: 2px solid #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.library-asset.selected::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 123, 255, 0.1);
+    pointer-events: none;
+}
+
+.library-asset .asset-select {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    background-color: #007bff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 2;
+}
+
+.library-asset.selected .asset-select {
+    opacity: 1;
+}
+
+.asset-content {
+    height: 150px;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.asset-content img,
+.asset-content video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 150px;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+}
+
+.asset-info {
+    padding: 8px 12px;
+    background-color: white;
+}
+
+.asset-name {
+    font-size: 14px;
+    font-weight: 500;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.asset-type {
+    font-size: 12px;
+    color: #666;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e1e1e1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Ensure proper section ordering for operation type 1 */
+#campaignForm {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Operation Type 1 specific ordering */
+body[data-operation="1"] #campaignForm > .form-group:nth-child(1) {
+    order: 1; /* Operation Type */
+}
+
+body[data-operation="1"] #campaignForm > .form-group:nth-child(2) {
+    order: 2; /* Platforms */
+}
+
+body[data-operation="1"] #metaAccountSection {
+    order: 3; /* Meta Account */
+}
+
+body[data-operation="1"] #tiktokAccountSection {
+    order: 4; /* TikTok Account */
+}
+
+body[data-operation="1"] #campaignSelectorContainer {
+    order: 5; /* Campaign Selector */
+}
+
+body[data-operation="1"] .form-group:has(#selectFromLibraryBtn) {
+    order: 6; /* Creative Section */
+}
+
+/* Emergency fix for Operation Type 1 */
+body[data-operation="1"] #adgroupsSection,
+body[data-operation="1"] #dragConnector,
+body[data-operation="1"] [data-drag-connector],
+body[data-operation="1"] .drag-assets-down,
+body[data-operation="1"] .drag-connector {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    z-index: -9999 !important;
+    max-height: 0 !important;
+    max-width: 0 !important;
+    transform: scale(0) !important;
+}
+
+/* Force two-column layout */
+body[data-operation="1"] #campaignForm {
+    display: block !important;
+    position: relative !important;
+}
+
+body[data-operation="1"] .left-column,
+body[data-operation="1"] .right-column {
+    display: inline-block !important;
+    vertical-align: top !important;
+    width: 48% !important;
+    margin: 0 1% !important;
+}
+
+/* Ensure operation type and platforms are full width */
+body[data-operation="1"] #campaignForm > .form-group:nth-child(1),
+body[data-operation="1"] #campaignForm > .form-group:nth-child(2) {
+    width: 100%;
+    display: block;
+}
+
+/* Make adset drop zones more visible */
+body[data-operation="1"] .adset-drop-zone {
+    border: 2px dashed #007bff;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+body[data-operation="1"] .adset-drop-zone:hover {
+    background-color: #e6f2ff;
+    border-color: #0056b3;
+}
+
+/* Improve drag and drop visual cues */
+body[data-operation="1"] .assets-container.drag-over {
+    background-color: rgba(0, 123, 255, 0.2);
+    border: 2px dashed #0056b3;
+}
+
+/* Make preview items more draggable */
+body[data-operation="1"] .preview-item {
+    cursor: grab;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+body[data-operation="1"] .preview-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+body[data-operation="1"] .preview-item.dragging {
+    transform: scale(0.95);
+    opacity: 0.8;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+} 

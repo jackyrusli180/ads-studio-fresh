@@ -24,12 +24,12 @@
             <!-- Platform Selection -->
             <div class="form-group">
                 <label class="form-label">Platforms</label>
-                <div class="platform-radios">
-                    <label class="radio-label">
-                        <input type="radio" name="platforms" value="meta"> Meta
+                <div class="platform-checkboxes">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="platforms" value="meta"> Meta
                     </label>
-                    <label class="radio-label">
-                        <input type="radio" name="platforms" value="tiktok"> TikTok
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="platforms" value="tiktok"> TikTok
                     </label>
                 </div>
             </div>
@@ -139,8 +139,12 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/campaign_builder.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/campaign_selector.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/operation1.css') }}">
 {% endblock %}
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/campaign_builder.js') }}"></script>
+<script src="{{ url_for('static', filename='js/campaign_selector.js') }}"></script>
+<script src="{{ url_for('static', filename='js/operation1_unified.js') }}"></script>
 {% endblock %} 

@@ -27,6 +27,7 @@ import sys
 import os.path
 import time
 import re  # Add import for regular expressions
+import secrets
 
 # sys.path.append(os.path.join(os.path.dirname(__file__), 'ComfyUI'))
 # import execution
@@ -40,14 +41,13 @@ from pathlib import Path
 from openai_vision import OpenAIVision
 import shutil
 import uuid
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple, Union
 from dataclasses import dataclass
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
 # Add TikTok Business API SDK to Python path
-sys.path.append(
-    "/Users/jackyrusli/Ads Studio/tiktok-business-api-sdk/python_sdk")
+sys.path.append(os.path.expanduser("~/tiktok-sdk/python_sdk"))
 
 # Load environment variables
 load_dotenv()
@@ -149,6 +149,7 @@ def ads_builder():
         selected_assets=selected_assets,
         tiktok_accounts=tiktok_accounts,
         meta_accounts=meta_accounts,
+        extra_css=["operation1.css"]  # Add the new CSS file
     )
 
 
@@ -196,1307 +197,413 @@ def templates_comfy():
 
 @app.route("/api/create_campaign", methods=["POST"])
 def create_campaign():
-    """API endpoint to create a new campaign"""
+    """
+    Create a campaign based on the form data
+    Operation type 1: Create new ads in existing adsets
+    Operation type 2: Create new adsets in existing campaign
+    Operation type 3: Create completely new campaign with adsets and ads
+    """
+    logging.info("Starting campaign creation...")
     try:
-        project_root = os.path.dirname(
-            os.path.dirname(os.path.abspath(__file__)))
         form_data = request.form
+        operation_type = form_data.get("operationType")
 
         # Debug: Print all form key/value pairs to understand structure
         logging.info("Form data structure:")
         for key, value in form_data.items():
             logging.info(f"Key: {key}, Value: {value}")
 
-        # For library assets, we need to get the file paths from the media
-        # library
-        library_assets = []
-
-        # Get operation type and platforms
-        operation_type = form_data.get("operationType")
+        # Get platforms
         platforms = request.form.getlist("platforms")
-        template = form_data.get("template")
-
-        # Get TikTok advertiser ID if provided
-        tiktok_advertiser_id = form_data.get("tiktokAdvertiserId")
-
-        # Get Meta advertiser ID if provided
-        meta_advertiser_id = form_data.get("metaAdvertiserId")
-
-        logging.info(
-            f"Processing request - Platform: {platforms}, Type: {template}, Operation: {operation_type}, TikTok Advertiser ID: {tiktok_advertiser_id}, Meta Advertiser ID: {meta_advertiser_id}"
-        )
-
-        # Get media assets - check both for direct uploads and library assets
-        uploaded_files = request.files.getlist("creatives[]")
+        if not platforms:
+            return jsonify({"success": False, "error": "Please select at least one platform"})
+        
+        # Get library assets
         library_asset_ids = request.form.getlist("library_assets[]")
+        if not library_asset_ids:
+            return jsonify({"success": False, "error": "Please select at least one asset from the library"})
 
-        # Get asset details from the media library if library assets were
-        # selected
-        if library_asset_ids:
-            media_library = get_media_library()
-            library_assets = [
-                asset for asset in media_library if asset.get("id") in library_asset_ids]
-            logging.info(f"Found {len(library_assets)} assets from library")
-
-        # If we have neither uploads nor library assets, fail
-        if not uploaded_files and not library_assets:
-            raise ValueError("No images uploaded or selected from library")
+        # Get asset details from the media library
+        media_library = get_media_library()
+        library_assets = [asset for asset in media_library if asset.get("id") in library_asset_ids]
 
         # Process assets and create campaigns
         results = {}
 
-        # For each selected platform
-        for platform in platforms:
-            result = {
-                "success": False,
-                "campaign_id": None,
-                "adset_id": None,
-                "ad_id": None,
-                "errors": [],
-            }
-
-            try:
-                # Handle Meta campaigns
-                if platform == "meta":
-                    # Check if advertiser ID is provided
-                    if not meta_advertiser_id:
-                        raise ValueError(
-                            "Meta Advertiser Account is required for Meta campaigns"
-                        )
-
-                    # Get account details for the selected advertiser ID
-                    account_details = meta_account_config.get_account_details(
-                        meta_advertiser_id
-                    )
-                    if not account_details:
-                        raise ValueError(
-                            f"Invalid Meta Advertiser Account ID: {meta_advertiser_id}")
-
-                    # Log account details for debugging
-                    logging.info(
-                        f"Using Meta account: {
-                            account_details['name']} (ID: {meta_advertiser_id})")
-
-                    # Determine which Meta template to use
-                    if template == "ios_skan":
-                        builder = meta_ios
-                    elif template == "ios_onelink":
-                        builder = meta_onelink
-                    else:  # android
-                        builder = meta_android
-
-                    # Initialize API with the selected account ID
-                    ad_account = builder.initialize_api(meta_advertiser_id)
-
-                    # Get campaign settings
-                    if len(platforms) > 1 and operation_type == "3":
-                        # Multiple platforms - use platform-specific fields
-                        campaign_name = form_data.get("metaCampaignName")
-                    else:
-                        # Single platform - use generic fields
-                        campaign_name = form_data.get("campaignName")
-
-                    # Handle library assets - get file paths
-                    image_paths = []
-                    for asset in library_assets:
-                        if asset["type"] == "image":
-                            # Get the file path
-                            file_path = asset["file_path"]
-                            logging.info(
-                                f"Original file_path from asset: {file_path}")
-
-                            # Fix path construction based on file_path format
-                            if file_path.startswith("/static/"):
-                                # Already starts with /static/ - just append to
-                                # project_root
-                                full_path = os.path.join(
-                                    project_root, file_path[1:])
-                            elif file_path.startswith("static/"):
-                                # Already contains static/ prefix - just append
-                                # to project_root
-                                full_path = os.path.join(
-                                    project_root, file_path)
-                            elif os.path.isabs(file_path):
-                                # Absolute path - use as is
-                                full_path = file_path
-                            else:
-                                # Relative path without static/ prefix - add it
-                                full_path = os.path.join(
-                                    project_root, "static", file_path
-                                )
-
-                            logging.info(f"Using image path: {full_path}")
-                            # Make sure the file exists
-                            if not os.path.exists(full_path):
-                                logging.error(
-                                    f"Image file not found: {full_path}")
-                                raise ValueError(
-                                    f"Image file not found: {full_path}")
-                            image_paths.append(full_path)
-
-                    # Upload images to Meta
-                    media_infos = []
-                    for path in image_paths:
-                        logging.info(f"Uploading image to Meta: {path}")
-                        try:
-                            if template == "ios_onelink":
-                                # For iOS Onelink, use upload_media
-                                media_info = builder.upload_media(
-                                    ad_account, path)
-                                media_infos.append(media_info)
-                            else:
-                                # For other templates, use upload_image
-                                image_hash = builder.upload_image(
-                                    ad_account, path)
-                                media_infos.append(
-                                    {"hash": image_hash, "type": "image"}
-                                )
-                        except Exception as e:
-                            logging.error(
-                                f"Error uploading image {path}: {
-                                    str(e)}")
-                            raise
-
-                    if not media_infos:
-                        logging.error(
-                            "No images were successfully uploaded to Meta")
-                        raise ValueError("Failed to upload any images to Meta")
-
-                    # Create campaign, adset, and ad based on operation type
-                    if operation_type == "3":  # New campaign, adset, ad
-                        # Create campaign
-                        campaign_id = builder.create_campaign(
-                            ad_account, campaign_name)
-                        logging.info(
-                            f"Meta campaign created with ID: {campaign_id}")
-                        result["campaign_id"] = campaign_id
-
-                        # Get adgroup data
-                        adgroup_names = {}
-                        ad_names = {}
-                        adgroup_budgets = {}
-                        asset_assignments = {}
-                        landing_page_urls = {}  # Add dictionary for landing page URLs
-                        ad_landing_page_urls = (
-                            {}
-                        )  # Add dictionary for ad-level landing page URLs
-
-                        # Parse adgroup names and budgets from form data
-                        for key, value in form_data.items():
-                            if key.startswith("adgroup_names["):
-                                # Extract ID from adgroup_names[adgroup-1]
-                                match = re.search(r"\[(.*?)\]", key)
-                                if match:
-                                    adgroup_id = match.group(1)
-                                    adgroup_names[adgroup_id] = value
-                            elif key.startswith("adgroup_budgets["):
-                                # Extract ID from adgroup_budgets[adgroup-1]
-                                match = re.search(r"\[(.*?)\]", key)
-                                if match:
-                                    adgroup_id = match.group(1)
-                                    adgroup_budgets[adgroup_id] = value
-                            elif key.startswith("landing_page_urls["):
-                                # Extract ID from landing_page_urls[adgroup-1]
-                                match = re.search(r"\[(.*?)\]", key)
-                                if match:
-                                    adgroup_id = match.group(1)
-                                    landing_page_urls[adgroup_id] = value
-                            elif key.startswith("ad_landing_page_urls["):
-                                # Extract ID from
-                                # ad_landing_page_urls[adgroup-1-ad-1]
-                                match = re.search(r"\[(.*?)\]", key)
-                                if match:
-                                    ad_id = match.group(1)
-                                    ad_landing_page_urls[ad_id] = value
-
-                        # Parse ad names from form data
-                        for key, value in form_data.items():
-                            if key.startswith("ad_names["):
-                                # Extract ID from ad_names[adgroup-1-ad-1]
-                                match = re.search(r"\[(.*?)\]", key)
-                                if match:
-                                    ad_id = match.group(1)
-                                    ad_names[ad_id] = value
-
-                        # Parse asset assignments for each ad
-                        for key, values in form_data.lists():
-                            if key.startswith("asset_assignments["):
-                                # Extract ID from
-                                # asset_assignments[adgroup-1-ad-1][]
-                                match = re.search(r"\[(.*?)\]", key)
-                                if match:
-                                    ad_id = match.group(1)
-                                    asset_assignments[ad_id] = values
-
-                        # Log parsed data
-                        logging.info(f"Parsed adgroup names: {adgroup_names}")
-                        logging.info(f"Parsed ad names: {ad_names}")
-                        logging.info(
-                            f"Parsed adgroup budgets: {adgroup_budgets}")
-                        logging.info(
-                            f"Parsed asset assignments: {asset_assignments}")
-                        logging.info(
-                            f"Parsed landing page URLs: {landing_page_urls}")
-                        logging.info(
-                            f"Parsed ad-level landing page URLs: {ad_landing_page_urls}")
-
-                        # Create a dictionary to map asset IDs to media infos
-                        asset_id_to_media_info = {}
-
-                        # Map asset IDs to media infos
-                        for i, asset in enumerate(library_assets):
-                            if i < len(media_infos):
-                                asset_id_to_media_info[asset["id"]
-                                                       ] = media_infos[i]
-
-                        logging.info(
-                            f"Asset ID to media info mapping: {asset_id_to_media_info}")
-
-                        # Create adsets and ads for each adgroup
-                        adset_ids = []
-                        ad_ids = []
-
-                        # Group ads by adgroup
-                        ads_by_adgroup = {}
-                        for ad_id, assets in asset_assignments.items():
-                            # Extract adgroup ID from ad ID (format:
-                            # adgroup-1-ad-1)
-                            adgroup_id = ad_id.split("-ad-")[0]
-                            if adgroup_id not in ads_by_adgroup:
-                                ads_by_adgroup[adgroup_id] = []
-
-                            ads_by_adgroup[adgroup_id].append(
-                                {
-                                    "ad_id": ad_id,
-                                    "ad_name": ad_names.get(
-                                        ad_id, f"Ad {len(ad_ids) + 1}"
-                                    ),
-                                    "assets": assets,
-                                }
-                            )
-
-                        logging.info(
-                            f"Ads grouped by adgroup: {ads_by_adgroup}")
-
-                        try:
-                            for adgroup_id, ads in ads_by_adgroup.items():
-                                if not ads:
-                                    continue
-
-                                # Get adgroup name and budget
-                                adgroup_name = adgroup_names.get(
-                                    adgroup_id, f"Ad Group {len(adset_ids) + 1}"
-                                )
-
-                                # Convert budget to cents (Meta expects budget
-                                # in cents)
-                                try:
-                                    budget = (
-                                        float(
-                                            adgroup_budgets.get(
-                                                adgroup_id,
-                                                "500")) *
-                                        100)  # Convert to cents
-                                except ValueError:
-                                    budget = (
-                                        50000  # Default to $500 if conversion fails
-                                    )
-
-                                logging.info(
-                                    f"Creating adset '{adgroup_name}' with budget {budget} cents")
-
-                                try:
-                                    # Get country selection
-                                    country_name = request.form.get(
-                                        f"adgroup_countries[{adgroup_id}]"
-                                    )
-
-                                    # Country code mapping
-                                    country_mapping = {
-                                        "United States": {
-                                            "meta": "US", "tiktok": "7"}, "Turkey": {
-                                            "meta": "TR", "tiktok": "298795"}, "Brazil": {
-                                            "meta": "BR", "tiktok": "31"}, "United Arab Emirates": {
-                                            "meta": "AE", "tiktok": "298796", }, "Australia": {
-                                            "meta": "AU", "tiktok": "12"}, "Netherlands": {
-                                            "meta": "NL", "tiktok": "178"}, "Vietnam": {
-                                            "meta": "VN", "tiktok": "306"}, "Argentina": {
-                                            "meta": "AR", "tiktok": "10"}, }
-
-                                    # Get the appropriate country code based on
-                                    # platform
-                                    country_code = None
-                                    if country_name in country_mapping:
-                                        if platform == "meta":
-                                            country_code = country_mapping[
-                                                country_name
-                                            ]["meta"]
-                                        elif platform == "tiktok":
-                                            country_code = country_mapping[
-                                                country_name
-                                            ]["tiktok"]
-
-                                    logging.info(
-                                        f"Creating adset with name: {adgroup_name}, budget: {budget}, country: {country_code}")
-
-                                    # Create adset with the specified name and
-                                    # budget
-                                    if template == "ios_skan":
-                                        created_adgroup_id = builder.create_adset(
-                                            ad_account,
-                                            campaign_id,
-                                            name=adgroup_name,
-                                            budget=budget,
-                                            country=country_code,
-                                        )
-                                    elif template == "ios_onelink":
-                                        created_adgroup_id = builder.create_adset(
-                                            ad_account,
-                                            campaign_id,
-                                            adset_name=adgroup_name,
-                                            budget=adgroup_budget,
-                                            country=country_code,
-                                        )
-                                    else:  # android
-                                        if platform == "meta":
-                                            created_adgroup_id = builder.create_adset(
-                                                ad_account,
-                                                campaign_id,
-                                                adset_name=adgroup_name,
-                                                budget=budget,
-                                                country=country_code,
-                                            )
-                                        else:  # tiktok
-                                            created_adgroup_id = builder.create_adgroup_for_ios14_app_install(
-                                                apis,
-                                                advertiser_id,
-                                                campaign_id,
-                                                adgroup_budget,
-                                                adgroup_name,
-                                                country=country_code,
-                                            )
-
-                                    logging.info(
-                                        f"Adset created with ID: {created_adgroup_id}")
-                                    adset_ids.append(created_adgroup_id)
-
-                                    # Create ads for this adgroup
-                                    for ad_info in ads:
-                                        ad_id = ad_info["ad_id"]
-                                        ad_name = ad_info["ad_name"]
-                                        assigned_assets = ad_info["assets"]
-
-                                        if not assigned_assets:
-                                            logging.warning(
-                                                f"No assets assigned to ad {ad_id}, skipping")
-                                            continue
-
-                                        try:
-                                            # Collect all media info for
-                                            # assigned assets
-                                            adgroup_media_infos = []
-                                            adgroup_image_hashes = []
-
-                                            for asset_id in assigned_assets:
-                                                if asset_id in asset_id_to_media_info:
-                                                    media_info = asset_id_to_media_info[
-                                                        asset_id
-                                                    ]
-                                                    adgroup_media_infos.append(
-                                                        media_info
-                                                    )
-
-                                                    # Extract image hash for
-                                                    # non-onelink templates
-                                                    if (
-                                                            template != "ios_onelink" and "hash" in media_info):
-                                                        adgroup_image_hashes.append(
-                                                            media_info["hash"])
-
-                                            if adgroup_media_infos:
-                                                try:
-                                                    # Create ad
-                                                    if template == "ios_onelink":
-                                                        # For iOS Onelink, pass
-                                                        # all media_infos
-                                                        # directly
-                                                        logging.info(
-                                                            f"Creating Meta ad with multiple media infos for iOS Onelink")
-
-                                                        # First check for
-                                                        # ad-level landing page
-                                                        # URL
-                                                        custom_link_url = (
-                                                            ad_landing_page_urls.get(
-                                                                ad_id
-                                                            )
-                                                        )
-                                                        logging.info(
-                                                            f"Looking for ad-level landing page URL with key '{ad_id}'")
-                                                        logging.info(
-                                                            f"Available ad-level landing page URL keys: {list(ad_landing_page_urls.keys())}"
-                                                        )
-
-                                                        # If not found, fall
-                                                        # back to adgroup-level
-                                                        # landing page URL
-                                                        if not custom_link_url:
-                                                            adgroup_id = ad_id.split(
-                                                                "-ad-")[0]
-                                                            custom_link_url = (
-                                                                landing_page_urls.get(
-                                                                    adgroup_id
-                                                                )
-                                                            )
-                                                            if custom_link_url:
-                                                                logging.info(
-                                                                    f"Using adgroup-level landing page URL for ad {ad_id}: {custom_link_url}")
-                                                            else:
-                                                                logging.info(
-                                                                    f"No landing page URL found for ad {ad_id}")
-
-                                                        # Create ad with
-                                                        # multiple media infos
-                                                        ad_id = builder.create_ad(
-                                                            ad_account,
-                                                            created_adgroup_id,  # Use created_adgroup_id instead of adset_id
-                                                            adgroup_media_infos,
-                                                            ad_name,
-                                                            custom_link_url,
-                                                        )
-                                                    else:
-                                                        # For other templates,
-                                                        # pass all image hashes
-                                                        # if available,
-                                                        # otherwise just the
-                                                        # first one
-                                                        if (
-                                                            template == "android"
-                                                            and len(
-                                                                adgroup_image_hashes
-                                                            )
-                                                            > 0
-                                                        ):
-                                                            logging.info(
-                                                                f"Creating Meta ad with multiple image hashes: {adgroup_image_hashes}")
-                                                            # Make sure we have
-                                                            # at least 2 images
-                                                            # for Flexible Ad
-                                                            # Format
-                                                            if (
-                                                                len(
-                                                                    adgroup_image_hashes
-                                                                )
-                                                                >= 2
-                                                            ):
-                                                                ad_id = builder.create_ad(
-                                                                    ad_account, created_adgroup_id, adgroup_image_hashes, ad_name, )
-                                                            else:
-                                                                # If we only have one image, duplicate it to ensure we have at least 2 images
-                                                                # This is
-                                                                # required for
-                                                                # Flexible Ad
-                                                                # Format
-                                                                logging.info(
-                                                                    f"Only one image hash available, duplicating it for Flexible Ad Format")
-                                                                ad_id = builder.create_ad(
-                                                                    ad_account, created_adgroup_id, adgroup_image_hashes * 2, ad_name, )
-                                                        else:
-                                                            # Fallback to first
-                                                            # image hash for
-                                                            # other templates
-                                                            # or if no hashes
-                                                            # available
-                                                            logging.info(
-                                                                f"Creating Meta ad with single image hash: {
-                                                                    adgroup_media_infos[0]['hash']}")
-                                                            ad_id = builder.create_ad(
-                                                                ad_account, created_adgroup_id, adgroup_media_infos[0]["hash"], ad_name, )
-
-                                                    logging.info(
-                                                        f"Meta ad created with ID: {ad_id}")
-                                                    ad_ids.append(ad_id)
-                                                except Exception as e:
-                                                    logging.error(
-                                                        f"Error creating ad {ad_name}: {str(e)}"
-                                                    )
-                                                    result["errors"].append(
-                                                        f"Error creating ad {ad_name}: {str(e)}"
-                                                    )
-                                            else:
-                                                logging.error(
-                                                    f"No media info found for any assigned assets in ad {ad_id}")
-                                        except Exception as e:
-                                            logging.error(
-                                                f"Error processing assets for ad {ad_name}: {
-                                                    str(e)}")
-                                            result["errors"].append(
-                                                f"Error processing assets for ad {ad_name}: {str(e)}"
-                                            )
-                                except Exception as e:
-                                    logging.error(
-                                        f"Error creating adset {adgroup_name}: {
-                                            str(e)}")
-                                    result["errors"].append(
-                                        f"Error creating adset {adgroup_name}: {str(e)}"
-                                    )
-                        except Exception as e:
-                            logging.error(
-                                f"Error creating adsets and ads: {
-                                    str(e)}")
-                            result["errors"].append(
-                                f"Error creating adsets and ads: {str(e)}"
-                            )
-                            continue
-
-                        # Update result with the created IDs
-                        if adset_ids:
-                            # Use the first adset ID for backward compatibility
-                            result["adset_id"] = adset_ids[0]
-                        if ad_ids:
-                            result["ad_id"] = ad_ids[
-                                0
-                            ]  # Use the first ad ID for backward compatibility
-                        result["success"] = True
-
-                        # Add all adset and ad IDs to the result
-                        result["adset_ids"] = adset_ids
-                        result["ad_ids"] = ad_ids
-                    else:
-                        # Handle other operation types (1 and 2)
-                        logging.error(
-                            f"Operation type {operation_type} not yet implemented for Meta")
-                        raise ValueError(
-                            f"Operation type {operation_type} not yet implemented for Meta")
-
-                # Handle TikTok campaigns
-                elif platform == "tiktok":
-                    # Check if advertiser ID is provided
-                    if not tiktok_advertiser_id:
-                        raise ValueError(
-                            "TikTok Advertiser Account is required for TikTok campaigns"
-                        )
-
-                    # Get account details for the selected advertiser ID
-                    account_details = tiktok_account_config.get_account_details(
-                        tiktok_advertiser_id)
-                    if not account_details:
-                        raise ValueError(
-                            f"Invalid TikTok Advertiser Account ID: {tiktok_advertiser_id}")
-
-                    # Log account details for debugging
-                    logging.info(
-                        f"Using TikTok account: {
-                            account_details['name']} (ID: {tiktok_advertiser_id})")
-
-                    # Determine which TikTok template to use
-                    if template == "ios_skan":
-                        builder = tiktok_ios
-                    elif template == "ios_onelink":
-                        builder = tiktok_onelink
-                    else:  # android
-                        builder = tiktok_android
-
-                    # Initialize API
-                    apis = builder.initialize_api()
-                    advertiser_id = (
-                        tiktok_advertiser_id  # Use the selected advertiser ID
-                    )
-
-                    # Get campaign settings for TikTok
-                    if len(platforms) > 1 and operation_type == "3":
-                        # Multiple platforms - use platform-specific fields
-                        campaign_name = form_data.get("tiktokCampaignName")
-                    else:
-                        # Single platform - use generic fields
-                        campaign_name = form_data.get("campaignName")
-
-                    # Handle library assets - get file paths (similar to Meta
-                    # implementation)
-                    image_paths = []
-                    for asset in library_assets:
-                        if asset["type"] == "image":
-                            # Get the file path
-                            file_path = asset["file_path"]
-                            logging.info(
-                                f"Original file_path from asset: {file_path}")
-
-                            # Fix path construction based on file_path format
-                            if file_path.startswith("/static/"):
-                                # Already starts with /static/ - just append to
-                                # project_root
-                                full_path = os.path.join(
-                                    project_root, file_path[1:])
-                            elif file_path.startswith("static/"):
-                                # Already contains static/ prefix - just append
-                                # to project_root
-                                full_path = os.path.join(
-                                    project_root, file_path)
-                            elif os.path.isabs(file_path):
-                                # Absolute path - use as is
-                                full_path = file_path
-                            else:
-                                # Relative path without static/ prefix - add it
-                                full_path = os.path.join(
-                                    project_root, "static", file_path
-                                )
-
-                            logging.info(f"Constructed full path: {full_path}")
-
-                            # Check if file exists
-                            if not os.path.exists(full_path):
-                                # Try alternative path constructions if the
-                                # file wasn't found
-                                alt_paths = [
-                                    os.path.join(
-                                        project_root, file_path), file_path, os.path.join(
-                                        project_root, "static", os.path.basename(file_path), ), os.path.join(
-                                        project_root, os.path.basename(file_path)), ]
-
-                                found = False
-                                for alt_path in alt_paths:
-                                    logging.info(
-                                        f"Trying alternative path: {alt_path}")
-                                    if os.path.exists(alt_path):
-                                        full_path = alt_path
-                                        found = True
-                                        logging.info(
-                                            f"Found file at alternative path: {full_path}")
-                                        break
-
-                                if not found:
-                                    logging.error(
-                                        f"Image file not found at any attempted path: {file_path}")
-                                    logging.error(
-                                        f"Attempted paths: {
-                                            [full_path] + alt_paths}"
-                                    )
-                                    continue  # Skip this asset instead of failing the whole operation
-
-                            image_paths.append(full_path)
-                            logging.info(
-                                f"Added image path to list: {full_path}")
-
-                    if not image_paths:
-                        logging.error(
-                            "No valid image paths found for TikTok campaign creation"
-                        )
-                        raise ValueError(
-                            "No valid images could be found. Please check the selected assets and try again."
-                        )
-
-                    # Create TikTok campaign using the builder
-                    logging.info(f"Creating TikTok campaign: {campaign_name}")
-
-                    try:
-                        logging.info("Initializing TikTok campaign creation")
-                        if operation_type == "3":  # New campaign, adgroup, ad
-                            if not image_paths:
-                                logging.error(
-                                    "No valid image paths found for TikTok ad creation"
-                                )
-                                raise ValueError(
-                                    "No valid images selected. Please select at least one image from the Asset Library."
-                                )
-
-                            # Call the appropriate campaign creation function
-                            # based on template
-                            if template == "ios_skan":
-                                logging.info(
-                                    f"Calling create_ios14_app_install_campaign with args: apis, advertiser_id={advertiser_id}, name={campaign_name}")
-                                campaign_id = builder.create_ios14_app_install_campaign(
-                                    apis, advertiser_id, campaign_name)
-                            elif template == "ios_onelink":
-                                logging.info(
-                                    f"Calling create_campaign with args: apis, advertiser_id={advertiser_id}, name={campaign_name}")
-                                campaign_id = builder.create_campaign(
-                                    apis, advertiser_id, campaign_name
-                                )
-                            else:  # android
-                                logging.info(
-                                    f"Calling create_android_app_install_campaign with args: apis, advertiser_id={advertiser_id}, name={campaign_name}")
-                                campaign_id = (
-                                    builder.create_android_app_install_campaign(
-                                        apis, advertiser_id, campaign_name))
-
-                            logging.info(
-                                f"Campaign created with ID: {campaign_id}")
-
-                            # Get adgroup data
-                            adgroup_names = {}
-                            ad_names = {}
-                            adgroup_budgets = {}
-                            asset_assignments = {}
-                            landing_page_urls = {}
-                            ad_landing_page_urls = {}
-
-                            # Parse adgroup names and budgets from form data
-                            for key, value in form_data.items():
-                                if key.startswith("adgroup_names["):
-                                    # Extract ID from adgroup_names[adgroup-1]
-                                    match = re.search(r"\[(.*?)\]", key)
-                                    if match:
-                                        adgroup_id = match.group(1)
-                                    adgroup_names[adgroup_id] = value
-                                elif key.startswith("ad_names["):
-                                    # Extract ID from ad_names[adgroup-1]
-                                    match = re.search(r"\[(.*?)\]", key)
-                                    if match:
-                                        ad_id = match.group(1)
-                                        ad_names[ad_id] = value
-                                elif key.startswith("adgroup_budgets["):
-                                    # Extract ID from
-                                    # adgroup_budgets[adgroup-1]
-                                    match = re.search(r"\[(.*?)\]", key)
-                                    if match:
-                                        adgroup_id = match.group(1)
-                                    adgroup_budgets[adgroup_id] = value
-                                elif key.startswith("landing_page_urls["):
-                                    # Extract ID from
-                                    # landing_page_urls[adgroup-1]
-                                    match = re.search(r"\[(.*?)\]", key)
-                                    if match:
-                                        adgroup_id = match.group(1)
-                                        landing_page_urls[adgroup_id] = value
-                                elif key.startswith("ad_landing_page_urls["):
-                                    # Extract ID from
-                                    # ad_landing_page_urls[adgroup-1-ad-1]
-                                    match = re.search(r"\[(.*?)\]", key)
-                                    if match:
-                                        ad_id = match.group(1)
-                                        ad_landing_page_urls[ad_id] = value
-
-                            # Parse asset assignments
-                            for key, values in form_data.lists():
-                                if key.startswith("asset_assignments["):
-                                    # Fix: Make sure we extract the correct
-                                    # adgroup ID without any trailing brackets
-                                    # Extract ID from
-                                    # asset_assignments[adgroup-1][]
-                                    match = re.search(r"\[(.*?)\]", key)
-                                    if match:
-                                        ad_id = match.group(1)
-                                        asset_assignments[ad_id] = values
-
-                            # Add detailed logging of parsed data
-                            logging.info(
-                                f"Parsed adgroup names: {adgroup_names}")
-                            logging.info(f"Parsed ad names: {ad_names}")
-                            logging.info(
-                                f"Parsed adgroup budgets: {adgroup_budgets}")
-                            logging.info(
-                                f"Parsed asset assignments: {asset_assignments}")
-                            logging.info(
-                                f"Parsed landing page URLs: {landing_page_urls}")
-                            logging.info(
-                                f"Parsed ad-level landing page URLs: {ad_landing_page_urls}")
-
-                            # Log the raw form data for landing page URLs
-                            landing_page_url_keys = [
-                                k
-                                for k in form_data.keys()
-                                if k.startswith("landing_page_urls[")
-                            ]
-                            logging.info(
-                                f"Raw landing page URL keys: {landing_page_url_keys}")
-                            for key in landing_page_url_keys:
-                                logging.info(
-                                    f"Raw landing page URL: key='{key}', value='{
-                                        form_data.get(key)}'")
-
-                            # If we have adgroup assignments, create multiple
-                            # adgroups and ads
-                            if asset_assignments:
-                                logging.info(
-                                    f"Creating {
-                                        len(asset_assignments)} adgroups based on user assignments")
-
-                                result_adgroups = []
-                                result_ads = []
-
-                                # Create a dictionary to map asset IDs to file
-                                # paths
-                                asset_id_to_path = {}
-
-                                # Get all assets from the media library to map
-                                # IDs to file paths
-                                media_library = get_media_library()
-                                for asset in media_library:
-                                    if "id" in asset and "file_path" in asset:
-                                        asset_id_to_path[asset["id"]] = os.path.join(
-                                            project_root, asset["file_path"].lstrip("/")
-                                        )
-
-                                logging.info(
-                                    f"Built asset ID to path map with {
-                                        len(asset_id_to_path)} entries"
-                                )
-
-                                # Create each adgroup and its ads
-                                for (
-                                    adgroup_id,
-                                    assigned_assets,
-                                ) in asset_assignments.items():
-                                    if not assigned_assets:
-                                        continue
-
-                                    # Extract the parent adgroup ID from the ad
-                                    # ID (format: adgroup-1-ad-1)
-                                    parent_adgroup_id = adgroup_id.split(
-                                        "-ad-")[0]
-
-                                    # Skip if we've already processed this
-                                    # adgroup
-                                    if parent_adgroup_id in [
-                                        ag["id"]
-                                        for ag in result_adgroups
-                                        if isinstance(ag, dict) and "id" in ag
-                                    ]:
-                                        logging.info(
-                                            f"Skipping duplicate adgroup creation for {parent_adgroup_id}, already processed")
-                                        continue
-
-                                    # Use custom adgroup budget or default
-                                    try:
-                                        # Fix: Use parent_adgroup_id for
-                                        # consistent lookup
-                                        logging.info(
-                                            f"Checking budget for adgroup ID: '{parent_adgroup_id}', available budget keys: {
-                                                list(
-                                                    adgroup_budgets.keys())}")
-
-                                        if parent_adgroup_id in adgroup_budgets:
-                                            # Use the specific budget for this
-                                            # adgroup
-                                            adgroup_budget_value = adgroup_budgets[
-                                                parent_adgroup_id
-                                            ]
-                                            adgroup_budget = float(
-                                                adgroup_budget_value)
-                                            logging.info(
-                                                f"Using adgroup-specific budget: {adgroup_budget} for adgroup {parent_adgroup_id}")
-                                        else:
-                                            # No specific budget, use default
-                                            adgroup_budget = 500.00
-                                            logging.info(
-                                                f"No budget specified for adgroup {parent_adgroup_id}, using default: {adgroup_budget}")
-                                    except (ValueError, TypeError) as e:
-                                        logging.error(
-                                            f"Invalid budget value for adgroup {parent_adgroup_id}: {e}, using default 500.00")
-                                        adgroup_budget = 500.00
-
-                                    # Use custom adgroup name or default
-                                    adgroup_name = adgroup_names.get(
-                                        parent_adgroup_id,
-                                        f"Ad Group {len(result_adgroups) + 1}",
-                                    )
-                                    logging.info(
-                                        f"Creating adgroup '{adgroup_name}' with budget {adgroup_budget}")
-
-                                    # Get country for this adgroup
-                                    country_code = None
-                                    country_name = request.form.get(
-                                        f"adgroup_countries[{parent_adgroup_id}]"
-                                    )
-
-                                    # Country code mapping
-                                    country_mapping = {
-                                        "United States": {
-                                            "meta": "US", "tiktok": "7"}, "Turkey": {
-                                            "meta": "TR", "tiktok": "298795"}, "Brazil": {
-                                            "meta": "BR", "tiktok": "31"}, "United Arab Emirates": {
-                                            "meta": "AE", "tiktok": "298796", }, "Australia": {
-                                            "meta": "AU", "tiktok": "12"}, "Netherlands": {
-                                            "meta": "NL", "tiktok": "178"}, "Vietnam": {
-                                            "meta": "VN", "tiktok": "306"}, "Argentina": {
-                                            "meta": "AR", "tiktok": "10"}, }
-
-                                    # Get the appropriate country code based on
-                                    # platform
-                                    if country_name and country_name in country_mapping:
-                                        if platform == "meta":
-                                            country_code = country_mapping[
-                                                country_name
-                                            ]["meta"]
-                                        elif platform == "tiktok":
-                                            country_code = country_mapping[
-                                                country_name
-                                            ]["tiktok"]
-
-                                    logging.info(
-                                        f"Using country code {country_code} for adgroup {adgroup_name}")
-
-                                    # Call the appropriate adgroup creation
-                                    # function based on template
-                                    if template == "ios_skan":
-                                        if platform == "meta":
-                                            created_adgroup_id = builder.create_adset(
-                                                ad_account,
-                                                campaign_id,
-                                                name=adgroup_name,
-                                                budget=adgroup_budget,
-                                                country=country_code,
-                                            )
-                                        else:  # tiktok
-                                            created_adgroup_id = builder.create_adgroup_for_ios14_app_install(
-                                                apis,
-                                                advertiser_id,
-                                                campaign_id,
-                                                adgroup_budget,
-                                                adgroup_name,
-                                                country=country_code,
-                                            )
-                                    elif template == "ios_onelink":
-                                        created_adgroup_id = builder.create_adset(
-                                            ad_account,
-                                            campaign_id,
-                                            adset_name=adgroup_name,
-                                            budget=adgroup_budget,
-                                            country=country_code,
-                                        )
-                                    else:  # android
-                                        if platform == "meta":
-                                            created_adgroup_id = builder.create_adset(
-                                                ad_account,
-                                                campaign_id,
-                                                adset_name=adgroup_name,
-                                                budget=budget,
-                                                country=country_code,
-                                            )
-                                        else:  # tiktok
-                                            created_adgroup_id = builder.create_adgroup_for_android_app_install(
-                                                apis,
-                                                advertiser_id,
-                                                campaign_id,
-                                                budget=budget,
-                                                adgroup_name=adgroup_name,
-                                                country=country_code,
-                                            )
-
-                                    logging.info(
-                                        f"Adgroup created with ID: {created_adgroup_id}")
-                                    # Store adgroup info with its ID for later
-                                    # reference
-                                    result_adgroups.append(
-                                        {
-                                            "id": parent_adgroup_id,
-                                            "tiktok_id": created_adgroup_id,
-                                        }
-                                    )
-
-                                    # Now find all ads that belong to this
-                                    # adgroup and create them
-                                    ads_for_this_adgroup = []
-                                    for ad_id, assets in asset_assignments.items():
-                                        if ad_id.split(
-                                                "-ad-")[0] == parent_adgroup_id:
-                                            ads_for_this_adgroup.append(
-                                                {
-                                                    "ad_id": ad_id,
-                                                    "assets": assets,
-                                                    "ad_name": ad_names.get(
-                                                        ad_id,
-                                                        f"Ad {len(result_ads) + 1}",
-                                                    ),
-                                                }
-                                            )
-
-                                    logging.info(
-                                        f"Found {
-                                            len(ads_for_this_adgroup)} ads for adgroup {parent_adgroup_id}")
-
-                                    # Process each ad in this adgroup
-                                    for ad_info in ads_for_this_adgroup:
-                                        ad_id = ad_info["ad_id"]
-                                        ad_assets = ad_info["assets"]
-                                        ad_name = ad_info["ad_name"]
-
-                                        if not ad_assets:
-                                            logging.warning(
-                                                f"No assets assigned to ad {ad_id}, skipping")
-                                            continue
-
-                                        # Get assets for this ad
-                                        ad_asset_paths = []
-                                    processed_asset_ids = (
-                                        set()
-                                    )  # Track already processed assets
-
-                                    for asset_id in ad_assets:
-                                        # Skip duplicates
-                                        if asset_id in processed_asset_ids:
-                                            logging.info(
-                                                f"Skipping duplicate asset ID: {asset_id}")
-                                            continue
-
-                                        processed_asset_ids.add(asset_id)
-
-                                        if asset_id in asset_id_to_path:
-                                            asset_path = asset_id_to_path[asset_id]
-                                            if os.path.exists(asset_path):
-                                                ad_asset_paths.append(
-                                                    asset_path)
-                                                logging.info(
-                                                    f"Found asset path for ID {asset_id}: {asset_path}")
-                                            else:
-                                                logging.warning(
-                                                    f"Asset path exists in map but file not found: {asset_path}")
-                                        else:
-                                            logging.warning(
-                                                f"Asset ID not found in map: {asset_id}")
-
-                                        if not ad_asset_paths:
-                                            logging.warning(
-                                                f"No valid assets found for ad {ad_id}")
-                                            continue
-
-                                        # Upload media for this ad
-                                    media_ids = []
-                                    media_urls = []
-                                    thumbnail_id = None
-
-                                    for path in ad_asset_paths:
-                                        try:
-                                            logging.info(
-                                                f"Uploading asset to {platform}: {path}")
-                                            if path.lower().endswith((".mp4", ".mov")):
-                                                # Handle video upload
-                                                media_id, cover_url = (
-                                                    builder.upload_video(
-                                                        apis, advertiser_id, path
-                                                    )
-                                                )
-                                                media_ids.append(media_id)
-
-                                                # Create thumbnail from video
-                                                # cover
-                                                try:
-                                                    # Create temporary cover
-                                                    # image
-                                                    temp_cover_path = (
-                                                        path.rsplit(".", 1)[0]
-                                                        + "_cover.jpg"
-                                                    )
-                                                    cover_data = get_image_from_url(
-                                                        cover_url)
-                                                    with open(
-                                                        temp_cover_path, "wb"
-                                                    ) as f:
-                                                        f.write(cover_data)
-
-                                                    # Upload cover as thumbnail
-                                                    thumbnail_id, _ = (
-                                                        builder.upload_image(
-                                                            apis,
-                                                            advertiser_id,
-                                                            temp_cover_path,
-                                                        )
-                                                    )
-
-                                                    # Clean up temp file
-                                                    if os.path.exists(
-                                                            temp_cover_path):
-                                                        os.remove(
-                                                            temp_cover_path)
-                                                except Exception as cover_err:
-                                                    logging.error(
-                                                        f"Error processing video cover: {
-                                                            str(cover_err)}")
-                                            else:
-                                                # Handle image upload
-                                                media_id, media_url = (
-                                                    builder.upload_image(
-                                                        apis, advertiser_id, path
-                                                    )
-                                                )
-                                                media_ids.append(media_id)
-                                                media_urls.append(media_url)
-                                        except Exception as media_err:
-                                            logging.error(
-                                                f"Error uploading media {path}: {
-                                                    str(media_err)}")
-
-                                    if not media_ids:
-                                        logging.error(
-                                            f"Failed to upload any media for ad {ad_id}")
-                                        continue
-
-                                    # Create ad for this adgroup
-                                    try:
-                                        media_info = {
-                                            "type": (
-                                                "video"
-                                                if any(
-                                                    path.lower().endswith(
-                                                        (".mp4", ".mov")
-                                                    )
-                                                    for path in ad_asset_paths
-                                                )
-                                                else "image"
-                                            ),
-                                            "ids": media_ids,
-                                            "thumbnail_id": thumbnail_id,
-                                        }
-
-                                        # Get custom landing page URL if
-                                        # provided (for iOS Onelink)
-                                        custom_landing_page_url = None
-                                        if template == "ios_onelink":
-                                            # For TikTok, only use ad-level
-                                            # landing page URLs
-                                            custom_landing_page_url = (
-                                                ad_landing_page_urls.get(ad_id)
-                                            )
-                                            if custom_landing_page_url:
-                                                logging.info(
-                                                    f"Found ad-level landing page URL for ad {ad_id}: {custom_landing_page_url}")
-                                            else:
-                                                logging.info(
-                                                    f"No ad-level landing page URL found for ad {ad_id}")
-
-                                            logging.info(
-                                                f"Using ad name: {ad_name}")
-
-                                            # For iOS Onelink with custom
-                                            # landing page URL
-                                            if (
-                                                template == "ios_onelink"
-                                                and custom_landing_page_url
-                                            ):
-                                                logging.info(
-                                                    f"Passing custom landing page URL to create_ad: '{custom_landing_page_url}'")
-                                                created_ad_id = builder.create_ad(
-                                                    apis,
-                                                    advertiser_id,
-                                                    created_adgroup_id,
-                                                    media_info,
-                                                    ad_name,
-                                                    custom_landing_page_url,
-                                                )
-                                            else:
-                                                created_ad_id = builder.create_ad(
-                                                    apis, advertiser_id, created_adgroup_id, media_info, ad_name, )
-
-                                            logging.info(
-                                                f"Ad created with ID: {created_ad_id}")
-                                            result_ads.append(created_ad_id)
-                                    except Exception as ad_err:
-                                        logging.error(
-                                            f"Error creating ad for adgroup {created_adgroup_id}: {
-                                                str(ad_err)}")
-                                        result["errors"].append(
-                                            f"Error creating ad for adgroup {created_adgroup_id}: {
-                                                str(ad_err)}")
-                                        continue
-
-                                # Use the results for the response
-                                if result_adgroups:
-                                    # Use first adgroup for compatibility
-                                    adgroup_id = result_adgroups[0]["id"]
-                                    result["adset_id"] = adgroup_id
-
-                                    if result_ads:
-                                        # Use first ad for compatibility
-                                        result["ad_id"] = result_ads[0]
-
-                                    result["success"] = True
-                                    result["message"] = (
-                                        f"Successfully created {
-                                            len(result_adgroups)} ad groups and {
-                                            len(result_ads)} ads")
-
-                                    # Add detailed adgroup info
-                                    result["adgroups"] = []
-                                    for i, ag_info in enumerate(
-                                            result_adgroups):
-                                        ag_info["ad_id"] = result_ads[i]
-                                        result["adgroups"].append(ag_info)
-
-                                # Legacy single adgroup creation code removed -
-                                # we now only use the multi-adgroup flow
-
-                    except NotImplementedError as e:
-                        result["message"] = str(e)
-                        result["success"] = False
-                        result["errors"].append(str(e))
-                    except Exception as e:
-                        # Extract specific error messages from TikTok API
-                        # exceptions
-                        error_message = str(e)
-                        logging.error(
-                            f"Error in TikTok campaign creation: {error_message}")
-                        logging.error(f"Traceback: {traceback.format_exc()}")
-
-                        # Extract user-friendly messages from specific TikTok
-                        # API errors
-                        if "budget setting must not be less than" in error_message:
-                            # Budget error - extract the minimum budget
-                            # requirement
-                            min_budget = (
-                                error_message.split("must not be less than")[1].strip()
-                                if "must not be less than" in error_message
-                                else "₺200.00"
-                            )
-                            user_message = f"Budget error: Minimum budget required is {min_budget}. Please increase your budget amount."
-                            result["user_message"] = user_message
-                        elif "Campaign name already exists" in error_message:
-                            user_message = "Campaign name already exists. Please try a different name."
-                            result["user_message"] = user_message
-                        else:
-                            # Generic error message for other cases
-                            result["user_message"] = (
-                                f"Error creating TikTok campaign: {error_message}")
-
-                        result["errors"].append(error_message)
-
-            except Exception as e:
-                logging.error(f"Error creating {platform} campaign: {str(e)}")
-                error_message = str(e)
-                result["errors"].append(error_message)
-                result["user_message"] = (
-                    f"Error creating {platform} campaign: {error_message}"
-                )
-
-            results[platform] = result
-
-        # Prepare a clear overall message for the user interface
-        all_success = all(result["success"] for result in results.values())
-        user_messages = []
-
-        for platform, result in results.items():
-            if result.get("user_message"):
-                user_messages.append(result["user_message"])
-            elif result.get("message"):
-                user_messages.append(result["message"])
-            elif not result["success"] and result["errors"]:
-                user_messages.append(
-                    f"{platform.capitalize()} error: {result['errors'][0]}"
-                )
-
-        # Use the combined messages or a default message
-        user_message = (
-            " ".join(user_messages)
-            if user_messages
-            else (
-                "Campaign creation completed successfully"
-                if all_success
-                else "Campaign creation failed"
-            )
-        )
-
-        return jsonify(
-            {
-                "success": any(result["success"] for result in results.values()),
-                "message": user_message,
-                "results": results,
-            }
-        )
-
+        # Distribute operations to appropriate methods based on operation type
+        if operation_type == "1":
+            # Operation Type 1: Create new ads in existing adsets
+            logging.info("Processing Operation Type 1: Create new ads in existing adsets")
+            results = create_ads_in_adsets(platforms, form_data, library_assets)
+            
+        elif operation_type == "2":
+            # Operation Type 2: Create new adsets in existing campaigns
+            logging.info("Processing Operation Type 2: Create new adsets in existing campaigns")
+            results = create_adsets_in_campaigns(platforms, form_data, library_assets)
+            
+        elif operation_type == "3":
+            # Operation Type 3: Create new campaigns with adsets and ads
+            logging.info("Processing Operation Type 3: Create completely new campaigns")
+            results = create_full_campaigns(platforms, form_data, library_assets)
+            
+        else:
+            return jsonify({"success": False, "error": f"Invalid operation type: {operation_type}"})
+        
+        # Check if we have any platform results
+        if not results:
+            return jsonify({"success": False, "error": "No campaigns were created"})
+        
+        # Determine overall success based on platform results
+        overall_success = all(result.get("success", False) for result in results.values())
+        
+        response = {
+            "success": overall_success,
+            "results": results
+        }
+        
+        # Add error message if unsuccessful
+        if not overall_success:
+            error_messages = []
+            for platform, result in results.items():
+                if not result.get("success", False):
+                    if "error" in result:
+                        error_messages.append(f"{platform.capitalize()}: {result['error']}")
+                    elif "errors" in result:
+                        for error in result["errors"]:
+                            error_messages.append(f"{platform.capitalize()}: {error}")
+            
+            if error_messages:
+                response["error"] = ". ".join(error_messages)
+        
+        logging.info(f"Campaign creation completed with success={overall_success}")
+        return jsonify(response)
+        
     except Exception as e:
-        logging.error(f"Error processing request: {str(e)}")
-        logging.error(f"Traceback: {traceback.format_exc()}")
-        return jsonify({"success": False, "error": str(e)}), 500
+        logging.error(f"Error creating campaign: {str(e)}")
+        logging.error(traceback.format_exc())
+        return jsonify({"success": False, "error": f"An error occurred: {str(e)}"})
 
+def create_ads_in_adsets(platforms, form_data, library_assets):
+    """
+    Operation Type 1: Create new ads in existing adsets
+    """
+    results = {}
+    
+    # For debugging: print form data structure
+    logging.info("Form data structure:")
+    for key, value in form_data.items():
+        logging.info(f"Key: {key}, Value: {value}")
+    
+    # Process Meta platform
+    if "meta" in platforms:
+        # Support multiple Meta advertiser IDs
+        meta_advertiser_ids = form_data.getlist("metaAdvertiserId")
+        if not meta_advertiser_ids:
+            return {"meta": {"success": False, "error": "Meta Advertiser Account is required"}}
+        
+        logging.info(f"Meta advertiser IDs: {meta_advertiser_ids}")
+        
+        # Use the first advertiser ID for now
+        meta_advertiser_id = meta_advertiser_ids[0]
+        if len(meta_advertiser_ids) > 1:
+            logging.info(f"Using first Meta advertiser ID from {len(meta_advertiser_ids)} selected")
+        
+        # Extract all adset IDs that have form data - including those not in selected_adsets
+        meta_adsets = set()
+        
+        # Get explicitly selected adsets for Meta
+        for key, value in form_data.items():
+            if key.startswith("selected_adsets[meta][]"):
+                if value != "undefined":  # Skip undefined values
+                    meta_adsets.add(value)
+        
+        # Also include adsets that have ad names or asset assignments
+        # This ensures we don't miss adsets that weren't explicitly selected but have ads assigned
+        for key in form_data.keys():
+            if key.startswith("ad_names[") or key.startswith("asset_assignments["):
+                # Extract adset ID from the key
+                match = re.match(r'(?:ad_names|asset_assignments)\[([^\]]+)\]', key)
+                if match:
+                    adset_id = match.group(1)
+                    # Only add to meta_adsets if this adset is meant for Meta
+                    # We'll rely on the frontend properly associating adsets with platforms
+                    # and keeping Meta adsets separate from TikTok adsets in the UI
+                    if not "tiktok" in key and not any(tiktok_id == adset_id for tiktok_id in form_data.getlist("selected_adsets[tiktok][]")):
+                        meta_adsets.add(adset_id)
+        
+        meta_adsets = list(meta_adsets)
+        logging.info(f"Processing Meta adsets: {meta_adsets}")
+        
+        # Dictionary to store ads by adset ID
+        meta_ad_names = {}
+        
+        # Process each adset
+        for adset_id in meta_adsets:
+            # Get all ad names for this adset
+            ad_keys = [k for k in form_data.keys() if k.startswith(f"ad_names[{adset_id}]")]
+            ad_names = []
+            
+            # Extract ad names and their specific containers if available
+            ad_containers = {}
+            for key in ad_keys:
+                ad_name = form_data.get(key)
+                if not ad_name:
+                    continue
+                    
+                # Check if this is a specific container
+                container_id = None
+                if "[" in key[len(f"ad_names[{adset_id}]"):]:
+                    # Extract container ID from brackets
+                    match = re.search(r'\[([^\]]+)\]$', key)
+                    if match:
+                        container_id = match.group(1)
+                
+                # Use container ID or create a unique ID
+                container_id = container_id or f"ad_{len(ad_containers)}"
+                ad_containers[container_id] = {"name": ad_name, "assets": []}
+                ad_names.append(ad_name)
+            
+            logging.info(f"Ad names for adset {adset_id}: {ad_names}")
+            
+            # Get all assets assigned to this adset and organize by container
+            asset_keys = [k for k in form_data.keys() if k.startswith(f"asset_assignments[{adset_id}]")]
+            all_assets = []
+            
+            for key in asset_keys:
+                # Get the asset ID - may be multiple if it's an array field
+                assets = form_data.getlist(key)
+                if not assets:
+                    continue
+                    
+                # Check if this is a specific container
+                container_id = None
+                if "[" in key[len(f"asset_assignments[{adset_id}]"):]:
+                    # Extract container ID from brackets
+                    match = re.search(r'\[([^\]]+)\]$', key)
+                    if match:
+                        container_id = match.group(1)
+                
+                # If we have a container ID and it matches one from ad_names, add assets to it
+                if container_id and container_id in ad_containers:
+                    ad_containers[container_id]["assets"].extend(assets)
+                else:
+                    # Otherwise, add to the general pool of assets
+                    all_assets.extend(assets)
+            
+            logging.info(f"All assets assigned to adset {adset_id}: {all_assets}")
+            
+            # If we have no specific containers with assets, distribute assets to ads sequentially
+            if not any(container["assets"] for container in ad_containers.values()):
+                # Distribute assets to ads - for now assigning assets sequentially to each ad
+                # Starting with the first one
+                if ad_containers and all_assets:
+                    container_ids = list(ad_containers.keys())
+                    for i, asset_id in enumerate(all_assets):
+                        container_id = container_ids[i % len(container_ids)]
+                        ad_containers[container_id]["assets"].append(asset_id)
+            
+            # Convert to the structure expected by create_ads_in_existing_adsets
+            ad_entries = []
+            for container_id, container in ad_containers.items():
+                if container["assets"]:  # Only include ads with assets
+                    ad_entries.append(container)
+                    logging.info(f"  Ad for adset {adset_id}: Name='{container['name']}', Assets={len(container['assets'])}")
+            
+            # Always store as a list to support multiple ads per adset
+            if ad_entries:
+                meta_ad_names[adset_id] = ad_entries if len(ad_entries) > 1 else ad_entries[0]
+        
+        if not meta_adsets:
+            results["meta"] = {"success": False, "error": "Please select at least one Meta adset"}
+        else:
+            # Create ads using the uploader module
+            import ad_uploader_existing
+            meta_results = ad_uploader_existing.create_ads_in_existing_adsets(
+                platform="meta",
+                advertiser_id=meta_advertiser_id,
+                adset_ids=meta_adsets,
+                library_assets=library_assets,
+                ad_names=meta_ad_names
+            )
+            
+            results["meta"] = meta_results
+    
+    # Process TikTok platform
+    if "tiktok" in platforms:
+        # Support multiple TikTok advertiser IDs
+        tiktok_advertiser_ids = form_data.getlist("tiktokAdvertiserId")
+        if not tiktok_advertiser_ids:
+            return {"tiktok": {"success": False, "error": "TikTok Advertiser Account is required"}}
+        
+        logging.info(f"TikTok advertiser IDs: {tiktok_advertiser_ids}")
+        
+        # Use the first advertiser ID for now
+        tiktok_advertiser_id = tiktok_advertiser_ids[0]
+        if len(tiktok_advertiser_ids) > 1:
+            logging.info(f"Using first TikTok advertiser ID from {len(tiktok_advertiser_ids)} selected")
+        
+        # Extract all adset IDs that have form data - including those not in selected_adsets
+        tiktok_adsets = set()
+        
+        # Get explicitly selected adsets for TikTok
+        for key, value in form_data.items():
+            if key.startswith("selected_adsets[tiktok][]"):
+                if value != "undefined":  # Skip undefined values
+                    tiktok_adsets.add(value)
+        
+        # Also include adsets that have ad names or asset assignments
+        # This ensures we don't miss adsets that weren't explicitly selected but have ads assigned
+        for key in form_data.keys():
+            if key.startswith("ad_names[") or key.startswith("asset_assignments["):
+                # Extract adset ID from the key
+                match = re.match(r'(?:ad_names|asset_assignments)\[([^\]]+)\]', key)
+                if match:
+                    adset_id = match.group(1)
+                    # Only add to tiktok_adsets if this adset is meant for TikTok
+                    # We'll rely on the frontend properly associating adsets with platforms
+                    # and keeping TikTok adsets separate from Meta adsets in the UI
+                    if not "meta" in key and not any(meta_id == adset_id for meta_id in form_data.getlist("selected_adsets[meta][]")):
+                        tiktok_adsets.add(adset_id)
+        
+        tiktok_adsets = list(tiktok_adsets)
+        logging.info(f"Processing TikTok adsets: {tiktok_adsets}")
+        
+        # Dictionary to store ads by adset ID
+        tiktok_ad_names = {}
+        
+        # Process each adset
+        for adset_id in tiktok_adsets:
+            # Get all ad names for this adset
+            ad_keys = [k for k in form_data.keys() if k.startswith(f"ad_names[{adset_id}]")]
+            ad_names = []
+            
+            # Extract ad names and their specific containers if available
+            ad_containers = {}
+            for key in ad_keys:
+                ad_name = form_data.get(key)
+                if not ad_name:
+                    continue
+                    
+                # Check if this is a specific container
+                container_id = None
+                if "[" in key[len(f"ad_names[{adset_id}]"):]:
+                    # Extract container ID from brackets
+                    match = re.search(r'\[([^\]]+)\]$', key)
+                    if match:
+                        container_id = match.group(1)
+                
+                # Use container ID or create a unique ID
+                container_id = container_id or f"ad_{len(ad_containers)}"
+                ad_containers[container_id] = {"name": ad_name, "assets": []}
+                ad_names.append(ad_name)
+            
+            logging.info(f"Ad names for adset {adset_id}: {ad_names}")
+            
+            # Get all assets assigned to this adset and organize by container
+            asset_keys = [k for k in form_data.keys() if k.startswith(f"asset_assignments[{adset_id}]")]
+            all_assets = []
+            
+            for key in asset_keys:
+                # Get the asset ID - may be multiple if it's an array field
+                assets = form_data.getlist(key)
+                if not assets:
+                    continue
+                    
+                # Check if this is a specific container - look for pattern asset_assignments[adset_id][container_id][]
+                container_id = None
+                container_match = re.search(r'asset_assignments\[\d+\]\[([^\]]+)\]', key)
+                if container_match:
+                    container_id = container_match.group(1)
+                elif "[" in key[len(f"asset_assignments[{adset_id}]"):]:
+                    # Old pattern (without container ID)
+                    match = re.search(r'\[([^\]]+)\]$', key)
+                    if match:
+                        container_id = match.group(1)
+                
+                # If we have a container ID and it matches one from ad_names, add assets to it
+                if container_id and container_id in ad_containers:
+                    ad_containers[container_id]["assets"].extend(assets)
+                else:
+                    # Otherwise, add to the general pool of assets
+                    all_assets.extend(assets)
+            
+            logging.info(f"All assets assigned to adset {adset_id}: {all_assets}")
+            
+            # If we have no specific containers with assets, distribute assets to ads sequentially
+            if not any(container["assets"] for container in ad_containers.values()):
+                # Distribute assets to ads - for now assigning assets sequentially to each ad
+                # Starting with the first one
+                if ad_containers and all_assets:
+                    container_ids = list(ad_containers.keys())
+                    for i, asset_id in enumerate(all_assets):
+                        container_id = container_ids[i % len(container_ids)]
+                        ad_containers[container_id]["assets"].append(asset_id)
+            
+            # Convert to the structure expected by create_ads_in_existing_adsets
+            ad_entries = []
+            for container_id, container in ad_containers.items():
+                if container["assets"]:  # Only include ads with assets
+                    ad_entries.append(container)
+                    logging.info(f"  Ad for adset {adset_id}: Name='{container['name']}', Assets={len(container['assets'])}")
+            
+            # Always store as a list to support multiple ads per adset
+            if ad_entries:
+                tiktok_ad_names[adset_id] = ad_entries if len(ad_entries) > 1 else ad_entries[0]
+        
+        if not tiktok_adsets:
+            results["tiktok"] = {"success": False, "error": "Please select at least one TikTok adset"}
+        else:
+            # Create ads using the uploader module
+            import ad_uploader_existing
+            tiktok_results = ad_uploader_existing.create_ads_in_existing_adsets(
+                platform="tiktok",
+                advertiser_id=tiktok_advertiser_id,
+                adset_ids=tiktok_adsets,
+                library_assets=library_assets,
+                ad_names=tiktok_ad_names
+            )
+            
+            results["tiktok"] = tiktok_results
+    
+    return results
+
+def create_adsets_in_campaigns(platforms, form_data, library_assets):
+    """
+    Operation Type 2: Create new adsets in existing campaigns
+    """
+    # TODO: Implement creation of new adsets in existing campaigns
+    # This function will:
+    # 1. First create the new adsets using campaign_builder modules for each platform
+    # 2. Then create ads in those adsets using ad_uploader 
+    
+    logging.info("Operation Type 2 not yet implemented")
+    results = {}
+    
+    for platform in platforms:
+        results[platform] = {
+            "success": False, 
+            "error": f"Creation of new adsets in existing campaigns not yet implemented for {platform}"
+        }
+    
+    return results
+
+def create_full_campaigns(platforms, form_data, library_assets):
+    """
+    Operation Type 3: Create completely new campaigns with adsets and ads
+    """
+    # TODO: Implement creation of new campaigns, adsets, and ads
+    # This function will use the campaign_builder modules for each platform
+    
+    logging.info("Operation Type 3 not yet implemented")
+    results = {}
+    
+    for platform in platforms:
+        results[platform] = {
+            "success": False, 
+            "error": f"Creation of new campaigns not yet implemented for {platform}"
+        }
+    
+    return results
 
 @app.route("/api/save_settings", methods=["POST"])
 def save_settings():
@@ -3313,6 +2420,277 @@ def get_meta_account_details():
         logging.error(f"Error getting Meta account details: {str(e)}")
         return jsonify({"success": False, "error": str(e)})
 
+
+@app.route("/api/meta/campaigns")
+def get_meta_campaigns():
+    try:
+        account_id = request.args.get("account_id")
+        if not account_id:
+            return jsonify({"success": False, "error": "Account ID is required"})
+        
+        # Add debug logging
+        logging.info(f"Fetching Meta campaigns for account: {account_id}")
+        
+        # Initialize the Meta API with the specified account
+        ad_account = meta_android.initialize_api(account_id)
+        
+        # Get campaigns
+        campaigns = ad_account.get_campaigns(
+            fields=['id', 'name', 'status', 'objective'],
+            params={'limit': 100}
+        )
+        
+        # Log the raw response
+        logging.info(f"Meta campaigns response: {campaigns}")
+        
+        # Format the response
+        campaign_list = []
+        for campaign in campaigns:
+            campaign_list.append({
+                'id': campaign['id'],
+                'name': campaign['name'],
+                'status': campaign['status'],
+                'objective': campaign.get('objective', '')
+            })
+        
+        logging.info(f"Returning {len(campaign_list)} Meta campaigns for account {account_id}")
+        return jsonify({"success": True, "campaigns": campaign_list})
+    except Exception as e:
+        logging.error(f"Error getting Meta campaigns: {str(e)}")
+        return jsonify({"success": False, "error": str(e)})
+
+@app.route("/api/tiktok/campaigns")
+def get_tiktok_campaigns():
+    try:
+        advertiser_id = request.args.get("advertiser_id")
+        if not advertiser_id:
+            return jsonify({"success": False, "error": "Advertiser ID is required"})
+        
+        # Add debug logging
+        logging.info(f"Fetching TikTok campaigns for advertiser: {advertiser_id}")
+        
+        # Initialize the TikTok API
+        apis = tiktok_android.initialize_api()
+        
+        # Get campaigns
+        url = "https://business-api.tiktok.com/open_api/v1.3/campaign/get/"
+        headers = {
+            "Access-Token": apis['campaign_api'].api_client.configuration.access_token
+        }
+        params = {
+            "advertiser_id": advertiser_id,
+            "page_size": 100
+        }
+        
+        logging.info(f"TikTok API request: {url} with params {params}")
+        response = requests.get(url, headers=headers, params=params)
+        data = response.json()
+        
+        # Log the raw response
+        logging.info(f"TikTok campaigns response: {data}")
+        
+        if data.get('code') == 0 and 'data' in data and 'list' in data['data']:
+            campaign_list = []
+            for campaign in data['data']['list']:
+                campaign_list.append({
+                    'id': campaign['campaign_id'],
+                    'name': campaign['campaign_name'],
+                    'status': campaign['operation_status'],
+                    'objective': campaign.get('objective_type', '')
+                })
+            
+            logging.info(f"Returning {len(campaign_list)} TikTok campaigns for advertiser {advertiser_id}")
+            return jsonify({"success": True, "campaigns": campaign_list})
+        else:
+            error_message = data.get('message', 'Unknown error')
+            logging.error(f"TikTok API error: {error_message}")
+            return jsonify({"success": False, "error": error_message})
+    except Exception as e:
+        logging.error(f"Error getting TikTok campaigns: {str(e)}")
+        return jsonify({"success": False, "error": str(e)})
+
+@app.route("/api/meta/adsets")
+def get_meta_adsets():
+    try:
+        campaign_id = request.args.get("campaign_id")
+        if not campaign_id:
+            return jsonify({"success": False, "error": "Campaign ID is required"})
+        
+        # Get the account ID from the request
+        account_id = request.args.get("account_id")
+        if not account_id:
+            # Try to extract from campaign ID as fallback
+            account_id = campaign_id.split('_')[0]
+        
+        # Initialize the Meta API
+        ad_account = meta_android.initialize_api(account_id)
+        
+        # Add debug logging
+        logging.info(f"Fetching adsets for Meta campaign: {campaign_id}")
+        
+        # Get adsets with explicit filtering for the campaign
+        # Meta API expects campaign.id in the filtering parameter
+        params = {
+            'filtering': [
+                {
+                    'field': 'campaign.id',
+                    'operator': 'EQUAL',
+                    'value': campaign_id
+                }
+            ],
+            'limit': 100
+        }
+        
+        logging.info(f"Meta API request params: {params}")
+        
+        # Get adsets
+        adsets = ad_account.get_ad_sets(
+            fields=['id', 'name', 'status', 'daily_budget', 'lifetime_budget', 'campaign_id'],
+            params=params
+        )
+        
+        # Log the raw response
+        logging.info(f"Meta adsets response: {adsets}")
+        
+        # Format the response
+        adset_list = []
+        for adset in adsets:
+            budget = adset.get('daily_budget', adset.get('lifetime_budget', 0))
+            budget_display = f"${float(budget)/100:.2f}"
+            
+            adset_list.append({
+                'id': adset['id'],
+                'name': adset['name'],
+                'status': adset['status'],
+                'budget': budget_display,
+                'campaign_id': adset.get('campaign_id', '')
+            })
+        
+        logging.info(f"Formatted {len(adset_list)} Meta adsets for campaign {campaign_id}")
+        return jsonify({"success": True, "adsets": adset_list})
+    except Exception as e:
+        logging.error(f"Error getting Meta adsets: {str(e)}")
+        return jsonify({"success": False, "error": str(e)})
+
+@app.route("/api/tiktok/adsets")
+def get_tiktok_adsets():
+    try:
+        campaign_id = request.args.get("campaign_id")
+        advertiser_id = request.args.get("advertiser_id")
+        
+        if not campaign_id:
+            return jsonify({"success": False, "error": "Campaign ID is required"})
+        
+        if not advertiser_id:
+            # Try to extract from campaign ID as fallback
+            advertiser_id = campaign_id.split('_')[0]
+        
+        # Initialize the TikTok API
+        apis = tiktok_android.initialize_api()
+        
+        # Add debug logging
+        logging.info(f"Fetching adsets for TikTok campaign: {campaign_id}")
+        logging.info(f"Using advertiser ID: {advertiser_id}")
+        
+        # Ensure campaign_id is properly formatted for TikTok API
+        # TikTok might require specific formatting
+        formatted_campaign_id = campaign_id
+        logging.info(f"Using formatted campaign ID: {formatted_campaign_id}")
+        
+        # Get adgroups
+        url = "https://business-api.tiktok.com/open_api/v1.3/adgroup/get/"
+        headers = {
+            "Access-Token": apis['adgroup_api'].api_client.configuration.access_token
+        }
+        params = {
+            "advertiser_id": advertiser_id,  # Use the advertiser_id from the request, not the campaign_id
+            "campaign_ids": [formatted_campaign_id],  # Use campaign_ids array for filtering
+            "page_size": 100
+        }
+        
+        logging.info(f"TikTok API request: {url} with params {params}")
+        response = requests.get(url, headers=headers, params=params)
+        data = response.json()
+        
+        # Log the raw response
+        logging.info(f"TikTok adsets response: {data}")
+        
+        if data.get('code') == 0 and 'data' in data and 'list' in data['data']:
+            adset_list = []
+            for adgroup in data['data']['list']:
+                # Verify this adgroup belongs to our campaign
+                adgroup_campaign_id = adgroup.get('campaign_id', '')
+                logging.info(f"Adgroup {adgroup['adgroup_id']} has campaign_id: {adgroup_campaign_id}")
+                
+                # Only include adgroups that match our campaign
+                if adgroup_campaign_id == formatted_campaign_id or adgroup_campaign_id == campaign_id:
+                    budget = adgroup.get('budget', 0)
+                    budget_display = f"${float(budget):.2f}"
+                    
+                    adset_list.append({
+                        'id': adgroup['adgroup_id'],
+                        'name': adgroup['adgroup_name'],
+                        'status': adgroup['operation_status'],
+                        'budget': budget_display
+                    })
+            
+            logging.info(f"Formatted {len(adset_list)} TikTok adsets for campaign {campaign_id}")
+            return jsonify({"success": True, "adsets": adset_list})
+        else:
+            error_message = data.get('message', 'Unknown error')
+            logging.error(f"TikTok API error: {error_message}")
+            return jsonify({"success": False, "error": error_message})
+    except Exception as e:
+        logging.error(f"Error getting TikTok adsets: {str(e)}")
+        return jsonify({"success": False, "error": str(e)})
+
+# Add a test endpoint to verify API credentials
+@app.route("/api/test_credentials")
+def test_credentials():
+    results = {}
+    
+    # Test Meta credentials
+    try:
+        meta_account = meta_android.initialize_api()
+        meta_account.get_campaigns(fields=['name'], params={'limit': 1})
+        results['meta'] = "Success"
+    except Exception as e:
+        results['meta'] = f"Error: {str(e)}"
+    
+    # Test TikTok credentials
+    try:
+        apis = tiktok_android.initialize_api()
+        url = "https://business-api.tiktok.com/open_api/v1.3/user/info/"
+        headers = {"Access-Token": apis['campaign_api'].api_client.configuration.access_token}
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            results['tiktok'] = "Success"
+        else:
+            results['tiktok'] = f"Error: {response.text}"
+    except Exception as e:
+        results['tiktok'] = f"Error: {str(e)}"
+    
+    return jsonify(results)
+
+@app.route("/api/media_library", methods=["GET"])
+def media_library_api():  # Changed function name to avoid conflict
+    """API endpoint to get the media library"""
+    try:
+        # Get the media library from the existing function
+        media_library = get_media_library()
+        
+        # Return the media library as JSON
+        return jsonify({
+            "success": True,
+            "assets": media_library
+        })
+    except Exception as e:
+        logging.error(f"Error getting media library: {str(e)}")
+        logging.error(traceback.format_exc())
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 if __name__ == "__main__":
     # Create upload folder if it doesn't exist
