@@ -1,0 +1,2226 @@
+/**
+ * Ads Builder Styles
+ * Organized according to best practices with modular structure
+ */
+
+/* =============================================
+   IMPORTS
+   ============================================= */
+@import url('../components/form.css');
+@import url('../components/toast.css');
+
+/* =============================================
+   MAIN LAYOUT CONTAINERS
+   ============================================= */
+.ads-builder-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.ads-builder-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+/* Section headers */
+.section-header {
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 1.4rem;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.section-description {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* =============================================
+   STEP INDICATORS
+   ============================================= */
+.step-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.step-indicator::before {
+    content: '';
+    position: absolute;
+    top: 24px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #e0e0e0;
+    z-index: 1;
+}
+
+.step-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 25%;
+    z-index: 2;
+}
+
+.step-number {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    color: #666;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+    border: 2px solid #e0e0e0;
+}
+
+.step-text {
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.step-item.active .step-number {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.step-item.active .step-text {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.step-item.completed .step-number {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.step-item.completed .step-text {
+    color: #28a745;
+}
+
+/* =============================================
+   FORM STEPS
+   ============================================= */
+.form-step {
+    display: none;
+}
+
+.form-step[data-step="1"] {
+    display: block;
+}
+
+.step-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* =============================================
+   STEP NAVIGATION
+   ============================================= */
+.step-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.prev-step {
+    background-color: #f8f9fa;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.next-step {
+    background-color: #007bff;
+    color: white;
+}
+
+.next-step:disabled {
+    background-color: #b0d4ff;
+    cursor: not-allowed;
+}
+
+/* =============================================
+   PLATFORM SELECTION
+   ============================================= */
+.platform-selection {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.platform-item {
+    flex: 1;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.platform-item:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.platform-item.selected {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.platform-icon {
+    font-size: 36px;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.platform-item.selected .platform-icon {
+    color: #007bff;
+}
+
+.platform-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.platform-checkbox {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    transform: scale(1.2);
+}
+
+/* =============================================
+   ACCOUNT SELECTION
+   ============================================= */
+.account-selection {
+    margin-bottom: 30px;
+}
+
+.account-checkbox-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.account-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    background-color: white;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.account-item:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.account-item.selected {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.account-checkbox {
+    margin-right: 10px;
+    transform: scale(1.2);
+}
+
+.account-details {
+    flex: 1;
+}
+
+.account-name {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 2px;
+}
+
+.account-id {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.account-platform-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-right: 10px;
+    color: white;
+    font-size: 14px;
+}
+
+.platform-meta {
+    background-color: #1877f2;
+}
+
+.platform-tiktok {
+    background-color: #000000;
+}
+
+.loading-accounts {
+    padding: 15px;
+    text-align: center;
+    color: #6c757d;
+    grid-column: 1 / -1;
+}
+
+/* =============================================
+   CAMPAIGN AND ADSET SELECTION
+   ============================================= */
+.campaign-section, .adset-section {
+    margin-bottom: 25px;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.campaigns-container {
+    margin-bottom: 20px;
+}
+
+.campaigns-container h4 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+.campaign-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #f9f9f9;
+}
+
+.campaign-item:hover {
+    border-color: #1976d2;
+    background-color: #f0f7ff;
+}
+
+.campaign-item.selected {
+    border-color: #4a8cff;
+    background-color: #edf5ff;
+    box-shadow: 0 2px 8px rgba(74, 140, 255, 0.2);
+    transform: translateY(-2px);
+    position: relative;
+}
+
+.campaign-checkbox {
+    margin-right: 10px;
+}
+
+.campaign-details {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.campaign-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.campaign-id {
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
+}
+
+/* Campaign Multi-Selection */
+.campaign-checkbox-container {
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.campaign-selection-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Account Campaign Containers */
+.account-campaign-container {
+    margin-bottom: 25px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+.account-header {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+}
+
+.account-header i {
+    margin-right: 8px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: white;
+}
+
+.account-header i.fa-facebook-f {
+    background-color: #1877f2;
+}
+
+.account-header i.fa-tiktok {
+    background-color: #000000;
+}
+
+.account-id-badge {
+    background-color: #e9ecef;
+    color: #666;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    font-weight: normal;
+}
+
+.campaign-section-header {
+    text-align: center;
+    padding: 15px;
+    font-style: italic;
+    color: #666;
+}
+
+.no-campaigns-message {
+    padding: 10px;
+    color: #856404;
+    background-color: #fff3cd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+/* =============================================
+   ADSET SELECTION
+   ============================================= */
+.adsets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.adsets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.adset-item {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 12px;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 5;
+    overflow: visible;
+}
+
+.adset-item:hover {
+    border-color: #a0c7ff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+    z-index: 6;
+}
+
+.adset-item.selected {
+    border-color: #4a8cff;
+    background-color: #edf5ff;
+    box-shadow: 0 2px 8px rgba(74, 140, 255, 0.2);
+    transform: translateY(-2px);
+    position: relative;
+    z-index: 6;
+}
+
+/* Position hint to help users understand this is a drop zone */
+.adset-item::after {
+    content: "Drop Zone";
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background-color: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border: 1px dashed #007bff;
+    z-index: 7;
+}
+
+.adset-item:hover::after {
+    opacity: 1;
+}
+
+/* Make the entire adset item appear as a drop zone when dragging */
+body.dragging .adset-item, 
+body.body-dragging .adset-item {
+    border: 2px dashed #007bff;
+    background-color: rgba(0, 123, 255, 0.03);
+}
+
+/* Enhanced asset drop zone to fully cover adset item */
+.asset-drop-zone {
+    border: 2px dashed #adb5bd;
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 120px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10; /* Ensure it's above other elements */
+    pointer-events: auto !important; /* Force pointer events */
+    margin-top: 10px;
+}
+
+/* Make adset headers not interfere with drops */
+.adset-header, 
+.adset-details,
+.adset-name,
+.adset-status {
+    pointer-events: none !important;
+}
+
+/* But ensure buttons and links still work */
+.adset-header button,
+.adset-header a,
+.adset-details button,
+.adset-details a {
+    pointer-events: auto !important;
+}
+
+/* Clear indicator when dragging over a drop zone */
+.body-dragging .adset-item,
+.dragging .adset-item {
+    position: relative;
+}
+
+.body-dragging .adset-item::before,
+.dragging .adset-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 3px dashed #007bff;
+    border-radius: 6px;
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* Highly visible drag-over state */
+.asset-drop-zone.drag-over {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.3);
+    transform: scale(1.02);
+}
+
+/* Full item drag-over effect for better user feedback */
+.adset-item:has(.asset-drop-zone.drag-over),
+.adset-item:has(.drag-over) {
+    border-color: #007bff;
+    box-shadow: 0 0 20px rgba(0, 123, 255, 0.4);
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.adset-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.adset-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+}
+
+.adset-status {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+    display: inline-block;
+    text-align: center;
+    min-width: 80px;
+}
+
+/* Adset status variants */
+.adset-status.active { background-color: #00b894; color: white; }
+.adset-status.paused { background-color: #fdcb6e; color: #594315; }
+.adset-status.deleted { background-color: #636e72; color: white; }
+.adset-status.failed { background-color: #d63031; color: white; }
+.adset-status.review { background-color: #0984e3; color: white; }
+.adset-status.pending { background-color: #fdcb6e; color: #594315; }
+.adset-status.restricted { background-color: #e17055; color: white; }
+.adset-status.budget-exceeded { background-color: #e84393; color: white; }
+.adset-status.insufficient-funds { background-color: #fd79a8; color: white; }
+.adset-status.frozen { background-color: #74b9ff; color: #2d3436; }
+.adset-status.scheduled { background-color: #55efc4; color: #2d3436; }
+.adset-status.partial-approval { background-color: #ffeaa7; color: #594315; }
+.adset-status.completed { background-color: #6c5ce7; color: white; }
+.adset-status.closed { background-color: #b2bec3; color: #2d3436; }
+.adset-status.terminated { background-color: #ff7675; color: white; }
+.adset-status.withdrawn { background-color: #a29bfe; color: white; }
+.adset-status.invalid { background-color: #dfe6e9; color: #636e72; }
+.adset-status.incomplete { background-color: #fab1a0; color: #2d3436; }
+
+.adset-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.targeting-info, .budget-info, .goal-info {
+    background-color: #f5f5f5;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.add-asset-button {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#addMoreAssetsBtn {
+    background-color: #f8f9fa;
+    border: 1px dashed #a0c7ff;
+    color: #0056b3;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+#addMoreAssetsBtn:hover {
+    background-color: #e8f0fe;
+    border-color: #0056b3;
+}
+
+.no-adsets {
+    background-color: #fff4e5;
+    color: #663c00;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    margin: 10px 0;
+}
+
+/* =============================================
+   ASSET SELECTION
+   ============================================= */
+.asset-selection {
+    margin-bottom: 30px;
+    display: flex;
+        flex-direction: column;
+    }
+    
+.asset-library-btn {
+    display: flex;
+    align-items: center;
+    background-color: #e9f0ff;
+    border: 2px dashed #007bff;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.asset-library-btn:hover {
+    background-color: #d1e3ff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+}
+
+.asset-library-icon {
+    font-size: 24px;
+    margin-right: 10px;
+    color: #007bff;
+}
+
+/* =============================================
+   TWO-PANEL LAYOUT
+   ============================================= */
+.form-step[data-step="3"] .asset-selection {
+    display: flex;
+        flex-direction: column;
+    margin-bottom: 20px;
+}
+
+/* Split panels container */
+.split-panels-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    height: calc(100vh - 350px);
+    min-height: 500px;
+    position: relative;
+    z-index: 0;
+}
+
+/* Left panel for selected assets */
+.assets-panel {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #ffffff;
+    overflow: hidden;
+}
+
+.assets-panel-header {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f9f9fa;
+    font-weight: 500;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.assets-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+/* Right panel for adsets */
+.adsets-panel {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #ffffff;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.adsets-panel-header {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f9f9fa;
+    font-weight: 500;
+    color: #333;
+    font-size: 0.7rem;
+}
+
+.adsets-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Smaller fonts for adsets panel */
+.adsets-panel .adset-name {
+    font-size: 0.7rem;
+}
+
+.adsets-panel .adset-status {
+    font-size: 0.56rem;
+    padding: 3px 7px;
+    min-width: 56px;
+}
+
+.adsets-panel .adset-details {
+    font-size: 0.595rem;
+}
+
+.adsets-panel .create-ad-btn {
+    font-size: 0.7rem;
+    padding: 5px 8px;
+}
+
+.adsets-panel .drop-placeholder {
+    font-size: 0.63rem;
+    padding: 14px 7px;
+}
+
+.adsets-panel .empty-panel-message {
+    font-size: 0.7rem;
+}
+
+.adsets-panel .no-adsets {
+    font-size: 0.7rem;
+    padding: 7px;
+}
+
+/* Legacy selected assets section - kept for compatibility */
+.selected-assets-section {
+    position: relative;
+    background-color: #ffffff;
+    margin-bottom: 15px;
+    max-height: none;
+    overflow-y: visible;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.selected-assets-section h4 {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+/* Help message styling */
+.assets-help-message {
+    background-color: #e9f0ff;
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+    color: #0056b3;
+    font-size: 0.9rem;
+    text-align: center;
+    border-left: 4px solid #007bff;
+}
+
+/* Assets container with scroll */
+.assets-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+/* Update adsets container within panel */
+.adsets-panel .adsets-container {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+/* Empty state for panels */
+.empty-panel-message {
+    padding: 20px;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Enhanced layout for adsets container */
+.adsets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    padding-top: 15px;
+    border-top: 1px dashed #ccc;
+}
+
+/* =============================================
+   ASSET PREVIEWS & DRAG/DROP
+   ============================================= */
+/* Styling for the upload preview container */
+.upload-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Make draggable preview items more visually appealing and easier to grab */
+.preview-item {
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    border: 2px solid #eee;
+    transition: all 0.2s ease;
+    cursor: grab;
+}
+
+.preview-item:hover {
+    transform: scale(1.05);
+    border-color: #007bff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.preview-item.dragging {
+    opacity: 0.6;
+    border: 2px dashed #007bff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.preview-img, 
+.preview-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.preview-remove {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    color: #dc3545;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.preview-item:hover .preview-remove {
+    opacity: 1;
+}
+
+.preview-remove:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Make drop zones more obvious and attractive */
+.asset-drop-zone {
+    border: 2px dashed #adb5bd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 10px 0;
+    min-height: 100px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.asset-drop-zone.drag-over {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.1);
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
+
+.drop-placeholder {
+    width: 100%;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 20px 10px;
+    font-size: 0.9rem;
+}
+
+/* Enhanced asset preview within drop zones */
+.asset-preview {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.asset-preview:hover {
+    transform: scale(1.05);
+}
+
+/* Drag indicator styling */
+.drag-indicator {
+    position: fixed;
+    background-color: rgba(0, 123, 255, 0.2);
+    border: 2px dashed #007bff;
+    border-radius: 4px;
+    padding: 5px 10px;
+    bottom: 20px;
+    right: 20px;
+    color: #007bff;
+    z-index: 1000;
+    font-size: 0.85rem;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    display: none;
+    pointer-events: none;
+    animation: pulse 2s infinite;
+}
+
+/* Styling for when an asset is being dragged */
+body.dragging .drag-indicator {
+    display: block;
+}
+
+body.dragging .adsets-container {
+    position: relative;
+}
+
+body.dragging .adsets-container::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background: linear-gradient(to bottom, rgba(0, 123, 255, 0.3), transparent);
+    z-index: 5;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+/* Visual cues for dragging */
+.drag-image {
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.drag-image-content {
+    color: #007bff;
+    font-size: 20px;
+}
+
+/* Make adset drop zones more noticeable during dragging */
+body.dragging .asset-drop-zone {
+    border-color: #007bff;
+    background-color: #f1f8ff;
+    animation: pulse-light 2s infinite;
+}
+
+@keyframes pulse-light {
+    0% {
+        background-color: #f1f8ff;
+    }
+    50% {
+        background-color: #e1f0ff;
+    }
+    100% {
+        background-color: #f1f8ff;
+    }
+}
+
+/* Improve visibility of "Create Ad" buttons */
+.create-ad-btn {
+    background-color: #007bff;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.create-ad-btn:hover {
+    background-color: #0069d9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Campaign Summary */
+.summary-section {
+    margin-bottom: 25px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.summary-section h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.summary-item {
+    display: flex;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #e9ecef;
+}
+
+.summary-label {
+    font-weight: bold;
+    width: 200px;
+    color: #555;
+}
+
+.summary-value {
+    flex: 1;
+    color: #333;
+}
+
+/* Summary list styling */
+.summary-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.summary-list li {
+    margin-bottom: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .platform-selection {
+        flex-direction: column;
+    }
+    
+    .step-indicator {
+        overflow-x: auto;
+    }
+    
+    .step-text {
+        font-size: 12px;
+    }
+    
+    .library-filters {
+        flex-direction: column;
+    }
+    
+    .library-type-filter {
+        width: 100%;
+    }
+    
+    .modal-content {
+        margin: 20px;
+        width: calc(100% - 40px);
+    }
+    
+    .summary-item {
+        flex-direction: column;
+    }
+    
+    .summary-label {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+}
+
+/* Multi-select styling */
+select[multiple].form-control {
+    height: auto;
+    min-height: 100px;
+    padding: 0;
+}
+
+select[multiple].form-control option {
+    padding: 8px 12px;
+    margin: 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+select[multiple].form-control option:checked {
+    background-color: #e7f0ff;
+    color: #4a8cff;
+}
+
+select[multiple].form-control option:hover {
+    background-color: #f5f8ff;
+}
+
+/* Existing select styling */
+select.form-control {
+    height: 40px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    width: 100%;
+    font-size: 1rem;
+    color: #333;
+    display: block;
+    appearance: auto; /* Ensures the native dropdown appearance works correctly */
+    -webkit-appearance: menulist; /* Ensures visibility in WebKit browsers */
+    -moz-appearance: menulist; /* Ensures visibility in Firefox */
+}
+
+/* Option styling */
+select.form-control option {
+    padding: 8px 12px;
+    background-color: #fff;
+    color: #333;
+}
+
+/* Focus state */
+select.form-control:focus {
+    border-color: #4a8cff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(74, 140, 255, 0.2);
+}
+
+/* Disabled state */
+select.form-control:disabled {
+    background-color: #f5f5f5;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Loading states */
+.loading-campaigns, .loading-adsets {
+    padding: 10px;
+    color: #666;
+    font-style: italic;
+}
+
+.no-campaigns, .no-adsets, .error {
+    padding: 10px;
+    color: #f44336;
+    font-style: italic;
+}
+
+/* Status colors for campaign statuses */
+.status-active, .status-delivery-ok {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.status-paused, .status-disabled {
+    background-color: #FF9800;
+    color: white;
+}
+
+.status-deleted {
+    background-color: #F44336;
+    color: white;
+}
+
+.status-unknown {
+    background-color: #9E9E9E;
+    color: white;
+}
+
+.status-failed, .status-rejected {
+    background-color: #D32F2F;
+    color: white;
+}
+
+.status-review {
+    background-color: #2196F3;
+    color: white;
+}
+
+.status-scheduled, .status-pending {
+    background-color: #9C27B0;
+    color: white;
+}
+
+.status-budget-exceeded, .status-insufficient-funds {
+    background-color: #E91E63;
+    color: white;
+}
+
+.status-restricted {
+    background-color: #795548;
+    color: white;
+}
+
+.status-unavailable, .status-invalid {
+    background-color: #607D8B;
+    color: white;
+}
+
+.status-frozen {
+    background-color: #00BCD4;
+    color: white;
+}
+
+.status-completed {
+    background-color: #3F51B5;
+    color: white;
+}
+
+.status-all, .status-not-deleted {
+    background-color: #8BC34A;
+    color: white;
+}
+
+/* Update existing styles for adsets section */
+#metaAdsetSection, #tiktokAdgroupSection {
+    margin-top: 15px;
+}
+
+.adsets-instruction {
+    font-style: italic;
+    color: #6c757d;
+}
+
+/* =============================================
+   ASSET LIBRARY MODAL
+   ============================================= */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+/* Modal Layout */
+.modal-content {
+    background-color: #fff;
+    margin: 30px auto;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 1000px; 
+    width: 90%;
+    max-height: 80vh;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.close-modal {
+    font-size: 1.5rem;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-modal:hover {
+    color: #333;
+}
+
+.modal-body {
+    overflow-y: auto;
+    flex: 1;
+    padding: 5px 20px 20px 20px;
+    min-height: 400px;
+}
+
+.modal-footer {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    text-align: right;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #757575;
+}
+
+.error {
+    text-align: center;
+    padding: 20px;
+    color: #f44336;
+}
+
+/* =============================================
+   LIBRARY GRID AND FILTERS
+   ============================================= */
+/* Library filters */
+.library-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.library-search {
+    flex: 1;
+}
+
+.library-type-filter {
+    width: 200px;
+}
+
+/* Library grid */
+.library-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 15px !important;
+    padding: 15px 5px;
+    margin-top: 10px;
+    width: 100%;
+}
+
+/* Add a special class for the empty message to ensure it spans the full width */
+.library-grid .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 30px;
+    color: #757575;
+    font-style: italic;
+}
+
+.library-item {
+    height: 150px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.library-item:hover {
+    transform: scale(1.05);
+}
+
+.library-item.selected {
+    border: 3px solid #007bff;
+}
+
+.library-item-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.library-item-checkbox {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+}
+
+/* =============================================
+   ASSET LIBRARY STYLES
+   ============================================= */
+.asset-grid-container {
+    width: 100%;
+    margin: 0 auto;
+}
+
+.asset-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 15px !important;
+    margin-top: 20px;
+    padding: 0 5px;
+    width: 100%;
+}
+
+.library-asset {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    background-color: #fff;
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.library-asset:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: #2196F3;
+}
+
+.library-asset.selected {
+    border: 2px solid #2196F3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3);
+}
+
+.asset-thumbnail {
+    height: 150px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+    flex: 1;
+}
+
+.asset-thumbnail img, 
+.asset-thumbnail video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.asset-info {
+    padding: 10px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.asset-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.empty {
+    text-align: center;
+    padding: 30px;
+    color: #757575;
+    font-style: italic;
+}
+
+/* Asset selection actions container and button styling */
+.asset-selection-actions {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f1f9ff;
+    border-top: 1px solid #d1e7ff;
+    text-align: center;
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    border-radius: 0 0 8px 8px;
+}
+
+.asset-selection-actions .btn-primary {
+    padding: 10px 25px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.asset-selection-actions .btn-primary:hover {
+    animation: none;
+    background-color: #0069d9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.4);
+}
+
+.asset-selection-actions .btn-primary i {
+    margin-right: 8px;
+}
+
+/* =============================================
+   PAGINATION
+   ============================================= */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px 0;
+    border-top: 1px solid #e0e0e0;
+}
+
+.pagination-btn {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-info {
+    margin: 0 15px;
+    font-size: 14px;
+    color: #555;
+}
+
+/* =============================================
+   RESPONSIVE DESIGN
+   ============================================= */
+@media (max-width: 768px) {
+    .platform-selection {
+        flex-direction: column;
+    }
+    
+    .step-indicator {
+        overflow-x: auto;
+    }
+    
+    .step-text {
+        font-size: 12px;
+    }
+    
+    .library-filters {
+        flex-direction: column;
+    }
+    
+    .library-type-filter {
+        width: 100%;
+    }
+    
+    .modal-content {
+        margin: 20px;
+        width: calc(100% - 40px);
+    }
+    
+    .summary-item {
+        flex-direction: column;
+    }
+    
+    .summary-label {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .split-panels-container {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .assets-panel, 
+    .adsets-panel {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+}
+
+/* =============================================
+   DROP ANIMATIONS & AD CREATION
+   ============================================= */
+/* Ad creation container - now always visible */
+.ad-creation-container {
+    margin-top: 15px;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+/* Asset Drop Zone - Enhanced for better drop detection */
+.asset-drop-zone {
+    border: 2px dashed #adb5bd;
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 120px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10; /* Ensure it's above other elements */
+    pointer-events: auto !important; /* Force pointer events */
+}
+
+.asset-drop-zone * {
+    pointer-events: auto !important; /* Ensure all children receive events */
+}
+
+.asset-drop-zone.drag-over {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.3);
+    transform: scale(1.02);
+}
+
+/* Clear indicator when dragging over a drop zone */
+.body-dragging .asset-drop-zone:not(.drag-over) {
+    border-color: #6c757d;
+    opacity: 0.7;
+}
+
+.body-dragging .asset-drop-zone.drag-over {
+    border-color: #28a745;
+    border-width: 3px;
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.drop-placeholder {
+    width: 100%;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 20px;
+    font-size: 0.9rem;
+    animation: pulse 2s infinite;
+}
+
+/* Animation for the drop placeholder */
+@keyframes pulse {
+    0% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.6;
+    }
+}
+
+/* Remove legacy buttons that are no longer needed */
+.create-ad-btn,
+.cancel-create-ad {
+    display: none;
+}
+
+/* =============================================
+   AD CONTAINERS & MULTIPLE ASSETS
+   ============================================= */
+.ad-container {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.ad-container:hover {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    border-color: #adb5bd;
+}
+
+/* Ad Name Input Field */
+.ad-name-input {
+    margin-bottom: 15px;
+}
+
+.ad-name-input label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.ad-name-input input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.ad-name-input input:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Assets Container Inside Ad */
+.ad-assets-zone {
+    position: relative;
+}
+
+.ad-assets-zone .assets-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+/* Add More Assets Drop Zone */
+.add-more-assets {
+    border: 2px dashed #ced4da;
+    border-radius: 6px;
+    padding: 12px;
+    text-align: center;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.add-more-assets:hover {
+    border-color: #6c757d;
+    background-color: #e9ecef;
+}
+
+.dragging .add-more-assets {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.add-more-assets .drop-placeholder {
+    margin: 0;
+    padding: 8px;
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+/* Create Another Ad Zone */
+.new-ad-zone {
+    border: 2px dashed #28a745;
+    border-radius: 6px;
+    padding: 15px;
+    text-align: center;
+    background-color: rgba(40, 167, 69, 0.05);
+    transition: all 0.2s ease;
+    margin: 15px 0;
+    cursor: pointer;
+}
+
+.new-ad-zone:hover {
+    border-color: #218838;
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.dragging .new-ad-zone {
+    transform: scale(1.02);
+    box-shadow: 0 0 15px rgba(40, 167, 69, 0.2);
+    border-width: 3px;
+}
+
+.new-ad-zone .drop-placeholder {
+    margin: 0;
+    padding: 0;
+    color: #28a745;
+    font-weight: 500;
+}
+
+/* Asset Preview Styling */
+.asset-preview {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
+
+.asset-preview img,
+.asset-preview video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.asset-preview .remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(255, 59, 59, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.asset-preview:hover .remove-btn {
+    opacity: 1;
+}
+
+.asset-preview .remove-btn:hover {
+    background-color: rgba(255, 59, 59, 1);
+}
+
+.asset-generic {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e9ecef;
+    color: #495057;
+    font-size: 12px;
+    text-align: center;
+    padding: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* First Asset is Larger for Easier Identification */
+.assets-container .asset-preview:first-child {
+    width: 120px;
+    height: 120px;
+    border: 2px solid #007bff;
+}
+
+/* Badge to indicate Primary Asset */
+.assets-container .asset-preview:first-child::after {
+    content: "Primary";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 123, 255, 0.8);
+    color: white;
+    font-size: 10px;
+    padding: 2px;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Asset drop zone styling */
+.asset-drop-zone {
+    min-height: 100px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    margin: 10px 0;
+    padding: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(240, 240, 240, 0.5);
+}
+
+.asset-drop-zone.drag-over {
+    border-color: #4a90e2;
+    background-color: rgba(74, 144, 226, 0.1);
+    box-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
+    transform: scale(1.02);
+}
+
+.asset-drop-zone.active {
+    background-color: rgba(240, 240, 240, 0.8);
+    border-color: #888;
+}
+
+/* Drop placeholder styling */
+.drop-placeholder {
+    color: #888;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    width: 100%;
+}
+
+/* Styling for the ad container */
+.ad-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.ad-container:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.ad-container.highlight {
+    border-color: #ffc107;
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+    animation: pulse 1.5s ease infinite;
+}
+
+.ad-container.new-ad-animation {
+    animation: newAdAnimation 0.8s ease;
+}
+
+.ad-container.delete-animation {
+    animation: deleteAnimation 0.3s ease forwards;
+}
+
+/* Asset preview styling */
+.asset-preview {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+/* Ad name input styling */
+.ad-name-container {
+    margin: 10px 0;
+}
+
+.ad-name-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Delete button styling */
+.delete-ad-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255, 255, 255, 0.8);
+    color: #dc3545;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.delete-ad-button:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 1);
+    color: #dc3545;
+    transform: scale(1.1);
+}
+
+/* Dragging styles */
+.preview-item.dragging {
+    opacity: 0.6;
+    transform: scale(0.95);
+}
+
+/* Empty panel message */
+.empty-panel-message {
+    padding: 20px;
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+}
+
+@keyframes newAdAnimation {
+    0% { 
+        opacity: 0;
+        transform: translateY(20px) scale(0.8);
+    }
+    100% { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes deleteAnimation {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+
+/* Make sure adset content can receive drops */
+.adset-content {
+    min-height: 150px;
+    padding: 15px;
+    position: relative;
+}
+
+/* Style for temporary drop zones */
+.temp-drop-zone {
+    background-color: rgba(240, 240, 240, 0.7);
+    outline: 2px dashed #4a90e2;
+    outline-offset: -2px;
+}
+
+/* =============================================
+   ASSET DROP ZONES AND GRID
+   ============================================= */
+
+.assets-grid-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr) !important;
+    grid-gap: 10px;
+    padding: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    justify-items: center;
+    align-items: center;
+}
+
+/* Control asset preview sizes within the grid */
+.assets-grid-container .asset-preview-container {
+    max-width: 120px !important;
+    margin: 5px !important;
+    width: 100% !important;
+}
+
+.assets-grid-container .asset-preview-container img,
+.assets-grid-container .asset-preview-container video {
+    max-height: 100px !important;
+    max-width: 100% !important;
+    object-fit: contain !important;
+    border-radius: 4px !important;
+}
+
+.assets-grid-container .asset-name {
+    font-size: 0.7rem !important;
+    margin-top: 3px !important;
+    text-align: center !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    color: #666 !important;
+}
+
+/* Styles for the ad name and headline inputs */
+.ad-name-input,
+.headline-input {
+    display: block !important;
+    margin-bottom: 15px !important;
+    width: 100% !important;
+    position: relative !important;
+    z-index: 5 !important;
+}
+
+.headline-input {
+    padding-bottom: 10px !important;
+    border-bottom: 1px solid #eee !important;
+}
+
+.ad-name-input label,
+.headline-input label {
+    display: block !important;
+    margin-bottom: 5px !important;
+    font-weight: 500 !important;
+    color: #444 !important;
+}
+
+.ad-name-input input,
+.headline-input input {
+    width: 100% !important;
+    padding: 8px 12px !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    background-color: white !important;
+} 

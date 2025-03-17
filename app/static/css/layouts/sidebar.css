@@ -1,0 +1,260 @@
+/* 
+ * Sidebar Layout
+ * Styles for the application sidebar
+ */
+
+:root {
+    --sidebar-expanded-width: 240px;
+    --sidebar-collapsed-width: 64px;
+}
+
+.sidebar {
+    width: var(--sidebar-expanded-width);
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    background: white;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-sm);
+    height: 100vh;
+    transition: width var(--transition-normal);
+    overflow-x: hidden;
+}
+
+.sidebar__header {
+    height: var(--header-height);
+    padding: 0 var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+}
+
+.sidebar__logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.sidebar__logo {
+    height: 32px;
+    width: auto;
+    margin-right: var(--spacing-sm);
+}
+
+.sidebar__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar__nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-md) 0;
+}
+
+.sidebar__nav-group {
+    margin-bottom: var(--spacing-md);
+    position: relative;
+}
+
+.sidebar__nav-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+    user-select: none;
+}
+
+.sidebar__nav-header:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sidebar__header-content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    width: calc(100% - 24px); /* Reserve space for the chevron */
+}
+
+.sidebar__header-content i {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.sidebar__nav-header .fa-chevron-down {
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.sidebar__nav-item {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    padding-left: calc(var(--spacing-md) * 2);
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: background-color var(--transition-fast);
+}
+
+.sidebar__nav-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sidebar__nav-item i {
+    width: 20px;
+    margin-right: var(--spacing-sm);
+    text-align: center;
+    font-size: 16px;
+}
+
+.sidebar__nav-item--active {
+    color: var(--primary-color);
+    background-color: rgba(24, 119, 242, 0.1);
+    font-weight: 500;
+}
+
+.sidebar__submenu {
+    display: none;
+    padding-top: var(--spacing-xs);
+    padding-bottom: var(--spacing-xs);
+}
+
+/* Remove hover-based submenu display to rely on JavaScript toggle */
+/* 
+.sidebar__nav-group:hover .sidebar__submenu {
+    display: block;
+}
+
+.sidebar__nav-group:hover .sidebar__nav-header .fa-chevron-down {
+    transform: rotate(180deg);
+}
+*/
+
+.sidebar__footer {
+    padding: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
+.sidebar__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    outline: none;
+    z-index: 1001;
+    position: absolute;
+    right: -14px; /* Position half outside the sidebar */
+    top: 20px; /* Position near the top of the sidebar header */
+}
+
+.sidebar__toggle:hover {
+    background-color: var(--background-color);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar__toggle:active {
+    transform: scale(0.95);
+}
+
+.sidebar__toggle i {
+    font-size: 12px;
+    color: var(--primary-color);
+}
+
+/* Collapsed state */
+.sidebar--collapsed {
+    width: var(--sidebar-collapsed-width);
+}
+
+.sidebar--collapsed .sidebar__title,
+.sidebar--collapsed .sidebar__nav-header span,
+.sidebar--collapsed .sidebar__nav-item span,
+.sidebar--collapsed .sidebar__header-content span {
+    display: none;
+}
+
+.sidebar--collapsed .sidebar__header-content {
+    width: 100%;
+    justify-content: center;
+}
+
+.sidebar--collapsed .sidebar__nav-item {
+    justify-content: center;
+    padding-left: var(--spacing-md);
+}
+
+.sidebar--collapsed .sidebar__nav-item i {
+    margin-right: 0;
+    font-size: 18px; /* Slightly larger icons in collapsed state */
+}
+
+.sidebar--collapsed .sidebar__toggle i {
+    transform: rotate(180deg);
+}
+
+.sidebar--collapsed .sidebar__header {
+    justify-content: center;
+    padding: 0;
+}
+
+.sidebar--collapsed .sidebar__nav-header {
+    justify-content: center;
+    padding: 16px 0;
+    height: 48px; /* Fixed height for better spacing */
+}
+
+.sidebar--collapsed .sidebar__nav-header i:not(.fa-chevron-down) {
+    font-size: 18px; /* Slightly larger icons in collapsed state */
+}
+
+/* Hide all chevron-down icons in collapsed state */
+.sidebar--collapsed .sidebar__nav-header .fa-chevron-down,
+.sidebar--collapsed .fa-chevron-down {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+}
+
+.sidebar--collapsed .sidebar__nav-group {
+    text-align: center;
+}
+
+/* Add rotation animation for chevron */
+.fa-chevron-down {
+    transition: transform var(--transition-normal);
+}
+
+.rotate {
+    transform: rotate(180deg);
+}
+
+/* Add styles for expanded content when sidebar is collapsed */
+.content--expanded {
+    margin-left: var(--sidebar-collapsed-width);
+    width: calc(100% - var(--sidebar-collapsed-width));
+} 

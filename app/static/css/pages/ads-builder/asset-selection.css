@@ -1,0 +1,444 @@
+/**
+ * Ads Builder Asset Selection Styles
+ * Contains styles for asset selection and drag-drop functionality
+ */
+
+/* =============================================
+   ASSET SELECTION
+   ============================================= */
+.asset-selection {
+    margin-top: 30px;
+}
+
+.asset-library-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.asset-library-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+.asset-library-icon {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+/* Layout for step 3 */
+.form-step[data-step="3"] .asset-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Split panels layout */
+.split-panels-container {
+    display: flex;
+    width: 100%;
+    gap: 20px;
+    margin-top: 20px;
+    min-height: 1000px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Assets panel */
+.assets-panel {
+    flex: 0.3;
+    border-right: 1px solid #eee;
+    padding: 0;
+    background-color: white;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-width: 250px;
+}
+
+.assets-panel-header {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    background-color: #f8f9fa;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.assets-panel-content {
+    padding: 15px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+/* Adsets panel */
+.adsets-panel {
+    flex: 0.7;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    background-color: white;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.adsets-panel-header {
+    padding: 12px 16px;
+    background-color: #edf2f7;
+    color: #2d3748;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: 8px 8px 0 0;
+}
+
+.adsets-panel-header .header-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.adsets-panel-header .refresh-btn {
+    background: none;
+    border: none;
+    color: #4a5568;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.adsets-panel-header .refresh-btn:hover {
+    background-color: #e2e8f0;
+    color: #2d3748;
+}
+
+.adsets-panel-content {
+    padding: 16px;
+    overflow-y: auto;
+    flex-grow: 1;
+    background-color: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f8f9fa;
+}
+
+.adsets-panel-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.adsets-panel-content::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+
+.adsets-panel-content::-webkit-scrollbar-thumb {
+    background-color: #cbd5e0;
+    border-radius: 6px;
+}
+
+.adsets-panel .adsets-container {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.adsets-container .adset-item {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.adsets-container .adset-item:hover {
+    border-color: #cbd5e0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.adsets-container .adset-item .adset-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background-color: #f7fafc;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.adsets-container .adset-item .adset-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #2d3748;
+    max-width: 70%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.adsets-container .adset-item .adset-content {
+    padding: 12px;
+    min-height: 60px;
+    position: relative;
+    background-color: white;
+}
+
+.adsets-panel .adset-name {
+    font-size: 1rem;
+}
+
+.adsets-panel .adset-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.adsets-panel .adset-status.active { 
+    background-color: #c6f6d5; 
+    color: #22543d; 
+}
+
+.adsets-panel .adset-status.paused { 
+    background-color: #feebc8; 
+    color: #744210; 
+}
+
+.adsets-panel .adset-status.deleted { 
+    background-color: #e2e8f0; 
+    color: #4a5568; 
+}
+
+.adsets-panel .adset-status.failed { 
+    background-color: #fed7d7; 
+    color: #822727; 
+}
+
+.adsets-panel .adset-status.review { 
+    background-color: #bee3f8; 
+    color: #2a4365; 
+}
+
+.adsets-panel .adset-status.pending { 
+    background-color: #feebc8; 
+    color: #744210; 
+}
+
+.adsets-panel .adset-details {
+    font-size: 0.8rem;
+}
+
+.adsets-panel .create-ad-btn {
+    margin-top: 10px;
+}
+
+.adsets-panel .drop-placeholder {
+    margin-top: 15px;
+}
+
+.adsets-panel .empty-panel-message {
+    text-align: center;
+    color: #718096;
+    font-size: 0.9rem;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    margin: 8px 0;
+    border: 1px dashed #e2e8f0;
+}
+
+.adsets-panel .empty-panel-message i {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    color: #a0aec0;
+}
+
+.adsets-panel .empty-panel-message .message-text {
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+.adsets-panel .empty-panel-message .message-subtext {
+    font-size: 0.8rem;
+    color: #a0aec0;
+}
+
+.adsets-panel .no-adsets {
+    padding: 30px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+/* Selected assets section */
+.selected-assets-section {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: white;
+}
+
+.selected-assets-section h4 {
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.assets-help-message {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    color: #0d47a1;
+    font-size: 0.9rem;
+}
+
+/* Assets container */
+.assets-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.adsets-panel .adsets-container {
+    margin-top: 15px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.empty-panel-message {
+    color: #888;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    width: 100%;
+}
+
+/* General adsets container styling */
+.adsets-container {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-height: 100px;
+    padding: 10px;
+    position: relative;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+/* Preview styling for uploaded files */
+.upload-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.preview-item {
+    width: 120px;
+    height: 120px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    background-color: #f8f9fa;
+    cursor: move;
+    transition: all 0.2s ease;
+}
+
+.preview-item:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.preview-item.dragging {
+    opacity: 0.6;
+    transform: scale(0.95);
+}
+
+.preview-img, 
+.preview-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.preview-remove {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.7);
+    color: #dc3545;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s ease;
+}
+
+.preview-item:hover .preview-remove {
+    opacity: 1;
+}
+
+.preview-remove:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    transform: scale(1.1);
+}
+
+/* Loading adsets indicator */
+.loading-adsets {
+    padding: 20px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #4a5568;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.loading-adsets i {
+    font-size: 1.5rem;
+    color: #4299e1;
+    margin-bottom: 8px;
+} 

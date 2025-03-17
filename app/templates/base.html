@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ads Studio - {% block title %}{% endblock %}</title>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar__header">
+            <a href="{{ url_for('main.index') }}" class="sidebar__logo-link">
+                <img src="{{ url_for('static', filename='images/OKX_Logo.png') }}" alt="OKX Logo" class="sidebar__logo">
+                <h1 class="sidebar__title">Ads Studio</h1>
+            </a>
+        </div>
+        
+        <!-- Toggle button positioned outside the header -->
+        <button id="toggleSidebar" class="sidebar__toggle" type="button" aria-label="Toggle Sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        <nav class="sidebar__nav">
+            <div class="sidebar__nav-group">
+                <div class="sidebar__nav-header">
+                    <div class="sidebar__header-content">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                        <span>AIGC</span>
+                    </div>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sidebar__submenu">
+                    <a href="{{ url_for('aigc_ai_image') }}" class="sidebar__nav-item">
+                        <i class="fas fa-palette"></i>
+                        <span>AI Image</span>
+                    </a>
+                    <a href="{{ url_for('aigc_ai_video') }}" class="sidebar__nav-item">
+                        <i class="fas fa-film"></i>
+                        <span>AI Video</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="sidebar__nav-group">
+                <div class="sidebar__nav-header">
+                    <div class="sidebar__header-content">
+                        <i class="fas fa-folder-open"></i>
+                        <span>Asset Manager</span>
+                    </div>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sidebar__submenu">
+                    <a href="{{ url_for('asset.asset_library') }}" class="sidebar__nav-item">
+                        <i class="fas fa-photo-film"></i>
+                        <span>Asset Library</span>
+                    </a>
+                    <a href="{{ url_for('asset.approval_flow') }}" class="sidebar__nav-item">
+                        <i class="fas fa-check-double"></i>
+                        <span>Approval Flow</span>
+                    </a>
+                    <a href="{{ url_for('asset.my_approvals') }}" class="sidebar__nav-item">
+                        <i class="fas fa-tasks"></i>
+                        <span>My Approvals</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="sidebar__nav-group">
+                <div class="sidebar__nav-header">
+                    <div class="sidebar__header-content">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>Ads Manager</span>
+                    </div>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sidebar__submenu">
+                    <a href="{{ url_for('ad_management.ads_builder') }}" class="sidebar__nav-item">
+                        <i class="fas fa-ad"></i>
+                        <span>Ads Builder</span>
+                    </a>
+                    <a href="{{ url_for('ad_management.automated_rules') }}" class="sidebar__nav-item">
+                        <i class="fas fa-magic"></i>
+                        <span>Automated Rules</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="sidebar__nav-group">
+                <div class="sidebar__nav-header">
+                    <div class="sidebar__header-content">
+                        <i class="fas fa-shapes"></i>
+                        <span>Templates</span>
+                    </div>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sidebar__submenu">
+                    <a href="{{ url_for('template.templates_comfy') }}" class="sidebar__nav-item">
+                        <i class="fas fa-diagram-project"></i>
+                        <span>ComfyUI</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="sidebar__nav-group">
+                <div class="sidebar__nav-header">
+                    <div class="sidebar__header-content">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </div>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sidebar__submenu">
+                    <a href="{{ url_for('analytics.analytics_performance') }}" class="sidebar__nav-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Performance</span>
+                    </a>
+                    <a href="{{ url_for('analytics.analytics_reports') }}" class="sidebar__nav-item">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Reports</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+        <div class="sidebar__footer">
+            <!-- Footer content -->
+        </div>
+    </div>
+
+    <main class="content">
+        <header class="content__header">
+            <div class="content__breadcrumb">
+                {% block breadcrumb %}{% endblock %}
+            </div>
+            
+            <!-- User menu positioned at top right -->
+            <div class="user-menu">
+                <i class="fas fa-user-circle"></i>
+                <span>Admin</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </header>
+
+        <div class="content__body">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Load jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    
+    <!-- Inline script for critical functionality -->
+    <script>
+        // Execute immediately to ensure sidebar toggle works
+        (function() {
+            const toggleBtn = document.getElementById('toggleSidebar');
+            const sidebar = document.querySelector('.sidebar');
+            const content = document.querySelector('.content');
+            const chevronIcons = document.querySelectorAll('.chevron-icon');
+            
+            if (toggleBtn && sidebar && content) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    sidebar.classList.toggle('sidebar--collapsed');
+                    content.classList.toggle('content--expanded');
+                    
+                    // Force hide/show chevron icons based on sidebar state
+                    chevronIcons.forEach(function(icon) {
+                        if (sidebar.classList.contains('sidebar--collapsed')) {
+                            icon.style.display = 'none';
+                        } else {
+                            icon.style.display = '';
+                        }
+                    });
+                    
+                    const icon = this.querySelector('i');
+                    if (icon) {
+                        if (sidebar.classList.contains('sidebar--collapsed')) {
+                            icon.classList.remove('fa-chevron-left');
+                            icon.classList.add('fa-chevron-right');
+                        } else {
+                            icon.classList.remove('fa-chevron-right');
+                            icon.classList.add('fa-chevron-left');
+                        }
+                    }
+                });
+                
+                // Set a flag to indicate the toggle has been initialized
+                window.sidebarToggleInitialized = true;
+            }
+            
+            // Setup submenu toggles
+            const navHeaders = document.querySelectorAll('.sidebar__nav-header');
+            navHeaders.forEach(function(header) {
+                header.addEventListener('click', function(e) {
+                    const submenu = this.nextElementSibling;
+                    if (submenu && submenu.classList.contains('sidebar__submenu')) {
+                        if (submenu.style.display === 'block') {
+                            submenu.style.display = 'none';
+                        } else {
+                            submenu.style.display = 'block';
+                        }
+                        
+                        const chevron = this.querySelector('.fa-chevron-down');
+                        if (chevron) {
+                            chevron.classList.toggle('rotate');
+                        }
+                    }
+                });
+            });
+            
+            // Check if sidebar is already collapsed on page load
+            if (sidebar && sidebar.classList.contains('sidebar--collapsed')) {
+                chevronIcons.forEach(function(icon) {
+                    icon.style.display = 'none';
+                });
+            }
+        })();
+    </script>
+    
+    <!-- Load the module script after the inline script -->
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html> <link rel="stylesheet" href="/static/css/components/ads-builder.css">

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}AI Video Generator{% endblock %}
+
+{% block breadcrumb %}
+    <span>AIGC</span> / <span>AI Video</span>
+{% endblock %}
+
+{% block content %}
+<div class="ai-video-container">
+    <div class="coming-soon">
+        <h2>AI Video Generator</h2>
+        <p>This feature is coming soon! Check back later for exciting video generation capabilities.</p>
+        
+        <div class="placeholder">
+            <i class="fas fa-film fa-5x"></i>
+            <p>Video generation features are under development</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.ai-video-container {
+    padding: 20px;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+.coming-soon {
+    text-align: center;
+    padding: 40px;
+    background: #1a1b1e;
+    border-radius: 12px;
+    color: white;
+}
+
+.coming-soon h2 {
+    font-size: 28px;
+    margin-bottom: 16px;
+}
+
+.placeholder {
+    margin-top: 60px;
+    color: #9a9b9e;
+}
+
+.placeholder i {
+    margin-bottom: 20px;
+    opacity: 0.7;
+}
+</style>
+{% endblock %} 

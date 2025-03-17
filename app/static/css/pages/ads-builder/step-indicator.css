@@ -1,0 +1,77 @@
+/**
+ * Ads Builder Step Indicator Styles
+ * Contains styles for the step indicator UI component
+ */
+
+/* =============================================
+   STEP INDICATORS
+   ============================================= */
+.step-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.step-indicator::before {
+    content: '';
+    position: absolute;
+    top: 24px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #e0e0e0;
+    z-index: 1;
+}
+
+.step-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 25%;
+    z-index: 2;
+}
+
+.step-number {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    color: #666;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+    border: 2px solid #e0e0e0;
+}
+
+.step-text {
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.step-item.active .step-number {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.step-item.active .step-text {
+    color: #007bff;
+    font-weight: 600;
+}
+
+.step-item.completed .step-number {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.step-item.completed .step-text {
+    color: #28a745;
+} 

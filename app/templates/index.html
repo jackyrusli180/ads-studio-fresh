@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Ads Studio{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="jumbotron">
+        <h1 class="display-4">Welcome to Ads Studio</h1>
+        <p class="lead">Your comprehensive platform for managing advertising campaigns across multiple platforms.</p>
+        <hr class="my-4">
+        <p>Use the navigation menu to access different features of the application.</p>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Ad Management</h5>
+                    <p class="card-text">Create and manage your advertising campaigns across Meta and TikTok platforms.</p>
+                    <a href="{{ url_for('ad_management.ads_builder') }}" class="btn btn-primary">Go to Ads Builder</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Asset Library</h5>
+                    <p class="card-text">Manage your creative assets for use in advertising campaigns.</p>
+                    <a href="{{ url_for('asset.asset_library') }}" class="btn btn-primary">Go to Asset Library</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Analytics</h5>
+                    <p class="card-text">View performance reports and analytics for your campaigns.</p>
+                    <a href="{{ url_for('analytics.analytics_performance') }}" class="btn btn-primary">Go to Analytics</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %} 

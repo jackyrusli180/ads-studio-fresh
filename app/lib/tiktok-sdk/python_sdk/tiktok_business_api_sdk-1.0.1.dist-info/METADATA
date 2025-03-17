@@ -1,0 +1,14 @@
+Metadata-Version: 2.1
+Name: tiktok_business_api_sdk
+Version: 1.0.1
+Summary: Tiktok Business API SDK
+Home-page: 
+Author-email: 
+Keywords: Swagger,Tiktok Business API SDK
+Requires-Dist: urllib3 >=1.15
+Requires-Dist: six >=1.10
+Requires-Dist: certifi
+Requires-Dist: python-dateutil
+
+    Comprehensive collection of client libraries that enable our developers to build software to integrate with Business API faster and in a more standardized way.  # noqa: E501
+    

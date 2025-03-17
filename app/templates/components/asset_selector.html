@@ -1,0 +1,30 @@
+<!-- Asset selector modal that can be included in multiple templates -->
+<div class="modal" id="assetLibraryModal">
+    <div class="modal-content library-modal">
+        <div class="modal-header">
+            <h3>Select from Asset Library</h3>
+            <button class="close-modal"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="library-filters">
+                <select id="libraryTypeFilter" class="form-control">
+                    <option value="all">All Types</option>
+                    <option value="image">Images</option>
+                    <option value="video">Videos</option>
+                </select>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="librarySearch" placeholder="Search assets..." class="form-control">
+                </div>
+            </div>
+            <div id="libraryAssets" class="library-assets-grid">
+                <!-- Assets will be loaded here via JavaScript -->
+                <div class="loading">Loading assets...</div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary close-modal">Cancel</button>
+            <button class="btn btn-primary" id="selectAssetsBtn">Add Selected Assets</button>
+        </div>
+    </div>
+</div> 

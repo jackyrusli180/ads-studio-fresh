@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}ComfyUI Templates{% endblock %}
+
+{% block breadcrumb %}
+    <span>Templates</span> / <span>ComfyUI</span>
+{% endblock %}
+
+{% block content %}
+<div class="comfy-container">
+    <div class="comfy-header">
+        <h1>ComfyUI Workflow Editor</h1>
+        <div class="comfy-actions">
+            <button class="btn btn-secondary" id="loadWorkflow">
+                <i class="fas fa-folder-open"></i> Load Workflow
+            </button>
+            <button class="btn btn-primary" id="saveWorkflow">
+                <i class="fas fa-save"></i> Save Workflow
+            </button>
+        </div>
+    </div>
+    
+    <div id="comfyUI" class="comfy-editor">
+        {% if error %}
+        <div class="error-message">
+            <h2>Error Loading ComfyUI</h2>
+            <p>{{ error }}</p>
+            <p>Please check the server logs for more details.</p>
+            <pre class="error-details">
+                Directory: {{ comfy_path }}
+                Python: {{ python_path }}
+            </pre>
+        </div>
+        {% else %}
+        <iframe src="http://127.0.0.1:{{ comfy_port }}" frameborder="0"></iframe>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/comfy.css') }}">
+<style>
+.comfy-editor iframe {
+    width: 100%;
+    height: calc(100vh - 180px);
+    border: none;
+    background: #1a1b1e;
+    border-radius: 8px;
+}
+
+.error-message {
+    padding: 24px;
+    background: #1a1b1e;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+}
+
+.error-message h2 {
+    color: #ff4444;
+    margin-bottom: 16px;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Load the default template as a JavaScript object
+    const defaultTemplate = JSON.parse('{{ url_for("static", filename="workflows/Template 1.json")|tojson|safe }}');
+    
+    // Add TextOverlay node configuration
+    const textOverlayConfig = {
+        name: "Add Text Overlay",
+        category: "image",
+        description: "Add text overlay to images",
+        inputs: {
+            image: "IMAGE",
+            text: "STRING",
+            vertical_position: ["FLOAT", {"default": 0, "min": -1, "max": 1}],
+            text_color_option: ["STRING", {"default": "White"}],
+            bg_color_option: ["STRING", {"default": "Black"}],
+            bg_opacity: ["FLOAT", {"default": 0.7, "min": 0, "max": 1}],
+            font_path: "STRING"
+        },
+        output: ["IMAGE"]
+    };
+</script>
+<script src="{{ url_for('static', filename='js/comfy.js') }}"></script>
+{% endblock %} 
