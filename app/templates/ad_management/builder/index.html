@@ -30,7 +30,7 @@
             </div>
         </div>
         
-        <form id="adsBuilderForm" method="post" action="{{ url_for('ad_management.ads_builder') }}">
+        <form id="adsBuilderForm" method="post" action="{{ url_for('ad_management.create_ad') }}">
             <!-- Step 1: Platform & Account Selection -->
             <div class="form-step" data-step="1">
                 
@@ -162,17 +162,7 @@
                     <!-- Summary will be populated by JavaScript -->
                 </div>
                 
-                <!-- Step 4 Navigation -->
-                <div class="step-navigation">
-                    <button type="button" class="btn prev-step">Previous</button>
-                    <button type="submit" id="submitBtn" class="btn next-step">Launch</button>
-                </div>
-
-                <!-- Step 4 Navigation - UPDATED -->
-                <div class="step-navigation">
-                    <button type="button" class="btn prev-step">Previous</button>
-                    <button type="submit" class="btn next-step">Launch Ads</button>
-                </div>
+                <!-- Note: Navigation buttons are now generated in the SummaryView.js component -->
             </div>
             
             <!-- Hidden Fields for selected assets -->

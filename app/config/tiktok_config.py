@@ -6,6 +6,15 @@ for app_id, identity_id, and landing page URLs.
 """
 from typing import Dict, List, Any, Optional
 
+# TikTok API access token
+ACCESS_TOKEN = 'b8586d78d2a3d2ae1b542c1e8c99c0e3c82bdaaf'
+
+# TikTok identity_type - required for ad creation
+IDENTITY_TYPE = 'CUSTOMIZED_USER'
+
+# Default music_id for carousel ads
+DEFAULT_MUSIC_ID = '1122744'
+
 # Configuration for TikTok advertiser accounts
 TIKTOK_ACCOUNTS: Dict[str, Dict[str, str]] = {
     # OKX TR Official Ad Account

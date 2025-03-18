@@ -52,6 +52,17 @@ def create_app():
         format='%(asctime)s [%(levelname)s] %(message)s'
     )
     
+    # Log details about each request including port information
+    @app.before_request
+    def log_request_info():
+        """Log request details including the server port"""
+        server_port = request.environ.get('SERVER_PORT', 'unknown')
+        request_path = request.path
+        
+        # Only log API requests to avoid excessive logging
+        if request_path.startswith('/api/'):
+            logging.info(f"Request: {request.method} {request_path} on port {server_port} - Data: {request.args.to_dict()}")
+
     # Register custom Jinja2 filters
     @app.template_filter('datetime')
     def format_datetime(value, format='%Y-%m-%d %H:%M'):

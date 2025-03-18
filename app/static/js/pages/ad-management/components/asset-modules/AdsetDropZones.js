@@ -13,6 +13,9 @@ import { handleDragEnter, handleDragOver, handleDragLeave, createDropHandler } f
 export function initAdsetDropZones(state) {
     console.log('Initializing adset drop zones');
     
+    // First clean up any duplicate Ad Name or Headline inputs
+    cleanupDuplicateInputs();
+    
     // Create a drop handler with the current state
     const handleDrop = createDropHandler(state);
     
@@ -266,4 +269,144 @@ function refreshDropZones(state) {
     document.querySelectorAll('.asset-drop-zone').forEach(dropZone => {
         setupDropZone(dropZone, handleDragOver, handleDragEnter, handleDragLeave, handleDrop);
     });
-} 
+}
+
+// Function to create or find the Ad Creation Container
+function createOrFindAdCreationContainer(dropZone) {
+    // Check if the drop zone already has an ad-creation-container parent
+    let adCreationContainer = dropZone.closest('.ad-creation-container');
+    
+    // If not, create a new one and wrap the drop zone with it
+    if (!adCreationContainer) {
+        adCreationContainer = document.createElement('div');
+        adCreationContainer.className = 'ad-creation-container';
+        
+        // Get the parent of the drop zone
+        const dropZoneParent = dropZone.parentElement;
+        
+        // Insert the container in place of the drop zone
+        dropZoneParent.insertBefore(adCreationContainer, dropZone);
+        
+        // Move the drop zone inside the container
+        adCreationContainer.appendChild(dropZone);
+        
+        // Create and add the Ad Name input
+        const timestamp = Date.now();
+        const adNameInput = document.createElement('div');
+        adNameInput.className = 'ad-name-input';
+        adNameInput.style.marginBottom = '10px';
+        adNameInput.style.width = '100%';
+        adNameInput.innerHTML = `
+            <label for="ad-name-${timestamp}" style="display: block; margin-bottom: 5px; font-weight: 500; color: #444;">Ad Name</label>
+            <input type="text" 
+                   id="ad-name-${timestamp}" 
+                   name="ad_name" 
+                   class="form-control" 
+                   placeholder="Enter ad name"
+                   style="width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px;">
+        `;
+        
+        // Insert the ad name input before the drop zone
+        adCreationContainer.insertBefore(adNameInput, dropZone);
+        
+        // Create and add the Headline input
+        const headlineInput = document.createElement('div');
+        headlineInput.className = 'headline-input';
+        headlineInput.style.display = 'block';
+        headlineInput.style.marginBottom = '15px';
+        headlineInput.style.width = '100%';
+        headlineInput.innerHTML = `
+            <label for="headline-${timestamp}" style="display: block; margin-bottom: 5px; font-weight: 500; color: #444;">Headline</label>
+            <input type="text" 
+                   id="headline-${timestamp}" 
+                   name="headline" 
+                   class="form-control headline-field" 
+                   placeholder="Enter ad headline"
+                   style="width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; background-color: white;">
+        `;
+        
+        // Insert the headline input after the ad name input but before the drop zone
+        adCreationContainer.insertBefore(headlineInput, dropZone);
+        
+        console.log('Created new ad creation container with Ad Name and Headline inputs');
+    }
+    
+    return adCreationContainer;
+}
+
+// Function to create dropzones for adsets
+function createAdsetDropZone(adsetItem, platform = null) {
+    console.log('Creating drop zone for adset:', adsetItem);
+    
+    // Create the drop zone element
+    const dropZone = document.createElement('div');
+    dropZone.className = 'asset-drop-zone';
+    dropZone.dataset.adsetId = adsetItem.dataset.id || adsetItem.dataset.adsetId;
+    dropZone.dataset.platform = platform || adsetItem.dataset.platform;
+    dropZone.dataset.accountId = adsetItem.dataset.accountId;
+    
+    // Create and add the placeholder content
+    const placeholder = document.createElement('div');
+    placeholder.className = 'drop-placeholder';
+    placeholder.innerHTML = `
+        <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem; margin-bottom: 8px;"></i>
+        <div>Drag assets here to create ads</div>
+    `;
+    dropZone.appendChild(placeholder);
+    
+    // Append the drop zone to the adset item
+    adsetItem.appendChild(dropZone);
+    
+    // Ensure the drop zone has Ad Name and Headline inputs by wrapping it in an ad creation container
+    createOrFindAdCreationContainer(dropZone);
+    
+    // Return the created drop zone
+    return dropZone;
+}
+
+/**
+ * Clean up any duplicate Ad Name or Headline inputs in drop zones
+ */
+function cleanupDuplicateInputs() {
+    console.log('Cleaning up duplicate Ad Name and Headline inputs');
+    
+    // Find all asset drop zones
+    const dropZones = document.querySelectorAll('.asset-drop-zone');
+    
+    dropZones.forEach(dropZone => {
+        // Find any Ad Name inputs directly inside drop zones - these are duplicates
+        const adNameInputs = dropZone.querySelectorAll(':scope > .ad-name-input, :scope > input.ad-name-input');
+        if (adNameInputs.length > 0) {
+            console.log(`Removing ${adNameInputs.length} duplicate Ad Name inputs from drop zone`);
+            adNameInputs.forEach(input => input.remove());
+        }
+        
+        // Find any Headline inputs directly inside drop zones - these are duplicates
+        const headlineInputs = dropZone.querySelectorAll(':scope > .headline-input');
+        if (headlineInputs.length > 0) {
+            console.log(`Removing ${headlineInputs.length} duplicate Headline inputs from drop zone`);
+            headlineInputs.forEach(input => input.remove());
+        }
+    });
+    
+    // Also find all asset-drop-zone has-asset that might contain duplicates
+    const activeDropZones = document.querySelectorAll('.asset-drop-zone.has-asset');
+    activeDropZones.forEach(dropZone => {
+        // These should not have Ad Name or Headline inputs directly inside them
+        const adNameInputs = dropZone.querySelectorAll('.ad-name-input, input.ad-name-input');
+        const headlineInputs = dropZone.querySelectorAll('.headline-input');
+        
+        adNameInputs.forEach(input => {
+            console.log('Removing duplicate Ad Name input from active drop zone');
+            input.remove();
+        });
+        
+        headlineInputs.forEach(input => {
+            console.log('Removing duplicate Headline input from active drop zone');
+            input.remove();
+        });
+    });
+}
+
+// Export the createAdsetDropZone function
+export { createAdsetDropZone }; 

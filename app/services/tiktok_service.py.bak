@@ -11,6 +11,6 @@ import logging
 from app.services.tiktok import TikTokService
 
 # For backward compatibility, re-export TikTokService
-__all__ = ["TikTokService"]
+__all__ = ['TikTokService']
 
 logging.info("TikTok service module loaded from modular implementation") 

@@ -3,7 +3,8 @@
  * Handles common functionality across the application
  */
 
-import { showInfoToast } from './utils/toast.js';
+// Import utilities if needed
+// import { showInfoToast } from './utils/toast.js';
 
 // Store references to DOM elements globally
 let sidebarEl, contentEl, toggleBtnEl;
@@ -14,78 +15,88 @@ let sidebarEl, contentEl, toggleBtnEl;
 const initApp = () => {
     console.log('Ads Studio main.js loaded successfully');
     
-    // Initialize sidebar toggle
-    initSidebarToggle();
+    // Initialize sidebar
+    initSidebar();
     
-    // Highlight active navigation item
-    highlightActiveNavItem();
-    
-    // Show welcome message if on dashboard
-    if (window.location.pathname === '/' || window.location.pathname === '/index') {
-        showInfoToast('Welcome to Ads Studio!');
+    // Skip highlighting active nav if it was done by the inline script
+    if (!window.navInitialized) {
+        highlightActiveNavItem();
     }
 };
 
 /**
- * Initialize sidebar toggle functionality
+ * Initialize sidebar functionality
  */
-const initSidebarToggle = () => {
+const initSidebar = () => {
     // Get DOM elements
     sidebarEl = document.querySelector('.sidebar');
     contentEl = document.querySelector('.content');
     toggleBtnEl = document.getElementById('toggleSidebar');
     
-    console.log('Sidebar elements check:', {
-        toggleBtn: !!toggleBtnEl,
-        sidebar: !!sidebarEl,
-        content: !!contentEl
-    });
+    if (!sidebarEl || !contentEl) {
+        console.error('Required sidebar elements not found');
+        return;
+    }
+
+    // Only initialize submenu toggles if not already set up by inline script
+    if (!window.submenuTogglesInitialized) {
+        initSubmenuToggles();
+    }
+};
+
+/**
+ * Initialize submenu toggles
+ */
+const initSubmenuToggles = () => {
+    const navHeaders = document.querySelectorAll('.sidebar__nav-header[data-toggle="submenu"]');
     
-    // Skip initialization if the inline script has already set up the toggle
-    // or if any required elements are missing
-    if (!toggleBtnEl || !sidebarEl || !contentEl) {
-        console.error('Required elements not found:');
-        if (!toggleBtnEl) console.error('- Toggle button not found');
-        if (!sidebarEl) console.error('- Sidebar element not found');
-        if (!contentEl) console.error('- Content element not found');
+    if (navHeaders.length === 0) {
+        console.warn('No submenu headers found with data-toggle attribute');
         return;
     }
     
-    // Toggle submenu visibility on click
-    const navHeaders = document.querySelectorAll('.sidebar__nav-header');
-    console.log(`Found ${navHeaders.length} nav headers`);
+    console.log(`Found ${navHeaders.length} submenu headers`);
+    
+    // First, ensure all submenus have their initial state set properly
+    document.querySelectorAll('.sidebar__submenu').forEach(submenu => {
+        // Make sure display property is explicitly set
+        if (submenu.style.display !== 'block') {
+            submenu.style.display = 'none';
+        }
+    });
     
     navHeaders.forEach((header, index) => {
-        // Use direct onclick handler
-        header.onclick = function(e) {
-            console.log(`Nav header ${index} clicked`);
+        // Add click event handler
+        header.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             
             const submenu = this.nextElementSibling;
             if (submenu && submenu.classList.contains('sidebar__submenu')) {
-                console.log('Toggling submenu visibility');
+                // Get computed style to ensure we detect visibility correctly
+                const computedStyle = window.getComputedStyle(submenu);
+                const isVisible = computedStyle.display !== 'none';
                 
                 // Toggle submenu visibility
-                if (submenu.style.display === 'block') {
-                    submenu.style.display = 'none';
-                } else {
-                    submenu.style.display = 'block';
-                }
+                submenu.style.display = isVisible ? 'none' : 'block';
                 
                 // Toggle chevron rotation
                 const chevron = this.querySelector('.fa-chevron-down');
                 if (chevron) {
-                    chevron.classList.toggle('rotate');
-                } else {
-                    console.log('Chevron icon not found in nav header');
+                    if (isVisible) {
+                        chevron.classList.remove('rotate');
+                    } else {
+                        chevron.classList.add('rotate');
+                    }
                 }
-            } else {
-                console.log('No valid submenu found:', submenu);
+                
+                console.log(`Toggled submenu ${index}: ${isVisible ? 'closed' : 'opened'}`);
             }
-            
-            return false;
-        };
+        });
     });
+    
+    // Set a flag to indicate submenus have been initialized
+    window.submenuTogglesInitialized = true;
 };
 
 /**
@@ -93,19 +104,18 @@ const initSidebarToggle = () => {
  */
 const highlightActiveNavItem = () => {
     const currentPath = window.location.pathname;
-    console.log('Current path:', currentPath);
     const navLinks = document.querySelectorAll('.sidebar__nav-item');
     
     navLinks.forEach(link => {
         const href = link.getAttribute('href');
-        console.log('Checking link:', href);
+        
         if (href === currentPath) {
-            console.log('Active link found:', href);
             link.classList.add('sidebar__nav-item--active');
             
-            // Also expand the parent submenu if it exists
+            // Expand the parent submenu if it exists
             const parentSubmenu = link.closest('.sidebar__submenu');
             if (parentSubmenu) {
+                // Make explicitly visible
                 parentSubmenu.style.display = 'block';
                 
                 // Rotate the chevron icon
@@ -117,6 +127,9 @@ const highlightActiveNavItem = () => {
             }
         }
     });
+    
+    // Set a flag to indicate nav has been initialized
+    window.navInitialized = true;
 };
 
 // Initialize the application when the DOM is fully loaded

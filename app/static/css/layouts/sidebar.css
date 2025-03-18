@@ -73,8 +73,10 @@
     justify-content: space-between;
     padding: var(--spacing-sm) var(--spacing-md);
     cursor: pointer;
-    transition: background-color var(--transition-fast);
+    transition: all var(--transition-fast);
     user-select: none;
+    border-radius: var(--border-radius-sm);
+    margin: 0 var(--spacing-xs);
 }
 
 .sidebar__nav-header:hover {
@@ -92,12 +94,14 @@
     width: 20px;
     text-align: center;
     font-size: 16px;
+    color: var(--primary-color);
 }
 
 .sidebar__nav-header .fa-chevron-down {
     width: 16px;
     text-align: center;
     flex-shrink: 0;
+    transition: transform var(--transition-normal);
 }
 
 .sidebar__nav-item {
@@ -107,11 +111,14 @@
     padding-left: calc(var(--spacing-md) * 2);
     color: var(--text-secondary);
     text-decoration: none;
-    transition: background-color var(--transition-fast);
+    transition: all var(--transition-fast);
+    border-radius: var(--border-radius-sm);
+    margin: 0 var(--spacing-sm);
 }
 
 .sidebar__nav-item:hover {
     background-color: rgba(0, 0, 0, 0.05);
+    color: var(--primary-color);
 }
 
 .sidebar__nav-item i {
@@ -128,21 +135,22 @@
 }
 
 .sidebar__submenu {
-    display: none;
     padding-top: var(--spacing-xs);
     padding-bottom: var(--spacing-xs);
+    overflow: hidden;
+    transition: all var(--transition-normal);
 }
 
-/* Remove hover-based submenu display to rely on JavaScript toggle */
-/* 
-.sidebar__nav-group:hover .sidebar__submenu {
-    display: block;
+/* Display none is set via JavaScript */
+.sidebar__submenu[style*="display: none"] {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
-.sidebar__nav-group:hover .sidebar__nav-header .fa-chevron-down {
-    transform: rotate(180deg);
+.sidebar__submenu[style*="display: block"] {
+    max-height: 500px; /* Arbitrary large height to accommodate all items */
 }
-*/
 
 .sidebar__footer {
     padding: var(--spacing-md);
@@ -244,17 +252,20 @@
     text-align: center;
 }
 
+/* When sidebar is collapsed, hide all submenus */
+.sidebar--collapsed .sidebar__submenu {
+    display: none !important;
+}
+
 /* Add rotation animation for chevron */
 .fa-chevron-down {
     transition: transform var(--transition-normal);
 }
 
 .rotate {
-    transform: rotate(180deg);
+    transform: rotate(-180deg);
 }
 
-/* Add styles for expanded content when sidebar is collapsed */
 .content--expanded {
-    margin-left: var(--sidebar-collapsed-width);
-    width: calc(100% - var(--sidebar-collapsed-width));
+    margin-left: var(--sidebar-collapsed-width) !important;
 } 

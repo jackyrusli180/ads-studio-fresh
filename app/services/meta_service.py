@@ -369,6 +369,7 @@ class MetaService:
                 - adset_id: ID of the AdSet to place the ad in
                 - creative_type: 'IMAGE' or 'VIDEO'
                 - assets: List of asset objects with 'url', 'type', etc.
+                - headline: Optional headline text for the ad
                 
         Returns:
             String ID of the created ad
@@ -383,6 +384,12 @@ class MetaService:
             creative_params = {
                 'name': f"Creative for {ad_data.get('name', 'New Ad')}",
             }
+            
+            # Add headline if provided
+            headline = ad_data.get('headline')
+            if headline:
+                logging.info(f"Using headline for ad: {headline}")
+                creative_params['title'] = headline
             
             # Check if we have image or video assets
             assets = ad_data.get('assets', [])

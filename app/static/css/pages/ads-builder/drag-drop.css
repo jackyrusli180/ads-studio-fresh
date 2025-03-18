@@ -488,7 +488,8 @@ body.dragging .asset-drop-zone {
     transition: all 0.2s ease;
     cursor: pointer;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
+    width: 100%;
 }
 
 .adsets-panel .asset-drop-zone:hover {
@@ -576,6 +577,8 @@ body.dragging .adsets-panel .drop-placeholder i {
     min-height: 50px;
     transition: all 0.3s ease;
     display: block; /* Show by default instead of hiding */
+    z-index: 1; /* Lower z-index so it doesn't hide adset items */
+    overflow: visible; /* Ensure content isn't cut off */
 }
 
 /* Visual feedback when dragging */
@@ -593,9 +596,38 @@ body.dragging .ad-creation-container {
     50% { background-color: rgba(226, 232, 240, 0.8); }
 }
 
+/* Improve adsets container visibility */
+.adsets-container {
+    position: relative;
+    z-index: 2; /* Higher z-index than ad-creation-container */
+    display: block;
+    width: 100%;
+    padding-bottom: 20px; /* Reduce padding to match image */
+    margin-top: 0;
+}
+
+/* Make sure adset items are visible */
+.adset-item {
+    position: relative;
+    z-index: 3; /* Higher z-index than containers */
+    margin-bottom: 20px;
+    display: block;
+}
+
 /* New drop zone styling */
 .new-drop-zone {
     margin-top: 15px;
     border-top: 1px dashed #e2e8f0;
     padding-top: 15px;
+}
+
+/* Asset drop zone that has assets - ensure visible */
+.asset-drop-zone.has-asset {
+    min-height: auto;
+    border-style: solid;
+    border-color: #a0aec0;
+    background-color: #edf2f7;
+    padding-bottom: 10px;
+    display: flex !important; /* Always display drop zones that have assets */
+    width: 100%;
 } 

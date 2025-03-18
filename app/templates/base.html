@@ -25,7 +25,7 @@
         
         <nav class="sidebar__nav">
             <div class="sidebar__nav-group">
-                <div class="sidebar__nav-header">
+                <div class="sidebar__nav-header" data-toggle="submenu">
                     <div class="sidebar__header-content">
                         <i class="fas fa-wand-magic-sparkles"></i>
                         <span>AIGC</span>
@@ -45,7 +45,7 @@
             </div>
 
             <div class="sidebar__nav-group">
-                <div class="sidebar__nav-header">
+                <div class="sidebar__nav-header" data-toggle="submenu">
                     <div class="sidebar__header-content">
                         <i class="fas fa-folder-open"></i>
                         <span>Asset Manager</span>
@@ -69,7 +69,7 @@
             </div>
 
             <div class="sidebar__nav-group">
-                <div class="sidebar__nav-header">
+                <div class="sidebar__nav-header" data-toggle="submenu">
                     <div class="sidebar__header-content">
                         <i class="fas fa-bullhorn"></i>
                         <span>Ads Manager</span>
@@ -89,7 +89,7 @@
             </div>
 
             <div class="sidebar__nav-group">
-                <div class="sidebar__nav-header">
+                <div class="sidebar__nav-header" data-toggle="submenu">
                     <div class="sidebar__header-content">
                         <i class="fas fa-shapes"></i>
                         <span>Templates</span>
@@ -105,7 +105,7 @@
             </div>
 
             <div class="sidebar__nav-group">
-                <div class="sidebar__nav-header">
+                <div class="sidebar__nav-header" data-toggle="submenu">
                     <div class="sidebar__header-content">
                         <i class="fas fa-chart-line"></i>
                         <span>Analytics</span>
@@ -160,6 +160,12 @@
             const content = document.querySelector('.content');
             const chevronIcons = document.querySelectorAll('.chevron-icon');
             
+            // First, ensure all submenus have their initial state set
+            document.querySelectorAll('.sidebar__submenu').forEach(submenu => {
+                // Make sure display property is explicitly set
+                submenu.style.display = 'none';
+            });
+            
             if (toggleBtn && sidebar && content) {
                 toggleBtn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -191,21 +197,30 @@
                 window.sidebarToggleInitialized = true;
             }
             
-            // Setup submenu toggles
-            const navHeaders = document.querySelectorAll('.sidebar__nav-header');
+            // Setup submenu toggles - fixed click event handler
+            const navHeaders = document.querySelectorAll('.sidebar__nav-header[data-toggle="submenu"]');
             navHeaders.forEach(function(header) {
                 header.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                     const submenu = this.nextElementSibling;
                     if (submenu && submenu.classList.contains('sidebar__submenu')) {
-                        if (submenu.style.display === 'block') {
-                            submenu.style.display = 'none';
-                        } else {
-                            submenu.style.display = 'block';
-                        }
+                        // Get computed style to ensure we detect visibility correctly
+                        const computedStyle = window.getComputedStyle(submenu);
+                        const isVisible = computedStyle.display !== 'none';
                         
+                        // Toggle submenu visibility
+                        submenu.style.display = isVisible ? 'none' : 'block';
+                        
+                        // Toggle chevron rotation
                         const chevron = this.querySelector('.fa-chevron-down');
                         if (chevron) {
-                            chevron.classList.toggle('rotate');
+                            if (isVisible) {
+                                chevron.classList.remove('rotate');
+                            } else {
+                                chevron.classList.add('rotate');
+                            }
                         }
                     }
                 });
@@ -217,6 +232,37 @@
                     icon.style.display = 'none';
                 });
             }
+            
+            // Highlight active navigation item
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.sidebar__nav-item');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                
+                if (href === currentPath) {
+                    link.classList.add('sidebar__nav-item--active');
+                    
+                    // Expand the parent submenu if it exists
+                    const parentSubmenu = link.closest('.sidebar__submenu');
+                    if (parentSubmenu) {
+                        // Make explicitly visible
+                        parentSubmenu.style.display = 'block';
+                        
+                        // Rotate the chevron icon
+                        const navHeader = parentSubmenu.previousElementSibling;
+                        if (navHeader && navHeader.classList.contains('sidebar__nav-header')) {
+                            const chevron = navHeader.querySelector('.fa-chevron-down');
+                            if (chevron) chevron.classList.add('rotate');
+                        }
+                    }
+                }
+            });
+            
+            // Set flag to indicate submenu toggles have been initialized
+            window.submenuTogglesInitialized = true;
+            // Set flag to indicate nav items have been initialized
+            window.navInitialized = true;
         })();
     </script>
     
@@ -225,4 +271,4 @@
     
     {% block extra_js %}{% endblock %}
 </body>
-</html> <link rel="stylesheet" href="/static/css/components/ads-builder.css">
+</html>

@@ -91,90 +91,48 @@ export function initPlatformSelector(elements, state, validateStep) {
     }
     
     /**
-     * Render account checkboxes
-     * @param {Array} accounts - List of account objects
+     * Render account checkboxes for the selected platforms
+     * @param {Array} accounts - Array of account objects from the API
      */
     function renderAccountCheckboxes(accounts) {
-        // Clear container
+        // Clear previous checkboxes
         elements.advertiserAccountContainer.innerHTML = '';
         
-        // Generate checkboxes for each account
+        if (!accounts || accounts.length === 0) {
+            elements.advertiserAccountContainer.innerHTML = '<div class="no-accounts">No accounts found for the selected platforms</div>';
+            return;
+        }
+        
+        // Group accounts by platform if needed
+        const platformsSelected = state.selectedPlatforms.length;
+        
         accounts.forEach(account => {
+            // Create account checkbox item
             const accountItem = document.createElement('div');
             accountItem.className = 'account-item';
-            accountItem.dataset.id = account.id;
-            accountItem.dataset.platform = account.platform;
+            accountItem.dataset.platform = account.platform || 
+                                        (state.selectedPlatforms.length === 1 ? state.selectedPlatforms[0] : '');
             
-            // Create checkbox input
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.className = 'account-checkbox';
-            checkbox.name = 'advertiser_account_id[]';
-            checkbox.value = account.id;
-            checkbox.id = `account-${account.id}`;
-            
-            // Check if this account is already selected
-            const isSelected = state.advertiserAccounts.some(selectedAccount => 
-                selectedAccount.id === account.id && selectedAccount.platform === account.platform
-            );
-            
-            if (isSelected) {
-                checkbox.checked = true;
-                accountItem.classList.add('selected');
+            // Make sure platform is set
+            if (!account.platform && state.selectedPlatforms.length === 1) {
+                account.platform = state.selectedPlatforms[0];
             }
             
-            // Create platform icon
-            const platformIcon = document.createElement('div');
-            platformIcon.className = `account-platform-icon platform-${account.platform}`;
+            // Add account info
+            accountItem.innerHTML = `
+                <label class="account-checkbox-label">
+                    <input type="checkbox" name="advertiser_account_id[]" value="${account.id}" class="account-checkbox">
+                    <div class="account-info">
+                        <div class="account-name">${account.name}</div>
+                        <div class="account-id">${account.id}</div>
+                        ${platformsSelected > 1 ? `<div class="account-platform">${account.platform}</div>` : ''}
+                    </div>
+                </label>
+            `;
             
-            // Set icon based on platform
-            if (account.platform === 'meta') {
-                platformIcon.innerHTML = '<i class="fab fa-facebook-f"></i>';
-            } else if (account.platform === 'tiktok') {
-                platformIcon.innerHTML = '<i class="fab fa-tiktok"></i>';
-            }
-            
-            // Create account details container
-            const detailsContainer = document.createElement('div');
-            detailsContainer.className = 'account-details';
-            
-            // Account name and ID
-            const nameElement = document.createElement('div');
-            nameElement.className = 'account-name';
-            nameElement.textContent = account.name;
-            
-            const idElement = document.createElement('div');
-            idElement.className = 'account-id';
-            idElement.textContent = `ID: ${account.id}`;
-            
-            // Assemble elements
-            detailsContainer.appendChild(nameElement);
-            detailsContainer.appendChild(idElement);
-            
-            accountItem.appendChild(checkbox);
-            accountItem.appendChild(platformIcon);
-            accountItem.appendChild(detailsContainer);
-            
-            // Add click handler for the entire item
-            accountItem.addEventListener('click', (e) => {
-                // Don't toggle if clicking directly on the checkbox (it handles its own state)
-                if (e.target !== checkbox) {
-                    checkbox.checked = !checkbox.checked;
-                    const event = new Event('change');
-                    checkbox.dispatchEvent(event);
-                }
-            });
-            
-            // Handle checkbox change
+            // Add click event listener to update state
+            const checkbox = accountItem.querySelector('input[type="checkbox"]');
             checkbox.addEventListener('change', () => {
-                // Update selected class
-                if (checkbox.checked) {
-                    accountItem.classList.add('selected');
-                } else {
-                    accountItem.classList.remove('selected');
-                }
-                
-                // Update state
                 updateSelectedAccounts();
                 
                 // Validate step

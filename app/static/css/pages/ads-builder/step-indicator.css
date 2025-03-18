@@ -9,69 +9,123 @@
 .step-indicator {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     position: relative;
+    padding: 0 10px;
 }
 
+/* Line connecting steps */
 .step-indicator::before {
     content: '';
     position: absolute;
-    top: 24px;
-    left: 0;
-    right: 0;
+    top: 25px;
+    left: 30px;
+    right: 30px;
     height: 2px;
-    background-color: #e0e0e0;
+    background-color: #e2e8f0;
     z-index: 1;
 }
 
 .step-item {
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 25%;
+    position: relative;
     z-index: 2;
+    flex: 1;
+    max-width: 150px;
 }
 
 .step-number {
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    background-color: #f0f0f0;
-    color: #666;
+    background-color: #f1f5f9;
+    border: 2px solid #cbd5e1;
     display: flex;
-    justify-content: center;
     align-items: center;
-    font-weight: bold;
-    margin-bottom: 8px;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 18px;
+    color: #64748b;
+    margin-bottom: 10px;
     transition: all 0.3s ease;
-    border: 2px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .step-text {
     font-size: 14px;
-    color: #666;
+    color: #64748b;
     text-align: center;
+    font-weight: 500;
     transition: all 0.3s ease;
 }
 
+/* Active step styling */
 .step-item.active .step-number {
-    background-color: #007bff;
+    background-color: #0ea5e9;
+    border-color: #0ea5e9;
     color: white;
-    border-color: #007bff;
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2);
 }
 
 .step-item.active .step-text {
-    color: #007bff;
+    color: #0f172a;
     font-weight: 600;
 }
 
+/* Completed step styling */
 .step-item.completed .step-number {
-    background-color: #28a745;
+    background-color: #10b981;
+    border-color: #10b981;
     color: white;
-    border-color: #28a745;
 }
 
-.step-item.completed .step-text {
-    color: #28a745;
+.step-item.completed .step-number::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+}
+
+/* Line connecting active/completed steps */
+.step-item.active ~ .step-item .step-number,
+.step-item.completed ~ .step-item .step-number {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #64748b;
+}
+
+/* Set previous steps as completed */
+.step-item.active ~ .step-item.completed .step-number {
+    background-color: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+
+/* Hover effects */
+.step-item:not(.active):hover .step-number {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .step-indicator {
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+    
+    .step-item {
+        min-width: 120px;
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .step-text {
+        font-size: 12px;
+    }
 } 

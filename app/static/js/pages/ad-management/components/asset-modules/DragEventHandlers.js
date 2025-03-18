@@ -233,6 +233,9 @@ export function createDropHandler(state) {
                     dropZone.innerHTML = '';
                 }
                 
+                // Don't add an ad name input inside the drop zone - it should only be in the parent container
+                // Skip this section that creates the duplicate ad-name-input
+                /*
                 // Create ad name input if it doesn't exist
                 if (!dropZone.querySelector('.ad-name-input')) {
                     const adNameInput = document.createElement('input');
@@ -242,6 +245,7 @@ export function createDropHandler(state) {
                     adNameInput.value = `New Ad ${new Date().toISOString().slice(0,10)}`;
                     dropZone.appendChild(adNameInput);
                 }
+                */
                 
                 // Create assets grid container
                 assetsGridContainer = document.createElement('div');
@@ -297,7 +301,47 @@ export function createDropHandler(state) {
             
             // If this is the first asset, create a new drop zone for additional ads
             if (storedAssets.length === 1) {
-                // Create a new drop zone for additional ads (not additional assets)
+                // First, create a container for the new ad inputs and drop zone
+                const newAdContainer = document.createElement('div');
+                newAdContainer.className = 'ad-creation-container';
+                newAdContainer.style.marginTop = '20px';
+                newAdContainer.style.paddingTop = '20px';
+                newAdContainer.style.borderTop = '1px solid #e2e8f0';
+                
+                // Create Ad Name input field
+                const adNameInput = document.createElement('div');
+                adNameInput.className = 'ad-name-input';
+                adNameInput.style.marginBottom = '10px';
+                adNameInput.style.width = '100%';
+                adNameInput.innerHTML = `
+                    <label for="ad-name-new-${Date.now()}" style="display: block; margin-bottom: 5px; font-weight: 500; color: #444;">Ad Name</label>
+                    <input type="text" 
+                           id="ad-name-new-${Date.now()}" 
+                           name="ad_name" 
+                           class="form-control" 
+                           placeholder="Enter ad name"
+                           style="width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px;">
+                `;
+                newAdContainer.appendChild(adNameInput);
+                
+                // Create Headline input field
+                const headlineInput = document.createElement('div');
+                headlineInput.className = 'headline-input';
+                headlineInput.style.display = 'block';
+                headlineInput.style.marginBottom = '15px';
+                headlineInput.style.width = '100%';
+                headlineInput.innerHTML = `
+                    <label for="headline-new-${Date.now()}" style="display: block; margin-bottom: 5px; font-weight: 500; color: #444;">Headline</label>
+                    <input type="text" 
+                           id="headline-new-${Date.now()}" 
+                           name="headline" 
+                           class="form-control headline-field" 
+                           placeholder="Enter ad headline"
+                           style="width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; background-color: white;">
+                `;
+                newAdContainer.appendChild(headlineInput);
+                
+                // Create a new drop zone for additional ads
                 const newDropZone = document.createElement('div');
                 newDropZone.className = 'asset-drop-zone new-drop-zone';
                 newDropZone.dataset.adsetId = adsetItem.dataset.adsetId || adsetItem.dataset.id;
@@ -313,8 +357,17 @@ export function createDropHandler(state) {
                 `;
                 newDropZone.appendChild(placeholder);
                 
-                // Add the new drop zone after the current one
-                adCreationContainer.appendChild(newDropZone);
+                // Add the drop zone to the container
+                newAdContainer.appendChild(newDropZone);
+                
+                // Add the new container after the current ad creation container
+                const parentContainer = adCreationContainer.parentElement;
+                if (parentContainer) {
+                    parentContainer.appendChild(newAdContainer);
+                } else {
+                    // Fallback if no parent container
+                    adCreationContainer.insertAdjacentElement('afterend', newAdContainer);
+                }
                 
                 // Set up the new drop zone with event handlers
                 if (typeof setupDropZone === 'function') {
@@ -537,13 +590,14 @@ function ensureInputFields(dropZone) {
     const adsetItem = dropZone.closest('.adset-item');
     if (!adsetItem) return;
     
-    // First look for the wrapper div with class ad-name-input
-    let adNameInput = adCreationContainer.querySelector('.ad-name-input');
+    // First look for the wrapper div with class ad-name-input in the ad-creation-container
+    // NOT in the drop zone itself, to avoid duplicates
+    let adNameInput = adCreationContainer.querySelector(':scope > .ad-name-input');
     let adNameIsDirectInput = false;
     
     // If we don't find the wrapper, check for a direct input with class ad-name-input
     if (!adNameInput) {
-        const directInput = adCreationContainer.querySelector('input.ad-name-input');
+        const directInput = adCreationContainer.querySelector(':scope > input.ad-name-input');
         if (directInput) {
             adNameIsDirectInput = true;
             // Wrap it in a container for consistency
@@ -577,8 +631,15 @@ function ensureInputFields(dropZone) {
         console.log('Created ad name input for adset', adsetItem.dataset.adsetId || adsetItem.id);
     }
     
-    // Check for headline input
-    let headlineInput = adCreationContainer.querySelector('.headline-input');
+    // Remove any duplicate ad name inputs inside the drop zone
+    const dropZoneAdNameInputs = dropZone.querySelectorAll('.ad-name-input, input.ad-name-input');
+    dropZoneAdNameInputs.forEach(duplicateInput => {
+        console.log('Removing duplicate ad name input from drop zone');
+        duplicateInput.remove();
+    });
+    
+    // Check for headline input in the ad-creation-container, not in the drop zone
+    let headlineInput = adCreationContainer.querySelector(':scope > .headline-input');
     if (!headlineInput) {
         headlineInput = document.createElement('div');
         headlineInput.className = 'headline-input';
@@ -610,4 +671,11 @@ function ensureInputFields(dropZone) {
             console.log('Created headline input after ad name input for adset', adsetItem.dataset.adsetId || adsetItem.id);
         }
     }
+    
+    // Remove any duplicate headline inputs inside the drop zone
+    const dropZoneHeadlineInputs = dropZone.querySelectorAll('.headline-input');
+    dropZoneHeadlineInputs.forEach(duplicateInput => {
+        console.log('Removing duplicate headline input from drop zone');
+        duplicateInput.remove();
+    });
 } 

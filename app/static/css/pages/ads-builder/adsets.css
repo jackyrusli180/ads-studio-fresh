@@ -16,6 +16,8 @@
     border: 1px solid #e0e0e0;
     transition: all 0.3s ease;
     position: relative;
+    width: 100%;
+    margin-top: 0; /* Remove top margin to align directly below header */
 }
 
 .adsets-empty {
@@ -56,11 +58,15 @@
    ============================================= */
 .adset-item {
     background-color: white;
+    border: 1px solid #e2e8f0;
     border-radius: 8px;
-    border: 1px solid #dee2e6;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+    z-index: 3; /* Higher z-index to ensure visibility */
+    display: block;
+    overflow: visible; /* Ensure content isn't cut off */
+    width: 100%; /* Ensure it takes full width */
 }
 
 .adset-item:hover {
@@ -75,6 +81,7 @@
     padding: 12px 15px;
     background-color: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
+    width: 100%;
 }
 
 .adset-title {
@@ -115,6 +122,9 @@
     padding: 15px;
     min-height: 150px;
     position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .adset-details {
@@ -353,6 +363,9 @@
     margin-top: 10px;
     background-color: #f8f9fa;
     display: block;
+    position: relative;
+    z-index: 1; /* Lower z-index so it doesn't hide content */
+    overflow: visible;
 }
 
 .ad-creation-container .form-group {
@@ -370,6 +383,20 @@
     padding: 8px;
     border: 1px solid #ced4da;
     border-radius: 4px;
+}
+
+.ad-creation-container textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    min-height: 100px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    background-color: #fff;
+    z-index: 2; /* Set z-index to ensure it's above the container background but below adset items */
 }
 
 /* =============================================

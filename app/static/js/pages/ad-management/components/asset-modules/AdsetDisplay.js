@@ -4,6 +4,7 @@
  */
 
 import { metaService, tiktokService } from '../../services/platformService.js';
+import { createAdsetDropZone } from './AdsetDropZones.js';
 
 /**
  * Initialize the Adset Display module
@@ -352,25 +353,8 @@ export function initAdsetDisplay(elements, state) {
                                 </div>
                             `;
                             
-                            // Create ad creation container (always visible by default)
-                            const adCreationContainer = document.createElement('div');
-                            adCreationContainer.className = 'ad-creation-container';
-                            
-                            // Add drop zone for assets (no ad name input initially)
-                            const dropZone = document.createElement('div');
-                            dropZone.className = 'asset-drop-zone';
-                            dropZone.dataset.adsetId = adset.id;
-                            dropZone.dataset.platform = 'meta';
-                            dropZone.dataset.accountId = accountId;
-                            dropZone.innerHTML = `
-                                <div class="drop-placeholder">
-                                    <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem; margin-bottom: 8px;"></i>
-                                    <div>Drag assets here to create ads</div>
-                                </div>
-                            `;
-                            
-                            // Append elements to ad creation container (without the ad name input for now)
-                            adCreationContainer.appendChild(dropZone);
+                            // Use the imported createAdsetDropZone function instead of manual creation
+                            createAdsetDropZone(adsetItem, 'meta');
                             
                             // Add container for existing ads
                             const existingAdsContainer = document.createElement('div');
@@ -446,7 +430,6 @@ export function initAdsetDisplay(elements, state) {
                             });
                             
                             // Append elements to adset item
-                            adsetItem.appendChild(adCreationContainer);
                             adsetItem.appendChild(existingAdsContainer);
                             adsetsList.appendChild(adsetItem);
                         }
@@ -710,25 +693,8 @@ export function initAdsetDisplay(elements, state) {
                                 </div>
                             `;
                             
-                            // Create ad creation container (always visible by default)
-                            const adCreationContainer = document.createElement('div');
-                            adCreationContainer.className = 'ad-creation-container';
-                            
-                            // Add drop zone for assets (no ad name input initially)
-                            const dropZone = document.createElement('div');
-                            dropZone.className = 'asset-drop-zone';
-                            dropZone.dataset.adsetId = adset.id;
-                            dropZone.dataset.platform = 'tiktok';
-                            dropZone.dataset.accountId = accountId;
-                            dropZone.innerHTML = `
-                                <div class="drop-placeholder">
-                                    <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem; margin-bottom: 8px;"></i>
-                                    <div>Drag assets here to create ads</div>
-                                </div>
-                            `;
-                            
-                            // Append elements to ad creation container (without the ad name input for now)
-                            adCreationContainer.appendChild(dropZone);
+                            // Use the imported createAdsetDropZone function instead of manual creation
+                            createAdsetDropZone(adsetItem, 'tiktok');
                             
                             // Add container for existing ads
                             const existingAdsContainer = document.createElement('div');
@@ -822,7 +788,6 @@ export function initAdsetDisplay(elements, state) {
                             });
                             
                             // Append elements to adset item
-                            adsetItem.appendChild(adCreationContainer);
                             adsetItem.appendChild(existingAdsContainer);
                             adsetsList.appendChild(adsetItem);
                         }

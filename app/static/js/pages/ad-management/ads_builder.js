@@ -359,7 +359,11 @@ function initializeComponents() {
     const summaryView = initSummaryView(elements, state);
     
     // Form submit handling
-    elements.form.addEventListener('submit', (e) => handleFormSubmit(e, summaryView));
+    console.log('Setting up form submit handler on form:', elements.form.id);
+    elements.form.addEventListener('submit', (e) => {
+        console.log('Form submit event captured');
+        return handleFormSubmit(e, summaryView);
+    });
 }
 
 /**
@@ -489,13 +493,31 @@ async function handleFormSubmit(e, summaryView) {
         return false;
     }
     
-    // Show loading state
-    const submitBtn = document.querySelector('#submitBtn');
-    const originalBtnText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-    submitBtn.disabled = true;
+    // Show loading state - using the correct button ID (launchAdsBtn)
+    const submitBtn = document.querySelector('#launchAdsBtn');
+    
+    // Log button info for debugging
+    console.log('Form submit handler initiated');
+    console.log('Submit button found:', submitBtn ? 'Yes' : 'No');
+    
+    // Check if button is found
+    if (!submitBtn) {
+        console.error('Could not find submit button with ID #launchAdsBtn');
+        // Continue without button state updates
+    } else {
+        console.log('Using submit button with ID:', submitBtn.id);
+    }
+    
+    const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        submitBtn.disabled = true;
+    }
     
     try {
+        // Log that form submission is starting for debugging
+        console.log('Starting form submission to create ads...');
+        
         // Collect form data
         const formData = new FormData(elements.form);
         
@@ -508,107 +530,104 @@ async function handleFormSubmit(e, summaryView) {
         state.advertiserAccounts.forEach(account => {
             formData.append('advertiser_account_ids[]', account.id);
             
-            // Use the appropriate parameter name based on the platform
-            if (account.platform === 'tiktok') {
-                formData.append('tiktok_account_id', account.id);
-            } else {
+            // Add platform-specific account ID
+            if (account.platform) {
                 formData.append(`${account.platform}_account_id`, account.id);
             }
         });
         
-        // Collect all used assets from the drop zones
-        const usedAssetIds = [];
-        document.querySelectorAll('.asset-drop-zone.has-asset').forEach(dropZone => {
-            // Check if this dropzone has assets data
-            if (dropZone.dataset.assets) {
-                try {
-                    // Parse the assets data from the data attribute
-                    const assets = JSON.parse(dropZone.dataset.assets);
-                    
-                    // Add each asset ID to our collection
-                    assets.forEach(asset => {
-                        if (asset.id && !usedAssetIds.includes(asset.id)) {
-                            usedAssetIds.push(asset.id);
+        // Add campaign and adset IDs for each platform
+        for (const platform of state.selectedPlatforms) {
+            // Add campaign IDs - use a Set to avoid duplicates
+            const campaignIds = new Set(state.campaignSelections[platform].campaigns);
+            for (const campaignId of campaignIds) {
+                formData.append(`${platform}_campaign_ids[]`, campaignId);
+                
+                // Add adset/adgroup IDs for this campaign if they exist
+                const adsetIds = state.campaignSelections[platform].adsets[campaignId];
+                if (adsetIds) {
+                    if (Array.isArray(adsetIds)) {
+                        adsetIds.forEach(adsetId => {
+                            formData.append(`${platform}_adset_ids[]`, adsetId);
+                            // For TikTok, also use adgroup_ids for compatibility
+                            if (platform === 'tiktok') {
+                                formData.append('tiktok_adgroup_ids[]', adsetId);
+                            }
+                        });
+                    } else {
+                        formData.append(`${platform}_adset_ids[]`, adsetIds);
+                        if (platform === 'tiktok') {
+                            formData.append('tiktok_adgroup_ids[]', adsetIds);
                         }
-                    });
-                } catch (error) {
-                    console.error('Error parsing assets data:', error);
+                    }
                 }
+            }
+        }
+        
+        // Log submission data for debugging (excluding large files)
+        console.log('Form data collected, fields:', Array.from(formData.keys()));
+        
+        // Submit the form data
+        const response = await fetch(elements.form.getAttribute('action'), {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
             }
         });
         
-        console.log('Collected asset IDs for submission:', usedAssetIds);
+        // Log response details
+        console.log('Received response from server:', response.status, response.statusText);
         
-        // Add the collected asset IDs to the form data
-        if (usedAssetIds.length > 0) {
-            formData.set('selected_asset_ids', usedAssetIds.join(','));
-        } else {
-            console.warn('No assets were found in any drop zones');
-        }
+        const responseData = await response.json();
+        console.log('Response data:', responseData);
         
-        // Add selected campaigns and adsets
-        for (const platform of state.selectedPlatforms) {
-            const campaigns = state.campaignSelections[platform].campaigns;
-            const adsets = state.campaignSelections[platform].adsets;
+        // Show success/error message
+        if (responseData.success) {
+            showToast(responseData.message || 'Ads created successfully!', 'success');
+            console.log('Success: Ads created with IDs:', responseData.ad_ids);
             
-            // Make sure we have valid campaign selections
-            if (Array.isArray(campaigns) && campaigns.length > 0) {
-                campaigns.forEach(campaignId => {
-                    formData.append(`${platform}_campaign_ids[]`, campaignId);
-                    
-                    // Get adsets for this campaign
-                    const campaignAdsets = adsets[campaignId];
-                    
-                    // Check if we have adsets for this campaign
-                    if (campaignAdsets) {
-                        if (Array.isArray(campaignAdsets)) {
-                            // If it's an array, add each adset
-                            campaignAdsets.forEach(adsetId => {
-                                if (adsetId) {
-                                    formData.append(`${platform}_adset_ids[]`, adsetId);
-                                }
-                            });
-                        } else {
-                            // If it's a single value, add it directly
-                            formData.append(`${platform}_adset_ids[]`, campaignAdsets);
-                        }
-                    }
-                });
-            } else {
-                console.warn(`No campaigns selected for platform ${platform}`);
-            }
-        }
-        
-        // Log the form data for debugging
-        console.log('Form data before submission:');
-        for (let [key, value] of formData.entries()) {
-            console.log(`${key}: ${value}`);
-        }
-        
-        // Submit the form
-        const response = await post('/ad-management/create_ad', formData);
-        
-        if (response.success) {
-            showToast(response.message || 'Ad created successfully!', 'success');
+            // Dispatch event to notify completion
+            window.dispatchEvent(new CustomEvent('submissionComplete', {
+                detail: { success: true, data: responseData }
+            }));
             
-            // Redirect if provided
-            if (response.redirect) {
-                setTimeout(() => {
-                    window.location.href = response.redirect;
-                }, 1500);
+            // Redirect if specified
+            if (responseData.redirect_url) {
+                window.location.href = responseData.redirect_url;
             }
         } else {
-            showToast(response.error || 'An error occurred while creating the ad', 'error');
-            console.error('Form submission error:', response.error);
+            console.error('Error creating ads:', responseData.message || 'Unknown error');
+            showToast(responseData.message || 'Error creating ads. Please try again.', 'error');
+            
+            // Dispatch event to notify completion
+            window.dispatchEvent(new CustomEvent('submissionComplete', {
+                detail: { success: false, error: responseData.message }
+            }));
+            
+            // Reset button state
+            if (submitBtn) {
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            }
         }
     } catch (error) {
-        showToast(error.message || 'An unexpected error occurred', 'error');
-        console.error('Form submission error:', error);
-    } finally {
-        // Restore button state
-        submitBtn.innerHTML = originalBtnText;
-        submitBtn.disabled = false;
+        console.error('Error submitting form:', error);
+        showToast('An error occurred while creating ads. Please try again.', 'error');
+        
+        // Dispatch event to notify completion
+        window.dispatchEvent(new CustomEvent('submissionComplete', {
+            detail: { success: false, error: error.message }
+        }));
+        
+        // Reset button state
+        if (submitBtn) {
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        }
     }
+    
+    return true;
 }
 
 // Add this function back to the DragDropHandler.js file 
@@ -763,3 +782,27 @@ function initDragAndDrop() {
     // Initialize the drag-drop handler
     // ... existing dragDropHandler initialization code ...
 }
+
+// Clean up any duplicate Ad Name fields in drop zones on page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Cleaning up any duplicate Ad Name fields in drop zones');
+    
+    // Find all asset-drop-zone elements that have the has-asset class
+    const activeDropZones = document.querySelectorAll('.asset-drop-zone.has-asset');
+    
+    activeDropZones.forEach(dropZone => {
+        // Remove any Ad Name inputs directly inside drop zones
+        const adNameInputs = dropZone.querySelectorAll('.ad-name-input, input.ad-name-input');
+        adNameInputs.forEach(input => {
+            console.log('Removing duplicate Ad Name input from drop zone');
+            input.remove();
+        });
+        
+        // Remove any Headline inputs directly inside drop zones
+        const headlineInputs = dropZone.querySelectorAll('.headline-input');
+        headlineInputs.forEach(input => {
+            console.log('Removing duplicate Headline input from drop zone');
+            input.remove();
+        });
+    });
+});
