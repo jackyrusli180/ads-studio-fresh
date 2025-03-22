@@ -166,194 +166,96 @@ export function initAdsetDisplay(elements, state) {
                         adsetsList.className = 'adsets-list';
                         
                         for (const adset of adsets) {
-                            // Format TikTok status to be user-friendly
+                            // Format Meta status to be user-friendly
                             let displayStatus = adset.status || 'Unknown';
-                            let statusClass = adset.status?.toLowerCase() || 'unknown';
+                            let statusClass = displayStatus.toLowerCase();
                             
-                            // Map TikTok status codes to descriptions from documentation
-                            switch(displayStatus) {
-                                case 'ADGROUP_STATUS_DELETE':
-                                    displayStatus = 'Deleted';
-                                    statusClass = 'deleted';
-                                    break;
-                                case 'ADGROUP_STATUS_CAMPAIGN_DELETE':
-                                    displayStatus = 'Campaign deleted';
-                                    statusClass = 'deleted';
-                                    break;
-                                case 'ADGROUP_STATUS_ADVERTISER_AUDIT_DENY':
-                                    displayStatus = 'Advertiser review failed';
-                                    statusClass = 'failed';
-                                    break;
-                                case 'ADGROUP_STATUS_ADVERTISER_AUDIT':
-                                    displayStatus = 'Advertiser review in progress';
-                                    statusClass = 'review';
-                                    break;
-                                case 'ADVERTISER_CONTRACT_PENDING':
-                                    displayStatus = 'Advertiser contract has not taken effect';
-                                    statusClass = 'pending';
-                                    break;
-                                case 'ADVERTISER_ACCOUNT_PUNISH':
-                                    displayStatus = 'Advertiser account is punished';
-                                    statusClass = 'restricted';
-                                    break;
-                                case 'ADGROUP_STATUS_CAMPAIGN_EXCEED':
-                                    displayStatus = 'Campaign over budget';
-                                    statusClass = 'budget-exceeded';
-                                    break;
-                                case 'ADGROUP_STATUS_BUDGET_EXCEED':
-                                    displayStatus = 'Ad group over budget';
-                                    statusClass = 'budget-exceeded';
-                                    break;
-                                case 'ADGROUP_STATUS_BALANCE_EXCEED':
-                                    displayStatus = 'Insufficient account balance';
-                                    statusClass = 'insufficient-funds';
-                                    break;
-                                case 'ADGROUP_STATUS_ADGROUP_PRE_ONLINE':
-                                    displayStatus = 'Pre-online state';
-                                    statusClass = 'pending';
-                                    break;
-                                case 'ADGROUP_STATUS_AUDIT_DENY':
-                                    displayStatus = 'Ad group review failed';
-                                    statusClass = 'failed';
-                                    break;
-                                case 'ADGROUP_STATUS_REAUDIT':
-                                    displayStatus = 'Review of modifications in progress';
-                                    statusClass = 'review';
-                                    break;
-                                case 'ADGROUP_STATUS_AUDIT':
-                                    displayStatus = 'New review created';
-                                    statusClass = 'review';
-                                    break;
-                                case 'ADGROUP_STATUS_CREATE':
-                                    displayStatus = 'New ad group created';
-                                    statusClass = 'pending';
-                                    break;
-                                case 'ADGROUP_STATUS_FROZEN':
-                                    displayStatus = 'Ad group is frozen';
-                                    statusClass = 'frozen';
-                                    break;
-                                case 'ADGROUP_STATUS_NOT_START':
-                                    displayStatus = 'Scheduled delivery not started';
-                                    statusClass = 'scheduled';
-                                    break;
-                                case 'ADGROUP_STATUS_LIVE_NOT_START':
-                                    displayStatus = 'Live not started';
-                                    statusClass = 'scheduled';
-                                    break;
-                                case 'ADGROUP_STATUS_CAMPAIGN_DISABLE':
-                                    displayStatus = 'Paused';
-                                    statusClass = 'paused';
-                                    break;
-                                case 'ADGROUP_STATUS_DISABLE':
-                                    displayStatus = 'Paused';
-                                    statusClass = 'paused';
-                                    break;
-                                case 'ADGROUP_STATUS_DELIVERY_OK':
-                                    displayStatus = 'Advertising in progress';
+                            // Map different status values to consistent classes for filtering
+                            switch(statusClass) {
+                                case 'active':
+                                case 'enabled':
+                                case 'delivered':
+                                case 'delivery_ok':
                                     statusClass = 'active';
+                                    displayStatus = 'Active';
                                     break;
-                                case 'ADGROUP_STATUS_REVIEW_PARTIALLY_APPROVED':
-                                    displayStatus = 'One or more ads have been rejected';
-                                    statusClass = 'partial-approval';
+                                case 'paused':
+                                case 'disable':
+                                case 'disabled':
+                                    statusClass = 'paused';
+                                    displayStatus = 'Paused';
                                     break;
-                                case 'ADGROUP_STATUS_TIME_DONE':
-                                    displayStatus = 'Completed';
-                                    statusClass = 'completed';
+                                case 'deleted':
+                                case 'removed':
+                                    statusClass = 'deleted';
+                                    displayStatus = 'Deleted';
                                     break;
-                                // R&F ad group statuses
-                                case 'ADGROUP_STATUS_RF_DEDUCTION_FAILED':
-                                    displayStatus = 'Deduction failed for the R&F ad group';
-                                    statusClass = 'failed';
+                                case 'pending':
+                                case 'scheduled':
+                                case 'pending_review':
+                                    statusClass = 'pending';
+                                    displayStatus = 'Pending';
                                     break;
-                                case 'ADGROUP_STATUS_RF_NO_VALID_CREATIVE':
-                                    displayStatus = 'No valid creatives in the R&F ad group';
-                                    statusClass = 'failed';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_CLOSED_OTHERS':
-                                    displayStatus = 'The R&F ad group is closed';
-                                    statusClass = 'closed';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_SHORT_BALANCE':
-                                    displayStatus = 'Not enough balance in the R&F ad group';
-                                    statusClass = 'insufficient-funds';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_BOOKING':
-                                    displayStatus = 'Budget/inventory has been booked for this R&F ad group';
-                                    statusClass = 'scheduled';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_NO_DELIVERY_CREATIVE':
-                                    displayStatus = 'No creatives in this R&F ad group';
-                                    statusClass = 'incomplete';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_SCHEDULE':
-                                    displayStatus = 'A schedule has been created for the R&F ad group';
-                                    statusClass = 'scheduled';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_TERMINATE':
-                                    displayStatus = 'The R&F ad group is terminated';
-                                    statusClass = 'terminated';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_AD_AUDIT_DENY':
-                                    displayStatus = 'The R&F ad is rejected';
-                                    statusClass = 'failed';
-                                    break;
-                                case 'ADVERTISER_ACCOUNT_INVALID':
-                                    displayStatus = 'The advertiser account is invalid';
-                                    statusClass = 'invalid';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_ADGROUP_INVALID':
-                                    displayStatus = 'The R&F ad group doesn\'t exist';
-                                    statusClass = 'invalid';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_WITHDRAW_ORDER':
-                                    displayStatus = 'The R&F order is withdrawn';
-                                    statusClass = 'withdrawn';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_TIME_DONE':
-                                    displayStatus = 'The R&F ad group is completed';
-                                    statusClass = 'completed';
-                                    break;
-                                // Promote ad group statuses
-                                case 'ADGROUP_STATUS_PROMOTE_AD_NOT_APPROVED':
-                                    displayStatus = 'One or more creatives in the Promote ad group are not approved';
-                                    statusClass = 'partial-approval';
-                                    break;
-                                case 'ADGROUP_STATUS_PROMOTE_WITHDRAW_ORDER':
-                                    displayStatus = 'The Promote order is withdrawn';
-                                    statusClass = 'withdrawn';
+                                case 'in_review':
+                                case 'audit':
+                                case 'review':
+                                case 'reaudit':
+                                    statusClass = 'review';
+                                    displayStatus = 'In Review';
                                     break;
                                 default:
-                                    // Keep original if not matched
+                                    // Keep as is for other statuses
                                     break;
                             }
-
+                            
+                            // Create adset item element
                             const adsetItem = document.createElement('div');
                             adsetItem.className = 'adset-item';
                             adsetItem.dataset.adsetId = adset.id;
                             adsetItem.dataset.platform = 'meta';
-                            adsetItem.dataset.campaignId = campaignId;
                             adsetItem.dataset.accountId = accountId;
+                            adsetItem.dataset.campaignId = campaignId;
                             
-                            adsetItem.innerHTML = `
-                                <div class="adset-header">
-                                    <h5 class="adset-name">${adset.name}</h5>
-                                    <span class="adset-status ${statusClass}">${displayStatus}</span>
+                            // Create adset header
+                            const adsetHeader = document.createElement('div');
+                            adsetHeader.className = 'adset-header';
+                            
+                            // Adset title with name
+                            const adsetTitle = document.createElement('div');
+                            adsetTitle.className = 'adset-title';
+                            adsetTitle.innerHTML = `
+                                <span class="adset-name">${adset.name}</span>
+                            `;
+                            adsetHeader.appendChild(adsetTitle);
+                            
+                            // Add the status
+                            const statusEl = document.createElement('span');
+                            statusEl.className = `adset-status ${statusClass}`;
+                            statusEl.textContent = displayStatus;
+                            statusEl.style.display = 'inline-flex'; // Force display
+                            adsetHeader.appendChild(statusEl);
+                            
+                            // Add the header to the adset item
+                            adsetItem.appendChild(adsetHeader);
+                            
+                            // Add the adset details
+                            const details = document.createElement('div');
+                            details.className = 'adset-details';
+                            details.innerHTML = `
+                                <div class="targeting-info">
+                                    <i class="fas fa-users"></i> Targeting: ${adset.targeting_summary || 'Standard'}
                                 </div>
-                                <div class="adset-details">
-                                    <div class="targeting-info">
-                                        <i class="fas fa-users"></i> Targeting: ${adset.targeting_summary || 'Standard'}
-                                    </div>
-                                    <div class="budget-info">
-                                        <i class="fas fa-dollar-sign"></i> Budget: ${getBudgetDisplay(adset)}
-                                    </div>
-                                    <div class="goal-info">
-                                        <i class="fas fa-bullseye"></i> Goal: 
-                                        ${adset.optimization_goal || 'N/A'}
-                                    </div>
+                                <div class="budget-info">
+                                    <i class="fas fa-dollar-sign"></i> Budget: ${getBudgetDisplay(adset)}
+                                </div>
+                                <div class="goal-info">
+                                    <i class="fas fa-bullseye"></i> Goal: 
+                                    ${adset.optimization_goal || 'N/A'}
                                 </div>
                             `;
+                            adsetItem.appendChild(details);
                             
-                            // Use the imported createAdsetDropZone function instead of manual creation
+                            // Use the imported createAdsetDropZone function
                             createAdsetDropZone(adsetItem, 'meta');
                             
                             // Add container for existing ads
@@ -362,74 +264,6 @@ export function initAdsetDisplay(elements, state) {
                             existingAdsContainer.id = `meta-ads-${adset.id}`;
                             existingAdsContainer.innerHTML = '<div class="ads-toggle">Show existing ads <i class="fas fa-chevron-down"></i></div>';
                             
-                            // Add event listener to toggle existing ads
-                            const adsToggle = existingAdsContainer.querySelector('.ads-toggle');
-                            adsToggle.addEventListener('click', async function() {
-                                const adsList = existingAdsContainer.querySelector('.ads-list');
-                                
-                                if (adsList) {
-                                    // Toggle display of existing ads list
-                                    adsList.style.display = adsList.style.display === 'none' ? 'block' : 'none';
-                                    adsToggle.innerHTML = adsList.style.display === 'none' 
-                                        ? 'Show existing ads <i class="fas fa-chevron-down"></i>' 
-                                        : 'Hide existing ads <i class="fas fa-chevron-up"></i>';
-                                } else {
-                                    // Fetch and display existing ads
-                                    adsToggle.innerHTML = 'Loading ads... <i class="fas fa-spinner fa-spin"></i>';
-                                    
-                                    try {
-                                        const ads = await metaService.fetchAds(accountId, adset.id);
-                                        
-                                        if (ads && ads.ads && ads.ads.length > 0) {
-                                            // Create list for ads
-                                            const newAdsList = document.createElement('div');
-                                            newAdsList.className = 'ads-list';
-                                            
-                                            ads.ads.forEach(ad => {
-                                                const adItem = document.createElement('div');
-                                                adItem.className = 'ad-item';
-                                                adItem.dataset.adId = ad.id;
-                                                
-                                                // Determine preview content based on creative type
-                                                let previewContent = '';
-                                                if (ad.creative && ad.creative.image_url) {
-                                                    previewContent = `<img src="${ad.creative.image_url}" alt="${ad.name}" class="ad-preview-img">`;
-                                                } else {
-                                                    previewContent = '<div class="ad-no-preview">No preview available</div>';
-                                                }
-                                                
-                                                adItem.innerHTML = `
-                                                    <div class="ad-header">
-                                                        <h6 class="ad-name">${ad.name}</h6>
-                                                        <span class="ad-status ${ad.status.toLowerCase()}">${ad.status}</span>
-                                                    </div>
-                                                    <div class="ad-preview">
-                                                        ${previewContent}
-                                                    </div>
-                                                    <div class="ad-details">
-                                                        ${ad.creative?.title ? `<div class="ad-title">${ad.creative.title}</div>` : ''}
-                                                        ${ad.creative?.body ? `<div class="ad-body">${ad.creative.body}</div>` : ''}
-                                                    </div>
-                                                `;
-                                                
-                                                newAdsList.appendChild(adItem);
-                                            });
-                                            
-                                            existingAdsContainer.appendChild(newAdsList);
-                                            adsToggle.innerHTML = 'Hide existing ads <i class="fas fa-chevron-up"></i>';
-                                        } else {
-                                            existingAdsContainer.innerHTML += '<div class="no-ads">No existing ads found</div>';
-                                            adsToggle.innerHTML = 'No existing ads';
-                                        }
-                                    } catch (error) {
-                                        console.error(`Error fetching Meta ads for adset ${adset.id}:`, error);
-                                        existingAdsContainer.innerHTML += '<div class="error">Failed to load ads</div>';
-                                        adsToggle.innerHTML = 'Failed to load ads <i class="fas fa-exclamation-circle"></i>';
-                                    }
-                                }
-                            });
-                            
-                            // Append elements to adset item
                             adsetItem.appendChild(existingAdsContainer);
                             adsetsList.appendChild(adsetItem);
                         }
@@ -470,6 +304,31 @@ export function initAdsetDisplay(elements, state) {
         // Use campaign-specific account mappings
         const tiktokAccounts = state.advertiserAccounts.filter(acc => acc.platform === 'tiktok');
         
+        // Add observer to log when adset items are added to the DOM
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.classList && node.classList.contains('adset-item')) {
+                            console.log('Adset item added to DOM:', node);
+                            // Log the status element
+                            const statusEl = node.querySelector('.adset-status');
+                            console.log('Status element:', statusEl);
+                            if (statusEl) {
+                                console.log('Status text:', statusEl.textContent);
+                                console.log('Status class:', statusEl.className);
+                                // Make sure the status is visible
+                                statusEl.style.display = 'inline-flex';
+                            } else {
+                                console.warn('Status element not found in adset item');
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        observer.observe(container, { childList: true, subtree: true });
+        
         for (const campaignId of campaigns) {
             try {
                 // Get campaign details to display name
@@ -508,199 +367,91 @@ export function initAdsetDisplay(elements, state) {
                         for (const adset of adsets) {
                             // Format TikTok status to be user-friendly
                             let displayStatus = adset.status || 'Unknown';
-                            let statusClass = adset.status?.toLowerCase() || 'unknown';
+                            let statusClass = 'unknown';
                             
-                            // Map TikTok status codes to descriptions from documentation
-                            switch(displayStatus) {
-                                case 'ADGROUP_STATUS_DELETE':
-                                    displayStatus = 'Deleted';
-                                    statusClass = 'deleted';
-                                    break;
-                                case 'ADGROUP_STATUS_CAMPAIGN_DELETE':
-                                    displayStatus = 'Campaign deleted';
-                                    statusClass = 'deleted';
-                                    break;
-                                case 'ADGROUP_STATUS_ADVERTISER_AUDIT_DENY':
-                                    displayStatus = 'Advertiser review failed';
-                                    statusClass = 'failed';
-                                    break;
-                                case 'ADGROUP_STATUS_ADVERTISER_AUDIT':
-                                    displayStatus = 'Advertiser review in progress';
-                                    statusClass = 'review';
-                                    break;
-                                case 'ADVERTISER_CONTRACT_PENDING':
-                                    displayStatus = 'Advertiser contract has not taken effect';
-                                    statusClass = 'pending';
-                                    break;
-                                case 'ADVERTISER_ACCOUNT_PUNISH':
-                                    displayStatus = 'Advertiser account is punished';
-                                    statusClass = 'restricted';
-                                    break;
-                                case 'ADGROUP_STATUS_CAMPAIGN_EXCEED':
-                                    displayStatus = 'Campaign over budget';
-                                    statusClass = 'budget-exceeded';
-                                    break;
-                                case 'ADGROUP_STATUS_BUDGET_EXCEED':
-                                    displayStatus = 'Ad group over budget';
-                                    statusClass = 'budget-exceeded';
-                                    break;
-                                case 'ADGROUP_STATUS_BALANCE_EXCEED':
-                                    displayStatus = 'Insufficient account balance';
-                                    statusClass = 'insufficient-funds';
-                                    break;
-                                case 'ADGROUP_STATUS_ADGROUP_PRE_ONLINE':
-                                    displayStatus = 'Pre-online state';
-                                    statusClass = 'pending';
-                                    break;
-                                case 'ADGROUP_STATUS_AUDIT_DENY':
-                                    displayStatus = 'Ad group review failed';
-                                    statusClass = 'failed';
-                                    break;
-                                case 'ADGROUP_STATUS_REAUDIT':
-                                    displayStatus = 'Review of modifications in progress';
-                                    statusClass = 'review';
-                                    break;
-                                case 'ADGROUP_STATUS_AUDIT':
-                                    displayStatus = 'New review created';
-                                    statusClass = 'review';
-                                    break;
-                                case 'ADGROUP_STATUS_CREATE':
-                                    displayStatus = 'New ad group created';
-                                    statusClass = 'pending';
-                                    break;
-                                case 'ADGROUP_STATUS_FROZEN':
-                                    displayStatus = 'Ad group is frozen';
-                                    statusClass = 'frozen';
-                                    break;
-                                case 'ADGROUP_STATUS_NOT_START':
-                                    displayStatus = 'Scheduled delivery not started';
-                                    statusClass = 'scheduled';
-                                    break;
-                                case 'ADGROUP_STATUS_LIVE_NOT_START':
-                                    displayStatus = 'Live not started';
-                                    statusClass = 'scheduled';
-                                    break;
-                                case 'ADGROUP_STATUS_CAMPAIGN_DISABLE':
-                                    displayStatus = 'Paused';
-                                    statusClass = 'paused';
-                                    break;
-                                case 'ADGROUP_STATUS_DISABLE':
-                                    displayStatus = 'Paused';
-                                    statusClass = 'paused';
-                                    break;
-                                case 'ADGROUP_STATUS_DELIVERY_OK':
-                                    displayStatus = 'Advertising in progress';
+                            // Log the original status value for debugging
+                            console.log(`Processing TikTok adset status: "${displayStatus}" for adset: ${adset.name || adset.adgroup_name}`);
+                            
+                            // Extract just the status class name (lowercase, without prefix)
+                            if (displayStatus.includes('_')) {
+                                const statusParts = displayStatus.split('_');
+                                
+                                // If it's an ENABLE/DISABLE operation status, we need to handle it differently
+                                if (displayStatus === 'ENABLE') {
                                     statusClass = 'active';
-                                    break;
-                                case 'ADGROUP_STATUS_REVIEW_PARTIALLY_APPROVED':
-                                    displayStatus = 'One or more ads have been rejected';
-                                    statusClass = 'partial-approval';
-                                    break;
-                                case 'ADGROUP_STATUS_TIME_DONE':
-                                    displayStatus = 'Completed';
-                                    statusClass = 'completed';
-                                    break;
-                                // R&F ad group statuses
-                                case 'ADGROUP_STATUS_RF_DEDUCTION_FAILED':
-                                    displayStatus = 'Deduction failed for the R&F ad group';
-                                    statusClass = 'failed';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_NO_VALID_CREATIVE':
-                                    displayStatus = 'No valid creatives in the R&F ad group';
-                                    statusClass = 'failed';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_CLOSED_OTHERS':
-                                    displayStatus = 'The R&F ad group is closed';
-                                    statusClass = 'closed';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_SHORT_BALANCE':
-                                    displayStatus = 'Not enough balance in the R&F ad group';
-                                    statusClass = 'insufficient-funds';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_BOOKING':
-                                    displayStatus = 'Budget/inventory has been booked for this R&F ad group';
-                                    statusClass = 'scheduled';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_NO_DELIVERY_CREATIVE':
-                                    displayStatus = 'No creatives in this R&F ad group';
-                                    statusClass = 'incomplete';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_SCHEDULE':
-                                    displayStatus = 'A schedule has been created for the R&F ad group';
-                                    statusClass = 'scheduled';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_TERMINATE':
-                                    displayStatus = 'The R&F ad group is terminated';
-                                    statusClass = 'terminated';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_AD_AUDIT_DENY':
-                                    displayStatus = 'The R&F ad is rejected';
-                                    statusClass = 'failed';
-                                    break;
-                                case 'ADVERTISER_ACCOUNT_INVALID':
-                                    displayStatus = 'The advertiser account is invalid';
-                                    statusClass = 'invalid';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_ADGROUP_INVALID':
-                                    displayStatus = 'The R&F ad group doesn\'t exist';
-                                    statusClass = 'invalid';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_WITHDRAW_ORDER':
-                                    displayStatus = 'The R&F order is withdrawn';
-                                    statusClass = 'withdrawn';
-                                    break;
-                                case 'ADGROUP_STATUS_RF_TIME_DONE':
-                                    displayStatus = 'The R&F ad group is completed';
-                                    statusClass = 'completed';
-                                    break;
-                                // Promote ad group statuses
-                                case 'ADGROUP_STATUS_PROMOTE_AD_NOT_APPROVED':
-                                    displayStatus = 'One or more creatives in the Promote ad group are not approved';
-                                    statusClass = 'partial-approval';
-                                    break;
-                                case 'ADGROUP_STATUS_PROMOTE_WITHDRAW_ORDER':
-                                    displayStatus = 'The Promote order is withdrawn';
-                                    statusClass = 'withdrawn';
-                                    break;
-                                default:
-                                    // Keep original if not matched
-                                    break;
+                                    displayStatus = 'Active';
+                                } else if (displayStatus === 'DISABLE') {
+                                    statusClass = 'paused';
+                                    displayStatus = 'Paused';
+                                } else if (statusParts[0] === 'ADGROUP' && statusParts[1] === 'STATUS') {
+                                    // Usually status codes have format like ADGROUP_STATUS_DELIVERY_OK
+                                    // Convert to lowercase for CSS class
+                                    statusClass = statusParts.slice(2).join('_').toLowerCase();
+                                } else {
+                                    // For other status formats
+                                    statusClass = displayStatus.toLowerCase();
+                                }
+                            } else {
+                                statusClass = displayStatus.toLowerCase();
                             }
-
+                            
+                            // Map TikTok status codes to normalized status classes for filtering consistency
+                            // For statuses like ADGROUP_STATUS_DELETE, ADGROUP_STATUS_DELIVERY_OK, etc.
+                            if (displayStatus.includes('DELETE') || displayStatus === 'ADGROUP_STATUS_CAMPAIGN_DELETE') {
+                                statusClass = 'deleted';
+                            } else if (displayStatus.includes('DELIVERY_OK') || displayStatus === 'ENABLE') {
+                                statusClass = 'active';
+                            } else if (displayStatus.includes('DISABLE') || displayStatus === 'ADGROUP_STATUS_CAMPAIGN_DISABLE') {
+                                statusClass = 'paused';
+                            } else if (displayStatus.includes('AUDIT') || displayStatus.includes('REAUDIT')) {
+                                statusClass = 'review';
+                            } else if (displayStatus.includes('PRE_ONLINE') || displayStatus.includes('NOT_START') || 
+                                     displayStatus.includes('CREATE') || displayStatus.includes('PENDING')) {
+                                statusClass = 'pending';
+                            }
+                            
+                            // Create adset item element with consistent class names for filtering
                             const adsetItem = document.createElement('div');
                             adsetItem.className = 'adset-item';
-                            adsetItem.dataset.adsetId = adset.id;
+                            adsetItem.dataset.adsetId = adset.id || adset.adgroup_id;
                             adsetItem.dataset.platform = 'tiktok';
-                            adsetItem.dataset.campaignId = campaignId;
                             adsetItem.dataset.accountId = accountId;
+                            adsetItem.dataset.campaignId = campaignId;
                             
+                            // Use consistent status classes for filtering
                             adsetItem.innerHTML = `
                                 <div class="adset-header">
-                                    <h5 class="adset-name">${adset.name}</h5>
-                                    <span class="adset-status ${statusClass}">${displayStatus}</span>
+                                    <div class="adset-title">
+                                        <span class="adset-name">${adset.name || adset.adgroup_name}</span>
+                                        <span class="adset-id">(ID: ${adset.id || adset.adgroup_id})</span>
+                                    </div>
+                                    <span class="adset-status ${statusClass} status-${statusClass}">${displayStatus}</span>
                                 </div>
                                 <div class="adset-details">
                                     <div class="targeting-info">
-                                        <i class="fas fa-users"></i> Targeting: ${adset.targeting_summary || 'Standard'}
+                                        <i class="fas fa-users"></i> Targeting: ${adset.audience || 'Standard'}
                                     </div>
                                     <div class="budget-info">
                                         <i class="fas fa-dollar-sign"></i> Budget: ${getBudgetDisplay(adset)}
                                     </div>
                                     <div class="goal-info">
                                         <i class="fas fa-bullseye"></i> Goal: 
-                                        ${adset.optimization_goal || 'N/A'}
+                                        ${adset.objective || adset.optimization_goal || 'N/A'}
                                     </div>
                                 </div>
                             `;
                             
-                            // Use the imported createAdsetDropZone function instead of manual creation
+                            // Use the imported createAdsetDropZone function
                             createAdsetDropZone(adsetItem, 'tiktok');
                             
-                            // Add container for existing ads
+                            // Add container for existing ads and add the adset item to the adsets list
                             const existingAdsContainer = document.createElement('div');
                             existingAdsContainer.className = 'existing-ads-container';
-                            existingAdsContainer.id = `tiktok-ads-${adset.id}`;
+                            existingAdsContainer.id = `tiktok-ads-${adset.id || adset.adgroup_id}`;
                             existingAdsContainer.innerHTML = '<div class="ads-toggle">Show existing ads <i class="fas fa-chevron-down"></i></div>';
+                            
+                            adsetItem.appendChild(existingAdsContainer);
+                            adsetsList.appendChild(adsetItem);
                             
                             // Add event listener to toggle existing ads
                             const adsToggle = existingAdsContainer.querySelector('.ads-toggle');
@@ -786,10 +537,6 @@ export function initAdsetDisplay(elements, state) {
                                     }
                                 }
                             });
-                            
-                            // Append elements to adset item
-                            adsetItem.appendChild(existingAdsContainer);
-                            adsetsList.appendChild(adsetItem);
                         }
                         
                         campaignSection.appendChild(adsetsList);

@@ -1,1 +1,709 @@
-[] 
+[
+  {
+    "id": "14fc867d-3b03-478d-b0eb-05a8d45a8316",
+    "name": "NL_Newuseronboarding_Trust_selfdevelopedwallet.png",
+    "file_path": "/static/uploads/20250225_161654_NL_Newuseronboarding_Trust_selfdevelopedwallet.png",
+    "thumbnail": "/static/uploads/thumb_20250225_161654_NL_Newuseronboarding_Trust_selfdevelopedwallet.png",
+    "type": "image",
+    "status": "approved",
+    "created_at": "2025-02-25T16:16:54.736681+00:00",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 677608,
+      "created": "2025-02-25T16:16:54.311793+00:00",
+      "modified": "2025-02-25T16:16:54.311793+00:00",
+      "width": 1080,
+      "height": 1080,
+      "format": "PNG",
+      "mode": "RGBA"
+    },
+    "last_modified": null,
+    "created_by": "system",
+    "mime_type": "image/png",
+    "approved_at": "2025-02-25T17:56:46.029531+00:00",
+    "approved_by": "Admin",
+    "approval_comment": ""
+  },
+  {
+    "id": "4cdf6e09-918a-4645-91b1-98353ed3e5f6",
+    "name": "TR_Listings_Trending_PIiscoming-Avideo.mov",
+    "file_path": "/static/uploads/20250225_161720_TR_Listings_Trending_PIiscoming-Avideo.mov",
+    "thumbnail": "/static/uploads/thumb_20250225_161720_TR_Listings_Trending_PIiscoming-Avideo.mov",
+    "type": "video",
+    "status": "rejected",
+    "created_at": "2025-02-25T16:17:25.005991+00:00",
+    "tags": [],
+    "metadata": {
+      "mime_type": "video/quicktime",
+      "size": 17970867,
+      "created": "2025-02-25T16:17:21.097977+00:00",
+      "modified": "2025-02-25T16:17:21.097977+00:00",
+      "width": 1080,
+      "height": 1920,
+      "duration": 15.133333,
+      "bitrate": 9500018
+    },
+    "last_modified": null,
+    "created_by": "system",
+    "mime_type": "video/quicktime",
+    "rejected_at": "2025-02-25T18:04:01.780784+00:00",
+    "rejected_by": "Admin",
+    "rejection_comment": "bad"
+  },
+  {
+    "id": "a78aeb86-731e-419a-99d9-757098bf8301",
+    "name": "NL_Newuseronboarding_Trust_whatmakesoursecuritydifferent.png",
+    "file_path": "/static/uploads/20250225_162027_NL_Newuseronboarding_Trust_whatmakesoursecuritydifferent.png",
+    "thumbnail": "/static/uploads/thumb_20250225_162027_NL_Newuseronboarding_Trust_whatmakesoursecuritydifferent.png",
+    "type": "image",
+    "status": "rejected",
+    "created_at": "2025-02-25T16:20:28.199917+00:00",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 710381,
+      "created": "2025-02-25T16:20:27.955756+00:00",
+      "modified": "2025-02-25T16:20:27.955756+00:00",
+      "width": 1080,
+      "height": 1080,
+      "format": "PNG",
+      "mode": "RGBA"
+    },
+    "last_modified": null,
+    "created_by": "system",
+    "mime_type": "image/png",
+    "rejected_at": "2025-02-25T18:20:19.332980+00:00",
+    "rejected_by": "Admin",
+    "rejection_comment": "This is the worst creative ever, you should be ashemed of yourselves. Blac balcacaca"
+  },
+  {
+    "id": "262e9790-c8e5-4267-809c-e6cb2f806c1c",
+    "name": "NL_Newuseronboarding_Trust_multiplekeysmaximumsecurity.png",
+    "file_path": "/static/uploads/20250225_162453_NL_Newuseronboarding_Trust_multiplekeysmaximumsecurity.png",
+    "thumbnail": "/static/uploads/thumb_20250225_162453_NL_Newuseronboarding_Trust_multiplekeysmaximumsecurity.png",
+    "type": "image",
+    "status": "approved",
+    "created_at": "2025-02-25T16:24:54.181585+00:00",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 663890,
+      "created": "2025-02-25T16:24:53.970615+00:00",
+      "modified": "2025-02-25T16:24:53.970615+00:00",
+      "width": 1080,
+      "height": 1080,
+      "format": "PNG",
+      "mode": "RGBA"
+    },
+    "last_modified": null,
+    "created_by": "system",
+    "mime_type": "image/png",
+    "approved_at": "2025-02-25T18:53:34.708715+00:00",
+    "approved_by": "Admin",
+    "approval_comment": ""
+  },
+  {
+    "id": "26cacbed-9457-464d-baa8-06ba60a2d1fa",
+    "name": "NL_Newuseronboarding_Trust_selfdevelopedwallet.png",
+    "file_path": "/static/uploads/20250225_162519_NL_Newuseronboarding_Trust_selfdevelopedwallet.png",
+    "thumbnail": "/static/uploads/thumb_20250225_162519_NL_Newuseronboarding_Trust_selfdevelopedwallet.png",
+    "type": "image",
+    "status": "rejected",
+    "created_at": "2025-02-25T16:25:19.296139+00:00",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 677608,
+      "created": "2025-02-25T16:25:19.231888+00:00",
+      "modified": "2025-02-25T16:25:19.231888+00:00",
+      "width": 1080,
+      "height": 1080,
+      "format": "PNG",
+      "mode": "RGBA"
+    },
+    "last_modified": null,
+    "created_by": "system",
+    "mime_type": "image/png",
+    "rejected_at": "2025-02-26T05:11:34.502021+00:00",
+    "rejected_by": "Admin",
+    "rejection_comment": "not compliant"
+  },
+  {
+    "id": "e6fb9cd8-ef6e-41d8-be72-b7cf33add3e1",
+    "name": "NL_Newuseronboarding_Trust_selfdevelopedwallet.png",
+    "file_path": "/static/uploads/20250225_162914_NL_Newuseronboarding_Trust_selfdevelopedwallet.png",
+    "thumbnail": "/static/uploads/thumb_20250225_162914_NL_Newuseronboarding_Trust_selfdevelopedwallet.png",
+    "type": "image",
+    "status": "approved",
+    "created_at": "2025-02-25T16:29:14.926410+00:00",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 677608,
+      "created": "2025-02-25T16:29:14.778024+00:00",
+      "modified": "2025-02-25T16:29:14.778024+00:00",
+      "width": 1080,
+      "height": 1080,
+      "format": "PNG",
+      "mode": "RGBA"
+    },
+    "last_modified": null,
+    "created_by": "system",
+    "mime_type": "image/png",
+    "approved_at": "2025-02-26T00:54:24.376152+00:00",
+    "approved_by": "Admin",
+    "approval_comment": ""
+  },
+  {
+    "id": "e13c49ce-4979-482c-ae7f-1623a18d6450",
+    "name": "NL_Newuseronboarding_Trust_threatsevolvesodoesourAI.png",
+    "file_path": "/static/uploads/20250225_163955_NL_Newuseronboarding_Trust_threatsevolvesodoesourAI.png",
+    "thumbnail": "/static/uploads/thumb_20250225_163955_NL_Newuseronboarding_Trust_threatsevolvesodoesourAI.png",
+    "type": "image",
+    "status": "approved",
+    "created_at": "2025-02-25T16:39:55.541120+00:00",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 608005,
+      "created": "2025-02-25T16:39:55.219057+00:00",
+      "modified": "2025-02-25T16:39:55.219057+00:00",
+      "width": 1080,
+      "height": 1080,
+      "format": "PNG",
+      "mode": "RGBA"
+    },
+    "last_modified": null,
+    "created_by": "system",
+    "mime_type": "image/png",
+    "approved_at": "2025-02-26T01:13:49.652451+00:00",
+    "approved_by": "Admin",
+    "approval_comment": ""
+  },
+  {
+    "id": "23111ede-2a9a-4a40-a190-8e932c5eb859",
+    "name": "0fac9395-d512-4364-a173-48ae55e877f5_161816943.jpeg.png",
+    "file_path": "/static/uploads/20250225_165007_0fac9395-d512-4364-a173-48ae55e877f5_161816943.jpeg.png",
+    "thumbnail": "/static/uploads/thumb_20250225_165007_0fac9395-d512-4364-a173-48ae55e877f5_161816943.jpeg.png",
+    "type": "image",
+    "status": "approved",
+    "created_at": "2025-02-25T16:50:09.138392+00:00",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 880851,
+      "created": "2025-02-25T16:50:08.354687+00:00",
+      "modified": "2025-02-25T16:50:08.354687+00:00",
+      "width": 1024,
+      "height": 1024,
+      "format": "PNG",
+      "mode": "RGBA"
+    },
+    "last_modified": null,
+    "created_by": "system",
+    "mime_type": "image/png",
+    "approved_at": "2025-02-26T08:06:52.710586+00:00",
+    "approved_by": "Admin",
+    "approval_comment": ""
+  },
+  {
+    "id": "6d975362-3625-4939-9ee2-9d827d08e202",
+    "name": "TR_Listings_Trending_PIiscoming-Avideo.mov",
+    "file_path": "/static/uploads/20250225_165059_TR_Listings_Trending_PIiscoming-Avideo.mov",
+    "thumbnail": "/static/uploads/thumb_20250225_165059_TR_Listings_Trending_PIiscoming-Avideo.mov",
+    "type": "video",
+    "status": "rejected",
+    "created_at": "2025-02-25T16:51:02.092080+00:00",
+    "tags": [],
+    "metadata": {
+      "mime_type": "video/quicktime",
+      "size": 17970867,
+      "created": "2025-02-25T16:51:00.368078+00:00",
+      "modified": "2025-02-25T16:51:00.368078+00:00",
+      "width": 1080,
+      "height": 1920,
+      "duration": 15.133333,
+      "bitrate": 9500018
+    },
+    "last_modified": null,
+    "created_by": "system",
+    "mime_type": "video/quicktime",
+    "rejected_at": "2025-02-25T17:56:29.395331+00:00",
+    "rejected_by": "Admin",
+    "rejection_comment": "i hate this"
+  },
+  {
+    "id": "0bcb00fb-3d75-48b8-b45c-585960b514d9",
+    "name": "NL_Newuseronboarding_Trust_nowhitelistnotransfer.png",
+    "file_path": "/static/output/branded_asset_1741063673.png",
+    "thumbnail": "/static/uploads/thumb_regenerated_20250304_124519_128d9773.jpg",
+    "type": "image",
+    "status": "pending",
+    "created_at": "2025-02-25T17:06:15.718778+00:00",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 685254,
+      "created": "2025-02-25T17:06:15.311829+00:00",
+      "modified": "2025-02-25T17:06:15.311829+00:00",
+      "width": 1080,
+      "height": 1080,
+      "format": "PNG",
+      "mode": "RGBA"
+    },
+    "last_modified": null,
+    "created_by": "system",
+    "mime_type": "image/png",
+    "rejected_at": "2025-03-04T04:44:26.579048+00:00",
+    "rejected_by": "Admin",
+    "rejection_comment": "not compliant",
+    "resubmitted_at": "2025-03-04T04:47:54.705030+00:00",
+    "revision_history": [
+      {
+        "rejected_at": "2025-02-26T08:07:14.355509+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "not compliant with Turkey regulation",
+        "rejection_reasons": [],
+        "resubmitted_at": "2025-03-03T23:46:22.538323+00:00"
+      },
+      {
+        "rejected_at": "2025-03-03T23:46:34.430213+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "bad",
+        "rejection_reasons": [
+          "primary_headline"
+        ],
+        "resubmitted_at": "2025-03-04T00:27:11.598474+00:00"
+      },
+      {
+        "rejected_at": "2025-03-04T04:44:26.579048+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "not compliant",
+        "rejection_reasons": [
+          "image_object"
+        ],
+        "resubmitted_at": "2025-03-04T04:47:54.705030+00:00"
+      }
+    ],
+    "rejection_reasons": [
+      "image_object"
+    ],
+    "headline": "Best Dog Ever",
+    "text_updated_at": "2025-03-04T00:22:03.982113+00:00",
+    "original_file_path": "/static/uploads/20250225_170615_NL_Newuseronboarding_Trust_nowhitelistnotransfer.png",
+    "original_prompt": "",
+    "prompt": "A futuristic, dark metallic security robot stands tall, sleek, and armored with a high-tech exoskeleton featuring intricate mechanical joints and glowing neon green accents. Its sharp, angular head emits a powerful neon green laser beam, scanning the dark horizon with an intense glow. The robot's laser seems to stretch across an endless horizon.\n\nThe background is deep black, with streaks of neon green light cutting through the darkness. The upper two-thirds remain empty, drawing focus to the robot and its scanning beam.",
+    "regenerated_at": "2025-03-04T04:45:19.864711+00:00"
+  },
+  {
+    "id": "c1c9bfd3-b6fe-4a45-8b27-c91cf68090f9",
+    "name": "NL_Newuseronboarding_Trust_multiplekeysmaximumsecurity.png",
+    "file_path": "/static/uploads/20250225_170615_NL_Newuseronboarding_Trust_multiplekeysmaximumsecurity.png",
+    "thumbnail": "/static/uploads/thumb_20250225_170615_NL_Newuseronboarding_Trust_multiplekeysmaximumsecurity.png",
+    "type": "image",
+    "status": "approved",
+    "created_at": "2025-02-25T17:06:15.894526+00:00",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 663890,
+      "created": "2025-02-25T17:06:15.754634+00:00",
+      "modified": "2025-02-25T17:06:15.754634+00:00",
+      "width": 1080,
+      "height": 1080,
+      "format": "PNG",
+      "mode": "RGBA"
+    },
+    "last_modified": null,
+    "created_by": "system",
+    "mime_type": "image/png",
+    "approved_at": "2025-02-26T00:54:30.568686+00:00",
+    "approved_by": "Admin",
+    "approval_comment": ""
+  },
+  {
+    "id": "8779bcad-6109-434b-bb47-42147bb591ee",
+    "name": "A treasure chest is contained inside the screen of...",
+    "file_path": "/static/uploads/20250227_191027_a_treasure_chest_is_contained_inside_the_screen_of___.png",
+    "thumbnail": "/static/uploads/thumb_20250227_191027_a_treasure_chest_is_contained_inside_the_screen_of___.png",
+    "type": "image",
+    "status": "rejected",
+    "created_at": "2025-02-27T19:10:27.073342",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 719189,
+      "created": "2025-02-27T19:10:27.073379",
+      "modified": "2025-02-27T19:10:27.073381"
+    },
+    "created_by": "AI Generator",
+    "rejected_at": "2025-03-04T00:24:34.873648+00:00",
+    "rejected_by": "Admin",
+    "rejection_comment": "bad",
+    "resubmitted_at": "2025-03-04T00:24:22.706009+00:00",
+    "revision_history": [
+      {
+        "rejected_at": "2025-02-27T11:10:45.630807+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "bad image",
+        "rejection_reasons": [],
+        "resubmitted_at": "2025-03-04T00:24:22.706009+00:00"
+      }
+    ],
+    "rejection_reasons": [
+      "primary_headline",
+      "image_object",
+      "tc_text"
+    ]
+  },
+  {
+    "id": "30d09873-73ec-416a-b28b-c3c18dd0e706",
+    "name": "A treasure chest is contained inside the screen of...",
+    "file_path": "/static/uploads/20250227_191305_a_treasure_chest_is_contained_inside_the_screen_of___.png",
+    "thumbnail": "/static/uploads/thumb_20250227_191305_a_treasure_chest_is_contained_inside_the_screen_of___.png",
+    "type": "image",
+    "status": "approved",
+    "created_at": "2025-02-27T19:13:05.913313",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 873002,
+      "created": "2025-02-27T19:13:05.913342",
+      "modified": "2025-02-27T19:13:05.913344"
+    },
+    "created_by": "AI Generator",
+    "approved_at": "2025-02-27T11:13:25.874215+00:00",
+    "approved_by": "Admin",
+    "approval_comment": ""
+  },
+  {
+    "id": "42457733-e280-41c7-b44e-147c894312f9",
+    "name": "Pi token in a futuristic scene, designed in a high...",
+    "file_path": "/static/uploads/20250227_192136_pi_token_in_a_futuristic_scene__designed_in_a_high___.png",
+    "thumbnail": "/static/uploads/thumb_20250227_192136_pi_token_in_a_futuristic_scene__designed_in_a_high___.png",
+    "type": "image",
+    "status": "rejected",
+    "created_at": "2025-02-27T19:21:37.054085",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 655629,
+      "created": "2025-02-27T19:21:37.054138",
+      "modified": "2025-02-27T19:21:37.054140"
+    },
+    "created_by": "AI Generator",
+    "rejected_at": "2025-02-27T11:21:57.094209+00:00",
+    "rejected_by": "Admin",
+    "rejection_comment": "Not compliant"
+  },
+  {
+    "id": "76ad0c4a-f44d-4ba0-aa42-ce405392e1ee",
+    "name": "Pi token in a futuristic scene, designed in a high...",
+    "file_path": "/static/uploads/20250227_192234_pi_token_in_a_futuristic_scene__designed_in_a_high___.png",
+    "thumbnail": "/static/uploads/thumb_20250227_192234_pi_token_in_a_futuristic_scene__designed_in_a_high___.png",
+    "type": "image",
+    "status": "approved",
+    "created_at": "2025-02-27T19:22:34.129293",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 866584,
+      "created": "2025-02-27T19:22:34.129325",
+      "modified": "2025-02-27T19:22:34.129329"
+    },
+    "created_by": "AI Generator",
+    "approved_at": "2025-02-27T11:22:40.078412+00:00",
+    "approved_by": "Admin",
+    "approval_comment": ""
+  },
+  {
+    "id": "7ded1d2a-52a2-42c2-bbaa-f9456665e57a",
+    "name": "A futuristic, dark metallic security robot stands ...",
+    "file_path": "/static/output/branded_asset_1741047665.png",
+    "thumbnail": "/static/uploads/thumb_regenerated_20250304_082049_790e5301.jpg",
+    "type": "image",
+    "status": "rejected",
+    "created_at": "2025-03-03T19:00:26.471970",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 804972,
+      "created": "2025-03-03T19:00:26.472000",
+      "modified": "2025-03-03T19:00:26.472001"
+    },
+    "created_by": "AI Generator",
+    "rejected_at": "2025-03-04T00:22:38.555242+00:00",
+    "rejected_by": "Admin",
+    "rejection_comment": "sg",
+    "rejection_reasons": [
+      "primary_headline",
+      "tc_text"
+    ],
+    "headline": "Earn up to $1000000",
+    "text_updated_at": "2025-03-04T00:22:50.579914+00:00",
+    "resubmitted_at": "2025-03-04T00:21:07.799050+00:00",
+    "revision_history": [
+      {
+        "rejected_at": "2025-03-03T23:29:00.213190+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "g",
+        "rejection_reasons": [
+          "primary_headline"
+        ],
+        "resubmitted_at": "2025-03-03T23:31:10.079486+00:00"
+      },
+      {
+        "rejected_at": "2025-03-03T23:32:49.839449+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "Test",
+        "rejection_reasons": [
+          "image_object"
+        ],
+        "resubmitted_at": "2025-03-03T23:34:05.605994+00:00"
+      },
+      {
+        "rejected_at": "2025-03-03T23:34:51.581501+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "i dont like coffee",
+        "rejection_reasons": [
+          "image_object"
+        ],
+        "resubmitted_at": "2025-03-04T00:00:44.781462+00:00"
+      },
+      {
+        "rejected_at": "2025-03-04T00:01:09.006730+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "bad",
+        "rejection_reasons": [
+          "image_object"
+        ],
+        "resubmitted_at": "2025-03-04T00:02:00.556906+00:00"
+      },
+      {
+        "rejected_at": "2025-03-04T00:02:16.726040+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "image",
+        "rejection_reasons": [
+          "image_object"
+        ],
+        "resubmitted_at": "2025-03-04T00:04:45.655786+00:00"
+      },
+      {
+        "rejected_at": "2025-03-04T00:17:09.256283+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "bafd",
+        "rejection_reasons": [
+          "image_object"
+        ],
+        "resubmitted_at": "2025-03-04T00:17:33.748656+00:00"
+      },
+      {
+        "rejected_at": "2025-03-04T00:17:44.003118+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "bad",
+        "rejection_reasons": [
+          "image_object"
+        ],
+        "resubmitted_at": "2025-03-04T00:18:27.493588+00:00"
+      },
+      {
+        "rejected_at": "2025-03-04T00:20:30.212533+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "gaf",
+        "rejection_reasons": [
+          "image_object"
+        ],
+        "resubmitted_at": "2025-03-04T00:21:07.799050+00:00"
+      }
+    ],
+    "original_file_path": "/static/uploads/regenerated_20250304_081804_2ef76429.jpg",
+    "original_prompt": "A bold and futuristic 3D-rendered \u2018#1\u2019 in a sleek, metallic finish, emerging from the screen of a modern iPhone Pro. The number should appear large, dominant, and slightly tilted forward to create a powerful sense of depth and prestige. The iPhone Pro, held by a realistic hand, should be angled slightly upward, making the \u2018#1\u2019 look as if it\u2019s breaking out of the phone. A soft neon green light subtly illuminates the edges, reinforcing a cutting-edge, premium feel. The background is completely black, maximizing contrast and drawing full attention to the \u2018#1.\u2019 The lighting should be cinematic, with smooth, realistic reflections on the phone\u2019s surface while maintaining sharpness and visual impact.",
+    "prompt": "Arm holding a modern iPhone Pro facing the viewer, parallel to the viewing plane against a deep black background. Meme dog animals are dynamically emerging from the phone screen. A majestic Shiba Inu (DOGE), and a regal Shiba Inu (SHIB) take center stage, while a Viking dog (FLOKI), a space-suited dog (ELON) leap out. The dogs emerge from the screen. The scene is illuminated with dramatic lighting, emphasizing depth and movement.\n",
+    "regenerated_at": "2025-03-04T00:20:49.198791+00:00",
+    "tc_text": "Bad DIg"
+  },
+  {
+    "id": "f64167ac-aaa3-483d-b037-c708a05d3259",
+    "name": "Professional photography of a premium black coffee...",
+    "file_path": "/static/uploads/regenerated_20250304_083302_000a8216.jpg",
+    "thumbnail": "/static/uploads/thumb_regenerated_20250304_083302_000a8216.jpg",
+    "type": "image",
+    "status": "rejected",
+    "created_at": "2025-03-04T08:03:04.312096",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 469886,
+      "created": "2025-03-04T08:03:04.312120",
+      "modified": "2025-03-04T08:03:04.312123"
+    },
+    "created_by": "AI Generator",
+    "rejected_at": "2025-03-04T00:13:54.737983+00:00",
+    "rejected_by": "Admin",
+    "rejection_comment": "bad",
+    "rejection_reasons": [
+      "image_object"
+    ],
+    "previous_file_path": "/static/uploads/20250304_080304_professional_photography_of_a_premium_black_coffee___.png",
+    "branded_resubmission": true,
+    "resubmitted_at": "2025-03-04T00:11:41.303001+00:00",
+    "revision_history": [
+      {
+        "rejected_at": "2025-03-04T00:10:56.396154+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "bad",
+        "rejection_reasons": [
+          "image_object"
+        ],
+        "resubmitted_at": "2025-03-04T00:11:41.303001+00:00",
+        "with_branding": true
+      }
+    ],
+    "original_file_path": "/static/uploads/branded_resubmit_20250304_081141_f12c40b5.jpg",
+    "original_prompt": "",
+    "prompt": "A bold and futuristic 3D-rendered \u2018#1\u2019 in a sleek, metallic finish, emerging from the screen of a modern iPhone Pro. The number should appear large, dominant, and slightly tilted forward to create a powerful sense of depth and prestige. The iPhone Pro, held by a realistic hand, should be angled slightly upward, making the \u2018#1\u2019 look as if it\u2019s breaking out of the phone. A soft neon green light subtly illuminates the edges, reinforcing a cutting-edge, premium feel. The background is completely black, maximizing contrast and drawing full attention to the \u2018#1.\u2019 The lighting should be cinematic, with smooth, realistic reflections on the phone\u2019s surface while maintaining sharpness and visual impact.",
+    "regenerated_at": "2025-03-04T00:33:02.626522+00:00"
+  },
+  {
+    "id": "f25775e6-d4b4-4070-9947-66af360b7f1d",
+    "name": "A futuristic, dark metallic security robot stands ...",
+    "file_path": "/static/output/branded_asset_1741064514.png",
+    "thumbnail": "/static/uploads/thumb_regenerated_20250304_130144_8fb048f9.jpg",
+    "type": "image",
+    "status": "approved",
+    "created_at": "2025-03-04T12:57:05.961291",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 1006301,
+      "created": "2025-03-04T12:57:05.961310",
+      "modified": "2025-03-04T12:57:05.961312"
+    },
+    "created_by": "AI Generator",
+    "rejected_at": "2025-03-04T04:57:34.781893+00:00",
+    "rejected_by": "Admin",
+    "rejection_comment": "bad",
+    "rejection_reasons": [
+      "image_object"
+    ],
+    "original_file_path": "/static/uploads/20250304_125705_a_futuristic__dark_metallic_security_robot_stands____.png",
+    "original_prompt": "",
+    "prompt": "Arm holding a modern iPhone Pro facing the viewer, parallel to the viewing plane against a deep black background. Meme dog animals are dynamically emerging from the phone screen. A majestic Shiba Inu (DOGE), and a regal Shiba Inu (SHIB) take center stage, while a Viking dog (FLOKI), a space-suited dog (ELON) leap out. The dogs emerge from the screen. The scene is illuminated with dramatic lighting, emphasizing depth and movement.\n",
+    "regenerated_at": "2025-03-04T05:01:44.930702+00:00",
+    "resubmitted_at": "2025-03-04T05:01:56.540296+00:00",
+    "revision_history": [
+      {
+        "rejected_at": "2025-03-04T04:57:34.781893+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "bad",
+        "rejection_reasons": [
+          "image_object"
+        ],
+        "resubmitted_at": "2025-03-04T05:01:56.540296+00:00"
+      }
+    ],
+    "approval_comment": "",
+    "approved_at": "2025-03-05T13:46:00.135141"
+  },
+  {
+    "id": "ebae5c39-01ea-4b50-9ee3-416bf0581363",
+    "name": "A futuristic, dark metallic security robot stands ...",
+    "file_path": "/static/uploads/20250304_125824_a_futuristic__dark_metallic_security_robot_stands____.png",
+    "thumbnail": "/static/uploads/thumb_20250304_125824_a_futuristic__dark_metallic_security_robot_stands____.png",
+    "type": "image",
+    "status": "approved",
+    "created_at": "2025-03-04T12:58:24.158568",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 1003265,
+      "created": "2025-03-04T12:58:24.158599",
+      "modified": "2025-03-04T12:58:24.158601"
+    },
+    "created_by": "AI Generator",
+    "approval_comment": "",
+    "approved_at": "2025-03-05T13:45:53.488052"
+  },
+  {
+    "id": "efa8c2da-fe98-4ec1-afd1-8dc5383b25c0",
+    "name": "A futuristic, dark metallic security robot stands ...",
+    "file_path": "/static/uploads/20250304_130111_a_futuristic__dark_metallic_security_robot_stands____.png",
+    "thumbnail": "/static/uploads/thumb_20250304_130111_a_futuristic__dark_metallic_security_robot_stands____.png",
+    "type": "image",
+    "status": "rejected",
+    "created_at": "2025-03-04T13:01:11.962031",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 1004384,
+      "created": "2025-03-04T13:01:11.962357",
+      "modified": "2025-03-04T13:01:11.962361"
+    },
+    "created_by": "AI Generator",
+    "rejected_at": "2025-03-05T05:46:07.088400+00:00",
+    "rejected_by": "Admin",
+    "rejection_comment": "bad",
+    "rejection_reasons": [
+      "image_object"
+    ]
+  },
+  {
+    "id": "9a4d2b7d-4adb-45db-a5e2-f472467ea946",
+    "name": "Arm holding a modern iPhone Pro facing the viewer,...",
+    "file_path": "/static/output/branded_asset_1741068397.png",
+    "thumbnail": "/static/uploads/thumb_20250304_140444_arm_holding_a_modern_iphone_pro_facing_the_viewer____.png",
+    "type": "image",
+    "status": "pending",
+    "created_at": "2025-03-04T14:04:44.696036",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 768222,
+      "created": "2025-03-04T14:04:44.696075",
+      "modified": "2025-03-04T14:04:44.696078"
+    },
+    "created_by": "AI Generator",
+    "rejected_at": "2025-03-04T06:05:25.739232+00:00",
+    "rejected_by": "Admin",
+    "rejection_comment": "no compliant",
+    "rejection_reasons": [
+      "image_object"
+    ],
+    "resubmitted_at": "2025-03-04T06:06:40.986725+00:00",
+    "revision_history": [
+      {
+        "rejected_at": "2025-03-04T06:05:25.739232+00:00",
+        "rejected_by": "Admin",
+        "rejection_comment": "no compliant",
+        "rejection_reasons": [
+          "image_object"
+        ],
+        "resubmitted_at": "2025-03-04T06:06:40.986725+00:00"
+      }
+    ]
+  },
+  {
+    "id": "a294c9b3-6864-4b94-979e-abd385e7a5a3",
+    "name": "Arm holding a modern iPhone Pro facing the viewer,...",
+    "file_path": "/static/uploads/20250304_152633_arm_holding_a_modern_iphone_pro_facing_the_viewer____.png",
+    "thumbnail": "/static/uploads/thumb_20250304_152633_arm_holding_a_modern_iphone_pro_facing_the_viewer____.png",
+    "type": "image",
+    "status": "rejected",
+    "created_at": "2025-03-04T15:26:33.980694",
+    "tags": [],
+    "metadata": {
+      "mime_type": "image/png",
+      "size": 711951,
+      "created": "2025-03-04T15:26:33.980727",
+      "modified": "2025-03-04T15:26:33.980730"
+    },
+    "created_by": "AI Generator",
+    "rejected_at": "2025-03-05T05:44:09.472299+00:00",
+    "rejected_by": "Admin",
+    "rejection_comment": "fa",
+    "rejection_reasons": [
+      "image_object"
+    ]
+  }
+]

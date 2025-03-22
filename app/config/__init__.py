@@ -43,7 +43,7 @@ class APICredentials:
     """Container for API credentials with environment variable fallbacks"""
     
     # Meta API credentials
-    META_APP_ID = os.environ.get('META_APP_ID', '871288784921611')
+    META_APP_ID = os.environ.get('META_APP_ID', '1503153793701868')
     META_APP_SECRET = os.environ.get('META_APP_SECRET', '9f8a7b32623f6a6624051cef37988a75')
     META_ACCESS_TOKEN = os.environ.get('META_ACCESS_TOKEN', 'EAAMYbrqFpAsBO9UyhPMlMZCd97rrxEgDHA6YsGhusX0GBiFI0FmZAiY4ZBeVWGzv5UZA1xQ04ByRSrzkNtmUKamgZBQV8ZCUtAAQqkv8t2vWBaPx6T4Pl0sh88apHl9E1JFJ5ZC3nIcAS8CDiVpikANZATwK05CZBTZBd6XaFp6g5YuO1ZAxvcGvVq9codhA7l8wePzJzuIuPQe')
     META_BUSINESS_ID = os.environ.get('META_BUSINESS_ID', '')

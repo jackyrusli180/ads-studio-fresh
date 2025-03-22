@@ -6,6 +6,9 @@ for application_id, object_store_url, and link URLs.
 """
 from typing import Dict, List, Any, Optional
 
+# Default page ID to use if one cannot be found from existing ads
+DEFAULT_PAGE_ID = '1418774981516264'  # OKX page ID
+
 # Configuration for Meta advertiser accounts
 META_ACCOUNTS: Dict[str, Dict[str, str]] = {
     # Global Paid Ads - TR (TRY Account)

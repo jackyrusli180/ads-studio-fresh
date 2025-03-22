@@ -7,56 +7,200 @@
    STATUS BADGES
    ============================================= */
 /* Adset status variations */
-.adset-status.active { background-color: #00b894; color: white; }
-.adset-status.paused { background-color: #fdcb6e; color: #594315; }
-.adset-status.deleted { background-color: #636e72; color: white; }
-.adset-status.failed { background-color: #d63031; color: white; }
-.adset-status.review { background-color: #0984e3; color: white; }
-.adset-status.pending { background-color: #fdcb6e; color: #594315; }
-.adset-status.restricted { background-color: #e17055; color: white; }
-.adset-status.budget-exceeded { background-color: #e84393; color: white; }
-.adset-status.insufficient-funds { background-color: #fd79a8; color: white; }
-.adset-status.frozen { background-color: #74b9ff; color: #2d3436; }
-.adset-status.scheduled { background-color: #55efc4; color: #2d3436; }
-.adset-status.partial-approval { background-color: #ffeaa7; color: #594315; }
-.adset-status.completed { background-color: #6c5ce7; color: white; }
-.adset-status.closed { background-color: #b2bec3; color: #2d3436; }
-.adset-status.terminated { background-color: #ff7675; color: white; }
-.adset-status.withdrawn { background-color: #a29bfe; color: white; }
-.adset-status.invalid { background-color: #dfe6e9; color: #636e72; }
-.adset-status.incomplete { background-color: #fab1a0; color: #2d3436; }
+.adset-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    border-radius: 12px;
+    padding: 4px 10px;
+    height: 24px;
+    min-width: 80px;
+    white-space: nowrap;
+    text-align: center;
+    position: relative;
+    transition: all 0.2s ease;
+}
 
-/* General status classes used elsewhere */
+.adset-status::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.adset-status.active, 
+.adset-status.status-active, 
+.adset-status.delivery_ok { 
+    background-color: #dcfce7; 
+    color: #166534;
+}
+
+.adset-status.active::before, 
+.adset-status.status-active::before, 
+.adset-status.delivery_ok::before { 
+    background-color: #16a34a;
+}
+
+.adset-status.paused, 
+.adset-status.status-paused, 
+.adset-status.disable { 
+    background-color: #fef9c3; 
+    color: #854d0e;
+}
+
+.adset-status.paused::before, 
+.adset-status.status-paused::before, 
+.adset-status.disable::before { 
+    background-color: #eab308;
+}
+
+.adset-status.deleted, 
+.adset-status.status-deleted { 
+    background-color: #e5e7eb; 
+    color: #4b5563;
+}
+
+.adset-status.deleted::before, 
+.adset-status.status-deleted::before { 
+    background-color: #6b7280;
+}
+
+.adset-status.failed, 
+.adset-status.status-failed,
+.adset-status.rejected,
+.adset-status.audit_deny { 
+    background-color: #fee2e2; 
+    color: #b91c1c;
+}
+
+.adset-status.failed::before, 
+.adset-status.status-failed::before,
+.adset-status.rejected::before,
+.adset-status.audit_deny::before { 
+    background-color: #ef4444;
+}
+
+.adset-status.review, 
+.adset-status.status-review,
+.adset-status.audit,
+.adset-status.reaudit { 
+    background-color: #dbeafe; 
+    color: #1e40af;
+}
+
+.adset-status.review::before, 
+.adset-status.status-review::before,
+.adset-status.audit::before,
+.adset-status.reaudit::before { 
+    background-color: #3b82f6;
+}
+
+.adset-status.pending, 
+.adset-status.status-pending,
+.adset-status.scheduled { 
+    background-color: #ffedd5; 
+    color: #9a3412;
+}
+
+.adset-status.pending::before, 
+.adset-status.status-pending::before,
+.adset-status.scheduled::before { 
+    background-color: #f97316;
+}
+
+.adset-status.restricted,
+.adset-status.frozen { 
+    background-color: #e9d5ff; 
+    color: #6b21a8;
+}
+
+.adset-status.restricted::before,
+.adset-status.frozen::before { 
+    background-color: #a855f7;
+}
+
+.adset-status.budget-exceeded,
+.adset-status.budget_exceed,
+.adset-status.insufficient-funds { 
+    background-color: #fecdd3; 
+    color: #be123c;
+}
+
+.adset-status.budget-exceeded::before,
+.adset-status.budget_exceed::before,
+.adset-status.insufficient-funds::before { 
+    background-color: #e11d48;
+}
+
+.adset-status.unknown,
+.adset-status.status-unknown,
+.adset-status.invalid { 
+    background-color: #f3f4f6; 
+    color: #6b7280;
+}
+
+.adset-status.unknown::before,
+.adset-status.status-unknown::before,
+.adset-status.invalid::before { 
+    background-color: #9ca3af;
+}
+
+.adset-status.partial-approval { 
+    background-color: #fce7f3; 
+    color: #9d174d;
+}
+
+.adset-status.partial-approval::before { 
+    background-color: #ec4899;
+}
+
+.adset-status.completed,
+.adset-status.time_done { 
+    background-color: #d8b4fe; 
+    color: #581c87;
+}
+
+.adset-status.completed::before,
+.adset-status.time_done::before { 
+    background-color: #9333ea;
+}
+
+/* General status classes for use elsewhere in the application */
 .status-active, .status-delivery-ok {
-    color: #00b894;
+    color: #16a34a;
 }
 
 .status-paused, .status-disabled {
-    color: #fdcb6e;
+    color: #eab308;
 }
 
 .status-deleted {
-    color: #636e72;
+    color: #6b7280;
 }
 
 .status-unknown {
-    color: #95a5a6;
+    color: #9ca3af;
 }
 
 .status-failed, .status-rejected {
-    color: #d63031;
+    color: #ef4444;
 }
 
-.status-review {
-    color: #0984e3;
+.status-review, .status-audit {
+    color: #3b82f6;
 }
 
 .status-scheduled, .status-pending {
-    color: #fdcb6e;
+    color: #f97316;
 }
 
 .status-budget-exceeded, .status-insufficient-funds {
-    color: #e84393;
+    color: #e11d48;
 }
 
 .status-restricted {

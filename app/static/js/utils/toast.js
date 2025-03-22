@@ -25,35 +25,9 @@ function initToastContainer() {
  * @param {number} duration - Duration in milliseconds
  */
 export function showToast(message, type = 'info', duration = 3000) {
-    // Initialize container
-    initToastContainer();
-    
-    // Create toast element
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.innerHTML = `
-        <div class="toast-content">
-            <span class="toast-message">${message}</span>
-        </div>
-    `;
-    
-    // Add to container
-    toastContainer.appendChild(toast);
-    
-    // Show toast
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 10);
-    
-    // Remove toast after duration
-    setTimeout(() => {
-        toast.classList.remove('show');
-        
-        // Remove from DOM after animation
-        setTimeout(() => {
-            toast.remove();
-        }, 300);
-    }, duration);
+    // Function disabled per user request
+    console.log(`Toast suppressed: ${message} (${type})`);
+    return;
 }
 
 /**

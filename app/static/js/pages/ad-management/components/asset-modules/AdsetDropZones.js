@@ -23,6 +23,16 @@ export function initAdsetDropZones(state) {
     const adsetItems = document.querySelectorAll('.adset-item');
     console.log(`Found ${adsetItems.length} adsets for drop zones`);
     
+    // Add class to parent container if multiple adsets are present
+    const adsetContainer = document.querySelector('.adsets-container');
+    if (adsetContainer && adsetItems.length > 1) {
+        adsetContainer.classList.add('multiple-adsets');
+        console.log('Added multiple-adsets class to container for responsive grid layout');
+    }
+    
+    // Add campaign group headers if there are multiple campaigns
+    organizeAdsetsByCampaign();
+    
     adsetItems.forEach(adsetItem => {
         // Find or create the adset content
         let adsetContent = adsetItem.querySelector('.adset-content');
@@ -41,6 +51,9 @@ export function initAdsetDropZones(state) {
             adsetContent.appendChild(adCreationContainer);
         }
         
+        // Add delete button to the ad creation container
+        addDeleteButtonToContainer(adCreationContainer);
+        
         // Create or find ad name input field - ensure it exists and is preserved
         let adNameInput = adCreationContainer.querySelector('.ad-name-input');
         if (!adNameInput) {
@@ -52,7 +65,7 @@ export function initAdsetDropZones(state) {
                 <label for="ad-name-${adsetItem.dataset.adsetId || adsetItem.dataset.id}" style="display: block; margin-bottom: 5px; font-weight: 500; color: #444;">Ad Name</label>
                 <input type="text" 
                        id="ad-name-${adsetItem.dataset.adsetId || adsetItem.dataset.id}" 
-                       name="ad_name" 
+                       name="tiktok_ad_names[${adsetItem.dataset.adsetId || adsetItem.dataset.id}][0]" 
                        class="form-control" 
                        placeholder="Enter ad name"
                        style="width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px;">
@@ -101,12 +114,12 @@ export function initAdsetDropZones(state) {
         headlineInput.style.position = 'relative';
         headlineInput.style.zIndex = '100';
         headlineInput.innerHTML = `
-            <label for="headline-${adsetItem.dataset.adsetId || adsetItem.dataset.id}" style="display: block !important; margin-bottom: 5px; font-weight: 500; color: #444;">Headline</label>
+            <label for="headline-${adsetItem.dataset.adsetId || adsetItem.dataset.id}" style="display: block !important; margin-bottom: 5px; font-weight: 500; color: #444;">Ad Text</label>
             <input type="text" 
                    id="headline-${adsetItem.dataset.adsetId || adsetItem.dataset.id}" 
-                   name="headline" 
+                   name="tiktok_ad_headlines[${adsetItem.dataset.adsetId || adsetItem.dataset.id}][0]" 
                    class="form-control headline-field" 
-                   placeholder="Enter ad headline"
+                   placeholder="Enter ad text"
                    style="width: 100%; display: block !important; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; background-color: white;">
         `;
         
@@ -266,9 +279,98 @@ function setupAdsetObserver(state) {
 function refreshDropZones(state) {
     const handleDrop = createDropHandler(state);
     
+    // Set up drop zones for asset dropping
     document.querySelectorAll('.asset-drop-zone').forEach(dropZone => {
         setupDropZone(dropZone, handleDragOver, handleDragEnter, handleDragLeave, handleDrop);
     });
+    
+    // Ensure all ad creation containers have delete buttons
+    document.querySelectorAll('.ad-creation-container').forEach(container => {
+        addDeleteButtonToContainer(container);
+    });
+}
+
+/**
+ * Add a delete button to an ad creation container
+ * @param {HTMLElement} container - The ad creation container element
+ */
+function addDeleteButtonToContainer(container) {
+    // Check if the container already has a delete button
+    if (container.querySelector('.ad-container-delete-btn')) {
+        return;
+    }
+    
+    // Create delete button
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.className = 'ad-container-delete-btn';
+    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+    deleteButton.title = 'Delete this ad';
+    
+    // Position the button within the container
+    deleteButton.style.position = 'absolute';
+    deleteButton.style.top = '10px';
+    deleteButton.style.right = '10px';
+    deleteButton.style.zIndex = '100';
+    deleteButton.style.backgroundColor = '#fff';
+    deleteButton.style.border = '1px solid #dee2e6';
+    deleteButton.style.borderRadius = '50%';
+    deleteButton.style.width = '28px';
+    deleteButton.style.height = '28px';
+    deleteButton.style.display = 'flex';
+    deleteButton.style.alignItems = 'center';
+    deleteButton.style.justifyContent = 'center';
+    deleteButton.style.cursor = 'pointer';
+    deleteButton.style.color = '#dc3545';
+    deleteButton.style.opacity = '0.7';
+    deleteButton.style.transition = 'all 0.2s ease';
+    
+    // Add hover styles
+    deleteButton.addEventListener('mouseover', () => {
+        deleteButton.style.opacity = '1';
+        deleteButton.style.backgroundColor = '#dc3545';
+        deleteButton.style.color = '#fff';
+        deleteButton.style.transform = 'scale(1.1)';
+    });
+    
+    deleteButton.addEventListener('mouseout', () => {
+        deleteButton.style.opacity = '0.7';
+        deleteButton.style.backgroundColor = '#fff';
+        deleteButton.style.color = '#dc3545';
+        deleteButton.style.transform = 'scale(1)';
+    });
+    
+    // Add click handler to remove the container
+    deleteButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Add a fade-out animation
+        container.style.transition = 'all 0.3s ease';
+        container.style.opacity = '0';
+        container.style.transform = 'scale(0.9)';
+        container.style.height = '0';
+        container.style.overflow = 'hidden';
+        
+        // Remove the container after animation completes
+        setTimeout(() => {
+            container.remove();
+            
+            // Notify the app that assets have changed
+            if (window.refreshAppState) {
+                window.refreshAppState();
+            }
+            
+            // Dispatch an event that assets have been updated
+            document.dispatchEvent(new CustomEvent('assets-updated'));
+        }, 300);
+    });
+    
+    // Add the button to the container
+    container.appendChild(deleteButton);
+    
+    // Make sure the container has position relative for absolute positioning of the button
+    container.style.position = 'relative';
 }
 
 // Function to create or find the Ad Creation Container
@@ -290,6 +392,19 @@ function createOrFindAdCreationContainer(dropZone) {
         // Move the drop zone inside the container
         adCreationContainer.appendChild(dropZone);
         
+        // Get platform and adset ID for input names
+        const platform = dropZone.dataset.platform || 'tiktok';
+        const adsetId = dropZone.dataset.adsetId || 'default';
+        
+        // First remove any existing Ad Name inputs with the same name
+        const existingAdNameInputs = document.querySelectorAll(`input[name="tiktok_ad_names[${adsetId}][0]"], input[name="ad_name"]`);
+        existingAdNameInputs.forEach(input => {
+            if (input.closest('.ad-creation-container') !== adCreationContainer) {
+                console.log(`Removing existing Ad Name input with same name from another container`, input);
+                input.value = '';  // Clear the value to avoid submission
+            }
+        });
+        
         // Create and add the Ad Name input
         const timestamp = Date.now();
         const adNameInput = document.createElement('div');
@@ -300,7 +415,7 @@ function createOrFindAdCreationContainer(dropZone) {
             <label for="ad-name-${timestamp}" style="display: block; margin-bottom: 5px; font-weight: 500; color: #444;">Ad Name</label>
             <input type="text" 
                    id="ad-name-${timestamp}" 
-                   name="ad_name" 
+                   name="tiktok_ad_names[${adsetId}][0]" 
                    class="form-control" 
                    placeholder="Enter ad name"
                    style="width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px;">
@@ -309,6 +424,15 @@ function createOrFindAdCreationContainer(dropZone) {
         // Insert the ad name input before the drop zone
         adCreationContainer.insertBefore(adNameInput, dropZone);
         
+        // First remove any existing Headline inputs with the same name
+        const existingHeadlineInputs = document.querySelectorAll(`input[name="tiktok_ad_headlines[${adsetId}][0]"], input[name="headline"]`);
+        existingHeadlineInputs.forEach(input => {
+            if (input.closest('.ad-creation-container') !== adCreationContainer) {
+                console.log(`Removing existing Headline input with same name from another container`, input);
+                input.value = '';  // Clear the value to avoid submission
+            }
+        });
+        
         // Create and add the Headline input
         const headlineInput = document.createElement('div');
         headlineInput.className = 'headline-input';
@@ -316,17 +440,20 @@ function createOrFindAdCreationContainer(dropZone) {
         headlineInput.style.marginBottom = '15px';
         headlineInput.style.width = '100%';
         headlineInput.innerHTML = `
-            <label for="headline-${timestamp}" style="display: block; margin-bottom: 5px; font-weight: 500; color: #444;">Headline</label>
+            <label for="headline-${timestamp}" style="display: block; margin-bottom: 5px; font-weight: 500; color: #444;">Ad Text</label>
             <input type="text" 
                    id="headline-${timestamp}" 
-                   name="headline" 
+                   name="tiktok_ad_headlines[${adsetId}][0]" 
                    class="form-control headline-field" 
-                   placeholder="Enter ad headline"
+                   placeholder="Enter ad text"
                    style="width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; background-color: white;">
         `;
         
         // Insert the headline input after the ad name input but before the drop zone
         adCreationContainer.insertBefore(headlineInput, dropZone);
+        
+        // Add a delete button to the container
+        addDeleteButtonToContainer(adCreationContainer);
         
         console.log('Created new ad creation container with Ad Name and Headline inputs');
     }
@@ -338,12 +465,32 @@ function createOrFindAdCreationContainer(dropZone) {
 function createAdsetDropZone(adsetItem, platform = null) {
     console.log('Creating drop zone for adset:', adsetItem);
     
+    // Debug logs to see what values are in the dataset
+    console.log('Dataset values:', {
+        id: adsetItem.dataset.id,
+        adsetId: adsetItem.dataset.adsetId,
+        platform: adsetItem.dataset.platform,
+        accountId: adsetItem.dataset.accountId,
+        campaignId: adsetItem.dataset.campaignId
+    });
+    
     // Create the drop zone element
     const dropZone = document.createElement('div');
     dropZone.className = 'asset-drop-zone';
-    dropZone.dataset.adsetId = adsetItem.dataset.id || adsetItem.dataset.adsetId;
+    
+    // Look for adset ID in all possible places and use a default if not found
+    const adsetId = adsetItem.dataset.id || adsetItem.dataset.adsetId;
+    // If still undefined, try to get from campaign ID and append -adset-1 as a fallback
+    const finalAdsetId = adsetId !== "undefined" && adsetId ? adsetId : 
+                        (adsetItem.dataset.campaignId ? `${adsetItem.dataset.campaignId}-adset-1` : "default-adset");
+    
+    // Set the data attributes
+    dropZone.dataset.adsetId = finalAdsetId;
     dropZone.dataset.platform = platform || adsetItem.dataset.platform;
     dropZone.dataset.accountId = adsetItem.dataset.accountId;
+    dropZone.dataset.campaignId = adsetItem.dataset.campaignId; // Make sure we store campaign ID too
+    
+    console.log(`Set adset ID to: ${finalAdsetId} for drop zone:`, dropZone);
     
     // Create and add the placeholder content
     const placeholder = document.createElement('div');
@@ -406,6 +553,139 @@ function cleanupDuplicateInputs() {
             input.remove();
         });
     });
+}
+
+/**
+ * Organize adsets visually by campaign
+ * Groups adsets under their respective campaign headers for better organization
+ */
+function organizeAdsetsByCampaign() {
+    const adsetContainer = document.querySelector('.adsets-container');
+    if (!adsetContainer) return;
+    
+    // Get all adset items
+    const adsetItems = adsetContainer.querySelectorAll('.adset-item');
+    if (adsetItems.length <= 1) return; // No need to organize if there's only one adset
+    
+    // Create a map to group adsets by campaign
+    const campaignMap = new Map();
+    
+    // First pass: identify unique campaigns
+    adsetItems.forEach(adset => {
+        const campaignId = adset.dataset.campaignId;
+        const campaignName = adset.dataset.campaignName || 'Unknown Campaign';
+        
+        if (campaignId && !campaignMap.has(campaignId)) {
+            campaignMap.set(campaignId, {
+                name: campaignName,
+                adsets: []
+            });
+        }
+        
+        if (campaignId) {
+            campaignMap.get(campaignId).adsets.push(adset);
+        }
+    });
+    
+    // If we have multiple campaigns, add campaign header sections
+    if (campaignMap.size > 1) {
+        console.log(`Organizing ${campaignMap.size} campaigns with their adsets`);
+        
+        // Enable campaign-based collapsible sections for better organization
+        adsetContainer.insertAdjacentHTML('afterbegin', `
+            <style>
+                .campaign-header {
+                    background-color: #e9ecef;
+                    border-radius: 5px;
+                    padding: 8px 15px;
+                    margin-bottom: 15px;
+                    font-weight: 600;
+                    color: #343a40;
+                    cursor: pointer;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                .campaign-header:hover {
+                    background-color: #dee2e6;
+                }
+                
+                .campaign-header i {
+                    transition: transform 0.3s ease;
+                }
+                
+                .campaign-header.collapsed i {
+                    transform: rotate(-90deg);
+                }
+                
+                .campaign-group {
+                    margin-bottom: 20px;
+                }
+                
+                .campaign-group.collapsed .campaign-adsets {
+                    display: none;
+                }
+            </style>
+        `);
+        
+        // Create a document fragment to build the new structure
+        const fragment = document.createDocumentFragment();
+        
+        // Create campaign groups
+        campaignMap.forEach((campaign, campaignId) => {
+            // Create campaign group container
+            const campaignGroup = document.createElement('div');
+            campaignGroup.className = 'campaign-group';
+            campaignGroup.dataset.campaignId = campaignId;
+            
+            // Create campaign header
+            const campaignHeader = document.createElement('div');
+            campaignHeader.className = 'campaign-header';
+            campaignHeader.innerHTML = `
+                <span>${campaign.name} (${campaign.adsets.length} ad ${campaign.adsets.length === 1 ? 'group' : 'groups'})</span>
+                <i class="fas fa-chevron-down"></i>
+            `;
+            
+            // Add click handler to toggle collapse
+            campaignHeader.addEventListener('click', function() {
+                this.classList.toggle('collapsed');
+                this.parentElement.classList.toggle('collapsed');
+            });
+            
+            // Create container for adsets
+            const campaignAdsets = document.createElement('div');
+            campaignAdsets.className = 'campaign-adsets';
+            campaignAdsets.style.display = 'grid';
+            campaignAdsets.style.gridTemplateColumns = 'repeat(auto-fill, minmax(350px, 1fr))';
+            campaignAdsets.style.gap = '20px';
+            campaignAdsets.style.marginTop = '15px';
+            
+            // Move adsets into this container
+            campaign.adsets.forEach(adset => {
+                campaignAdsets.appendChild(adset);
+            });
+            
+            // Assemble campaign group
+            campaignGroup.appendChild(campaignHeader);
+            campaignGroup.appendChild(campaignAdsets);
+            
+            // Add to fragment
+            fragment.appendChild(campaignGroup);
+        });
+        
+        // Replace the children of the adset container with our new organized structure
+        // First, store a reference to the adsets we want to keep
+        const adsetsToReorganize = Array.from(adsetItems);
+        
+        // Clear the container
+        adsetContainer.innerHTML = '';
+        
+        // Add our new organized structure
+        adsetContainer.appendChild(fragment);
+        
+        console.log('Reorganized adsets into campaign groups with collapsible headers');
+    }
 }
 
 // Export the createAdsetDropZone function

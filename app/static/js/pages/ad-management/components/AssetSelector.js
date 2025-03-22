@@ -31,7 +31,9 @@ export function initAssetSelector(elements, state, validateStep) {
      */
     function setupEventListeners() {
         // Open asset library button
-        elements.selectFromLibraryBtn.addEventListener('click', assetLibrary.openAssetLibrary);
+        if (elements.selectFromLibraryBtn) {
+            elements.selectFromLibraryBtn.addEventListener('click', assetLibrary.openAssetLibrary);
+        }
         
         // Asset library filters
         elements.libraryTypeFilter.addEventListener('change', assetLibrary.filterAssetLibrary);
@@ -46,11 +48,8 @@ export function initAssetSelector(elements, state, validateStep) {
             btn.addEventListener('click', assetLibrary.closeAllModals);
         });
         
-        // Select assets button
-        elements.selectAssetsBtn.addEventListener('click', () => {
-            assetLibrary.selectAssetsFromLibrary();
-            validateStep();
-        });
+        // The Select Assets button is now created and handled in AssetLibrary.js
+        // We no longer need to set up a click handler here
         
         // Make library assets draggable
         if (elements.libraryAssets) {
@@ -128,12 +127,6 @@ export function initAssetSelector(elements, state, validateStep) {
         assetsPanel.innerHTML = `
             <div class="assets-panel-header">
                 Selected Assets
-                <div id="selectFromLibraryBtn" class="asset-library-btn" style="margin: 0; padding: 5px 10px; font-size: 0.9rem;">
-                    <div class="asset-library-icon" style="font-size: 1rem; margin-right: 5px;">
-                        <i class="fas fa-images"></i>
-                    </div>
-                    <div>Select Assets</div>
-                </div>
             </div>
             <div class="assets-panel-content">
                 <div class="assets-help-message">Drag assets to adsets on the right to create ads</div>
@@ -148,9 +141,17 @@ export function initAssetSelector(elements, state, validateStep) {
             <div class="adsets-panel-header">
                 <span>Adsets</span>
                 <div class="header-controls">
-                    <button class="refresh-btn" title="Refresh adsets">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
+                    <div class="adset-filters">
+                        <input type="text" id="adsetSearchInput" class="adset-search" placeholder="Search adsets..." />
+                        <select id="adsetStatusFilter" class="adset-status-filter">
+                            <option value="all">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="paused">Paused</option>
+                            <option value="deleted">Deleted</option>
+                            <option value="review">In Review</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="adsets-panel-content">
@@ -164,6 +165,82 @@ export function initAssetSelector(elements, state, validateStep) {
         
         // Get reference to adsets container
         const adsetContainer = adsetsPanel.querySelector('.adsets-container');
+        
+        // Add event listeners for search and filter
+        const adsetSearchInput = adsetsPanel.querySelector('#adsetSearchInput');
+        const adsetStatusFilter = adsetsPanel.querySelector('#adsetStatusFilter');
+        
+        if (adsetSearchInput && adsetStatusFilter) {
+            // Function to filter adsets based on search and status
+            const filterAdsets = () => {
+                const searchTerm = adsetSearchInput.value.toLowerCase().trim();
+                const statusFilter = adsetStatusFilter.value;
+                
+                // Get all adset items
+                const adsetItems = adsetContainer.querySelectorAll('.adset-item');
+                
+                // Loop through each adset and check if it matches the filters
+                adsetItems.forEach(adsetItem => {
+                    const adsetName = adsetItem.querySelector('.adset-name')?.textContent.toLowerCase() || '';
+                    const adsetStatusEl = adsetItem.querySelector('.adset-status');
+                    const adsetStatus = adsetStatusEl?.classList.toString().toLowerCase() || '';
+                    
+                    // Check if the adset matches both search term and status filter
+                    const matchesSearch = searchTerm === '' || adsetName.includes(searchTerm);
+                    
+                    // Check status by looking for specific class names
+                    let matchesStatus = statusFilter === 'all';
+                    if (!matchesStatus && adsetStatusEl) {
+                        // Check for specific status classes to ensure accurate filtering
+                        if (statusFilter === 'active' && (adsetStatusEl.classList.contains('active') || adsetStatusEl.classList.contains('status-active'))) {
+                            matchesStatus = true;
+                        } else if (statusFilter === 'paused' && (adsetStatusEl.classList.contains('paused') || adsetStatusEl.classList.contains('status-paused'))) {
+                            matchesStatus = true;
+                        } else if (statusFilter === 'deleted' && (adsetStatusEl.classList.contains('deleted') || adsetStatusEl.classList.contains('status-deleted'))) {
+                            matchesStatus = true;
+                        } else if (statusFilter === 'review' && (adsetStatusEl.classList.contains('review') || adsetStatusEl.classList.contains('status-review'))) {
+                            matchesStatus = true;
+                        } else if (statusFilter === 'pending' && (adsetStatusEl.classList.contains('pending') || adsetStatusEl.classList.contains('status-pending'))) {
+                            matchesStatus = true;
+                        }
+                    }
+                    
+                    // Show or hide based on filter results
+                    adsetItem.style.display = (matchesSearch && matchesStatus) ? 'block' : 'none';
+                });
+                
+                // Check if there are any visible adsets
+                const visibleAdsets = adsetContainer.querySelectorAll('.adset-item[style="display: block;"]');
+                if (visibleAdsets.length === 0 && adsetItems.length > 0) {
+                    // If no adsets match the filter, show a "no results" message
+                    let noResultsMessage = adsetContainer.querySelector('.no-filter-results');
+                    if (!noResultsMessage) {
+                        noResultsMessage = document.createElement('div');
+                        noResultsMessage.className = 'no-filter-results';
+                        noResultsMessage.innerHTML = `
+                            <div class="empty-panel-message">
+                                <i class="fas fa-filter"></i>
+                                <div class="message-text">No adsets match your filters</div>
+                                <div class="message-subtext">Try adjusting your search or filter criteria</div>
+                            </div>
+                        `;
+                        adsetContainer.appendChild(noResultsMessage);
+                    } else {
+                        noResultsMessage.style.display = 'block';
+                    }
+                } else {
+                    // Hide the "no results" message if there are visible adsets
+                    const noResultsMessage = adsetContainer.querySelector('.no-filter-results');
+                    if (noResultsMessage) {
+                        noResultsMessage.style.display = 'none';
+                    }
+                }
+            };
+            
+            // Add event listeners
+            adsetSearchInput.addEventListener('input', filterAdsets);
+            adsetStatusFilter.addEventListener('change', filterAdsets);
+        }
         
         let hasLoadedContent = false;
         
@@ -192,17 +269,6 @@ export function initAssetSelector(elements, state, validateStep) {
         if (elements.uploadPreview) {
             elements.uploadPreview.innerHTML = ''; // Clear loading indicator
             elements.uploadPreview.appendChild(splitPanelsContainer);
-            
-            // Get the new select from library button and attach event listener
-            const newSelectBtn = elements.uploadPreview.querySelector('#selectFromLibraryBtn');
-            if (newSelectBtn) {
-                newSelectBtn.addEventListener('click', assetLibrary.openAssetLibrary);
-                // Remove the original button since we've added it to the panel header
-                const originalBtn = elements.selectFromLibraryBtn;
-                if (originalBtn && originalBtn.parentNode) {
-                    originalBtn.parentNode.removeChild(originalBtn);
-                }
-            }
             
             // Check if we have content
             if (!hasLoadedContent) {

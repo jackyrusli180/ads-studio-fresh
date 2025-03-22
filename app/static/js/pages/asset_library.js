@@ -305,6 +305,101 @@ document.addEventListener('DOMContentLoaded', function() {
     const assetItems = document.querySelectorAll('.asset-item');
     console.log(`Found ${assetItems.length} asset items on the page`);
     
+    // Add TikTok video dimensions metadata to video assets
+    document.querySelectorAll('.asset-item[data-type="video"]').forEach(videoAsset => {
+        // Look for actual video elements within the asset item to get dimensions
+        const videoElement = videoAsset.querySelector('video');
+        if (videoElement) {
+            // Check if video metadata is already loaded
+            if (videoElement.videoWidth && videoElement.videoHeight) {
+                videoAsset.dataset.width = videoElement.videoWidth.toString();
+                videoAsset.dataset.height = videoElement.videoHeight.toString();
+                console.log(`Set actual dimensions ${videoElement.videoWidth}x${videoElement.videoHeight} for video: ${videoAsset.dataset.id}`);
+            } else {
+                // Try to load the video to get dimensions
+                videoElement.addEventListener('loadedmetadata', () => {
+                    if (videoElement.videoWidth && videoElement.videoHeight) {
+                        videoAsset.dataset.width = videoElement.videoWidth.toString();
+                        videoAsset.dataset.height = videoElement.videoHeight.toString();
+                        console.log(`Set actual dimensions from loaded metadata ${videoElement.videoWidth}x${videoElement.videoHeight} for video: ${videoAsset.dataset.id}`);
+                    }
+                });
+                
+                // If the video source isn't set correctly, try to set it
+                if (!videoElement.src || videoElement.src === '') {
+                    videoElement.src = videoAsset.dataset.url || `/assets/videos/${videoAsset.dataset.id}.mp4`;
+                    videoElement.load();
+                }
+            }
+        } else {
+            // Video element not found - this may be a video asset that needs to create a temporary video to get dimensions
+            console.log(`No video element found for asset ${videoAsset.dataset.id}, dimensions will need to be determined at drag time`);
+        }
+    });
+    
+    // Enhance dragstart event handling to include actual dimensions for videos
+    document.addEventListener('dragstart', function(e) {
+        const draggedElement = e.target.closest('.asset-item, .preview-item');
+        if (draggedElement) {
+            const assetType = draggedElement.dataset.type || 'image';
+            let assetData = {
+                id: draggedElement.dataset.id,
+                type: assetType,
+                url: draggedElement.dataset.url || '',
+                name: draggedElement.dataset.name || `Asset ${draggedElement.dataset.id}`
+            };
+            
+            // Add dimensions for video assets without defaults
+            if (assetType === 'video') {
+                // First try to get dimensions from the dataset (should already be set from the real video)
+                let width = parseInt(draggedElement.dataset.width) || 0;
+                let height = parseInt(draggedElement.dataset.height) || 0;
+                
+                // If dimensions aren't available, try to get them from a video element directly
+                if (!width || !height) {
+                    const videoElement = draggedElement.querySelector('video');
+                    if (videoElement && videoElement.videoWidth && videoElement.videoHeight) {
+                        width = videoElement.videoWidth;
+                        height = videoElement.videoHeight;
+                        console.log(`Using actual video dimensions from element: ${width}x${height}`);
+                    } else {
+                        console.warn(`Could not determine dimensions for video: ${assetData.id}`);
+                    }
+                }
+                
+                assetData.width = width;
+                assetData.height = height;
+                
+                // Ensure URL is not empty, but don't make up a URL if it doesn't exist
+                if (!assetData.url || assetData.url.trim() === '') {
+                    // Try to get URL from video element
+                    const videoElement = draggedElement.querySelector('video');
+                    if (videoElement && videoElement.src) {
+                        assetData.url = videoElement.src;
+                    }
+                }
+                
+                console.log(`Dragging video with actual dimensions: ${assetData.width}x${assetData.height}`);
+            }
+            
+            // Set data in multiple formats to ensure compatibility
+            e.dataTransfer.setData('application/json', JSON.stringify(assetData));
+            e.dataTransfer.setData('text/plain', JSON.stringify(assetData));
+            
+            console.log('Drag data set:', assetData);
+            
+            // Add a class to mark the element as being dragged
+            draggedElement.classList.add('dragging');
+        }
+    });
+    
+    // Clean up after drag ends
+    document.addEventListener('dragend', function(e) {
+        document.querySelectorAll('.dragging').forEach(el => {
+            el.classList.remove('dragging');
+        });
+    });
+    
     // Log checkbox visibility
     setTimeout(() => {
         const checkboxes = document.querySelectorAll('.asset-checkbox');
@@ -830,11 +925,18 @@ class AssetLibrary {
     }
     
     renderAssetItem(asset) {
+        // Include video dimensions as data attributes if available
+        const videoDimensions = asset.type === 'video' && asset.metadata ? 
+            `data-width="${asset.metadata.width || 0}" data-height="${asset.metadata.height || 0}"` : '';
+            
         return `
             <div class="asset-item" 
                  data-id="${asset.id}"
                  data-type="${asset.type}"
-                 data-status="${asset.status}">
+                 data-status="${asset.status}"
+                 data-url="${asset.file_path}"
+                 data-name="${asset.name}"
+                 ${videoDimensions}>
                 <div class="asset-item-checkbox">
                     <input type="checkbox" class="asset-checkbox" data-id="${asset.id}" data-path="${asset.file_path}">
                 </div>
@@ -851,6 +953,8 @@ class AssetLibrary {
                     <div class="asset-meta">
                         <span class="asset-type">${asset.type}</span>
                         <span class="asset-status">${asset.status}</span>
+                        ${asset.type === 'video' && asset.metadata ? 
+                          `<span class="asset-dimensions">${asset.metadata.width || 0}x${asset.metadata.height || 0}</span>` : ''}
                     </div>
                 </div>
             </div>

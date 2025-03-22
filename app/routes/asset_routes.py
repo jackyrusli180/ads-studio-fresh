@@ -62,6 +62,77 @@ def my_approvals():
 @asset_bp.route('/api/assets')
 def get_assets():
     """API endpoint to get all assets."""
+    # Check if we're in Ads Builder mode (Step 3)
+    is_ads_builder = request.args.get('source') == 'adsbuilder'
+    
+    if is_ads_builder:
+        # For Ads Builder Step 3, return TikTok carousel URLs as assets
+        # These are the URLs from create_tiktok_carousel_url_ad_sdk.py
+        tiktok_image_urls = [
+            "https://static-01.daraz.lk/p/79cc06e0fb28d7114d23fe4488df2f5f.png",
+            "https://static-01.daraz.lk/p/7d1d09c42675d09950cf6f2bf7d58ccc.png",
+            "https://static-01.daraz.lk/p/f4aee08894eacd05d63a6eedeae8ccc3.png",
+            "https://static-01.daraz.lk/p/7d1d09c42675d09950cf6f2bf7d58ccc.png",
+            "https://static-01.daraz.lk/p/bd8ca56a598f2a1a2a6ebd1d8913567e.png"
+        ]
+        
+        # Sample video URLs - only include the 5 that match AssetService
+        tiktok_video_urls = [
+            "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+            "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+            "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+            "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+            "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+        ]
+        
+        # Create asset objects for each URL
+        tiktok_assets = []
+        for idx, url in enumerate(tiktok_image_urls):
+            # Extract filename from URL for the asset name
+            filename = url.split('/')[-1]
+            
+            # Create an asset object
+            asset = {
+                "id": f"tiktok-url-{idx}",
+                "name": filename,
+                "file_path": url,  # Use the URL directly as the file path
+                "thumbnail": url,  # Use the same URL for thumbnail
+                "type": "image",
+                "status": "approved",
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "tags": ["tiktok", "url"],
+                "metadata": {
+                    "mime_type": "image/png",
+                    "is_remote_url": True  # Flag to indicate this is a remote URL
+                }
+            }
+            tiktok_assets.append(asset)
+        
+        # Add video assets to the list
+        for idx, url in enumerate(tiktok_video_urls):
+            # Extract filename from URL for the asset name
+            filename = url.split('/')[-1]
+            
+            # Create a video asset object
+            asset = {
+                "id": f"tiktok-video-{idx}",
+                "name": filename,
+                "file_path": url,  # Use the URL directly as the file path
+                "thumbnail": url,  # Use the same URL for thumbnail
+                "type": "video",
+                "status": "approved",
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "tags": ["tiktok", "video"],
+                "metadata": {
+                    "mime_type": "video/mp4",
+                    "is_remote_url": True  # Flag to indicate this is a remote URL
+                }
+            }
+            tiktok_assets.append(asset)
+        
+        return jsonify({'success': True, 'assets': tiktok_assets})
+    
+    # If not in Ads Builder mode, use the regular asset library
     # Load assets from the JSON file
     assets_file = os.path.join(project_root, 'Python', 'static', 'media_library.json')
     

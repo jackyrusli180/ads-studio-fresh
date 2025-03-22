@@ -17,6 +17,33 @@ import { initCampaignSelector } from './components/CampaignSelector.js';
 import { initAssetSelector } from './components/AssetSelector.js';
 import { initSummaryView } from './components/SummaryView.js';
 import { initAdsetDropZones } from './components/asset-modules/AdsetDropZones.js';
+import { addSampleTikTokVideos } from './components/asset-modules/AssetManager.js';
+
+// Add styles for ad IDs
+function addAdIdStyles() {
+    // Check if styles already exist
+    if (document.getElementById('ad-id-styles')) {
+        return;
+    }
+    
+    const styleEl = document.createElement('style');
+    styleEl.id = 'ad-id-styles';
+    styleEl.textContent = `
+        .ad-id-text {
+            font-weight: bold;
+            display: inline-block;
+            margin: 0 3px;
+            color: #0d6efd;
+        }
+        
+        .success-badge .ad-id-text {
+            font-weight: bold;
+            color: #15803d;
+        }
+    `;
+    
+    document.head.appendChild(styleEl);
+}
 
 // Global state
 const state = {
@@ -44,13 +71,124 @@ const state = {
 let elements = {};
 
 /**
+ * Global function to refresh the application state and validation
+ * This is called when assets are added to drop zones
+ */
+window.refreshAppState = function() {
+    console.log('Refreshing application state');
+    
+    // If we're on step 3, re-run validation to update the Next button state
+    if (state.currentStep === 3) {
+        console.log('Revalidating step 3 after asset change');
+        
+        // Run the validation without blocking on TikTok image requirements
+        validateStep(3, state, elements);
+        
+        // Check if we're in fix errors mode and should hide successful adgroups and ads
+        if (window.fixErrorsMode && window.failedAdgroups && window.failedAdgroups.size > 0) {
+            console.log('In fix errors mode, filtering adgroups and ads');
+            
+            // Execute after a short delay to ensure new DOM elements are ready
+            setTimeout(() => {
+                const adsetItems = document.querySelectorAll('.adset-item');
+                adsetItems.forEach(adsetItem => {
+                    const adsetId = adsetItem.dataset.adsetId;
+                    
+                    if (window.failedAdgroups.has(adsetId)) {
+                        adsetItem.style.display = 'block';
+                        console.log(`Showing adgroup ${adsetId} with errors`);
+                        
+                        // Filter ads within this adgroup to show only problematic ones
+                        if (window.failedAds && window.failedAds[adsetId]) {
+                            console.log(`Filtering ads within adgroup ${adsetId}`);
+                            
+                            // Get all drop zones in this adset
+                            const dropZones = adsetItem.querySelectorAll('.asset-drop-zone');
+                            dropZones.forEach((dropZone, dzIndex) => {
+                                // Get the parent container for styling/hiding
+                                const adCreationContainer = dropZone.closest('.ad-creation-container');
+                                
+                                // Check if this specific ad had an error
+                                const isFailedAd = window.failedAds[adsetId].has(dzIndex.toString());
+                                
+                                if (isFailedAd) {
+                                    console.log(`Showing problematic ad at index ${dzIndex} in adgroup ${adsetId}`);
+                                    // Show this ad's container and the drop zone
+                                    if (adCreationContainer) {
+                                        adCreationContainer.style.display = 'block';
+                                    }
+                                    dropZone.style.display = 'flex';
+                                } else {
+                                    console.log(`Hiding successful ad at index ${dzIndex} in adgroup ${adsetId}`);
+                                    // Hide this ad's container and the drop zone
+                                    if (adCreationContainer) {
+                                        adCreationContainer.style.display = 'none';
+                                    }
+                                    dropZone.style.display = 'none';
+                                }
+                            });
+                            
+                            // Add a note about filtered ads if not already present
+                            const adsetHeader = adsetItem.querySelector('.adset-header');
+                            if (adsetHeader && !adsetHeader.querySelector('.filtered-ads-note')) {
+                                const filteredNote = document.createElement('div');
+                                filteredNote.className = 'filtered-ads-note';
+                                filteredNote.innerHTML = '<i class="fas fa-filter"></i> Showing only ads with errors';
+                                filteredNote.style.fontSize = '12px';
+                                filteredNote.style.color = '#f59e0b';
+                                filteredNote.style.marginLeft = '10px';
+                                adsetHeader.appendChild(filteredNote);
+                            }
+                        }
+                    } else {
+                        adsetItem.style.display = 'none';
+                        console.log(`Hiding adgroup ${adsetId} without errors`);
+                    }
+                });
+                
+                // Make sure the error message is still visible
+                if (!document.getElementById('fix-errors-message')) {
+                    const step3Container = document.querySelector('.form-step[data-step="3"]');
+                    if (step3Container) {
+                        const errorMessage = document.createElement('div');
+                        errorMessage.id = 'fix-errors-message';
+                        errorMessage.innerHTML = `
+                            <div class="alert alert-warning" style="margin-bottom: 20px; border-left: 5px solid #f59e0b; padding: 15px; border-radius: 5px;">
+                                <i class="fas fa-exclamation-triangle"></i> Please fix the errors in the adgroups below. We're only showing adgroups that had errors.
+                                <button id="showAllAdgroups" class="btn btn-sm btn-outline-warning" style="margin-left: 10px;">Show All Adgroups</button>
+                            </div>
+                        `;
+                        
+                        step3Container.insertBefore(errorMessage, step3Container.firstChild);
+                        
+                        // Add event listener to the "Show All Adgroups" button
+                        document.getElementById('showAllAdgroups').addEventListener('click', function() {
+                            window.fixErrorsMode = false;
+                            const adsetItems = document.querySelectorAll('.adset-item');
+                            adsetItems.forEach(adsetItem => {
+                                adsetItem.style.display = 'block';
+                            });
+                            this.parentElement.remove();
+                        });
+                    }
+                }
+            }, 300);
+        }
+    }
+    
+    // Dispatch an event that assets have been updated
+    document.dispatchEvent(new CustomEvent('assets-updated'));
+};
+
+/**
  * Initialize the application when DOM is loaded
  */
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Initializing Ads Builder');
     
-    // Add drag-drop styles
+    // Add styles
     addDragDropStyles();
+    addAdIdStyles();
     
     // Set up drag and drop handling
     setupDragAndDropHandling();
@@ -98,12 +236,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     console.log('Ad builder initialization complete');
+    
+    // Set default video URLs and dimensions for samples
+    setTimeout(() => {
+        setDefaultVideoUrls();
+    }, 1000); // Wait for everything to be initialized
 });
 
 /**
  * Set up enhanced drag and drop handling
  */
 function setupDragAndDropHandling() {
+    // TikTok video URLs matching asset_service.py
+    const tiktokVideoUrls = {
+        'tiktok-video-0': "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+        'tiktok-video-1': "https://test-videos.co.uk/vids/jellyfish/mp4/h264/360/Jellyfish_360_10s_1MB.mp4",
+        'tiktok-video-2': "https://test-videos.co.uk/vids/sintel/mp4/h264/360/Sintel_360_10s_1MB.mp4",
+        'tiktok-video-3': "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        'tiktok-video-4': "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+        'tiktok-video-5': "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+        'tiktok-video-6': "https://test-videos.co.uk/vids/jellyfish/mp4/h264/360/Jellyfish_360_10s_1MB.mp4",
+        'tiktok-video-7': "https://test-videos.co.uk/vids/sintel/mp4/h264/360/Sintel_360_10s_1MB.mp4",
+        'tiktok-video-8': "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+    };
+
     // Add global dragstart listener
     document.addEventListener('dragstart', (e) => {
         console.log('*** Dragstart event detected ***');
@@ -120,12 +276,24 @@ function setupDragAndDropHandling() {
             // Add dragging class to the dragged element
             e.target.classList.add('dragging');
             
+            // Get the asset ID
+            const assetId = e.target.dataset.id;
+            
+            // Ensure TikTok videos use the correct public URLs
+            let assetUrl = e.target.dataset.url || e.target.querySelector('img')?.src || '';
+            
+            // If this is a TikTok video asset, ensure it uses the correct public URL
+            if (assetId && assetId.startsWith('tiktok-video-') && tiktokVideoUrls[assetId]) {
+                assetUrl = tiktokVideoUrls[assetId];
+                console.log(`Using public URL for ${assetId}: ${assetUrl}`);
+            }
+            
             // Create asset data object from the element
             const assetData = {
-                id: e.target.dataset.id,
+                id: assetId,
                 type: e.target.dataset.type || 'image',
-                url: e.target.dataset.url || e.target.querySelector('img')?.src || '',
-                name: e.target.dataset.name || `Asset ${e.target.dataset.id}`
+                url: assetUrl,
+                name: e.target.dataset.name || `Asset ${assetId}`
             };
             
             // Set data in both formats for maximum compatibility
@@ -321,7 +489,6 @@ function initializeElements() {
         libraryAssets: document.getElementById('libraryAssets'),
         libraryTypeFilter: document.getElementById('libraryTypeFilter'),
         librarySearch: document.getElementById('librarySearch'),
-        selectAssetsBtn: document.getElementById('selectAssetsBtn'),
         closeModalBtns: document.querySelectorAll('.close-modal')
     };
 }
@@ -429,49 +596,29 @@ function prepareStep(step) {
                     }
                 });
                 
-                // Force creation of headline fields if they don't exist
-                setTimeout(() => {
-                    console.log('Checking for missing headline fields...');
-                    document.querySelectorAll('.adset-item').forEach(adsetItem => {
-                        const adCreationContainer = adsetItem.querySelector('.ad-creation-container');
-                        if (!adCreationContainer) return;
-                        
-                        const adNameInput = adCreationContainer.querySelector('.ad-name-input');
-                        if (!adNameInput) return;
-                        
-                        const headlineInput = adCreationContainer.querySelector('.headline-input');
-                        if (!headlineInput) {
-                            console.log('Missing headline input detected, creating one...');
-                            
-                            // Create headline input
-                            const newHeadlineInput = document.createElement('div');
-                            newHeadlineInput.className = 'headline-input';
-                            newHeadlineInput.style.display = 'block';
-                            newHeadlineInput.style.marginBottom = '15px';
-                            newHeadlineInput.style.width = '100%';
-                            newHeadlineInput.style.paddingBottom = '10px';
-                            newHeadlineInput.style.borderBottom = '1px solid #eee';
-                            newHeadlineInput.style.position = 'relative';
-                            newHeadlineInput.style.zIndex = '10';
-                            
-                            // Set the inner HTML
-                            newHeadlineInput.innerHTML = `
-                                <label for="headline-${adsetItem.dataset.adsetId || adsetItem.id}" style="display: block; margin-bottom: 5px; font-weight: 500; color: #444;">Headline</label>
-                                <input type="text" 
-                                       id="headline-${adsetItem.dataset.adsetId || adsetItem.id}" 
-                                       name="headline" 
-                                       class="form-control headline-field" 
-                                       placeholder="Enter ad headline"
-                                       style="width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; background-color: white;">
-                            `;
-                            
-                            // Insert after ad name input
-                            adCreationContainer.insertBefore(newHeadlineInput, adNameInput.nextSibling);
-                            console.log('Created missing headline field for adset', adsetItem.dataset.adsetId || adsetItem.id);
-                        }
-                    });
-                }, 300);
-            }, 500); // Short delay to ensure adsets are rendered
+                // Add sample TikTok videos to the asset library
+                addSampleTikTokVideos();
+                
+                // Add a button to refresh sample videos
+                let refreshButton = document.querySelector('#refreshSampleVideosBtn');
+                if (!refreshButton) {
+                    const assetHeader = document.querySelector('.asset-library-header');
+                    if (assetHeader) {
+                        refreshButton = document.createElement('button');
+                        refreshButton.id = 'refreshSampleVideosBtn';
+                        refreshButton.className = 'btn btn-sm btn-outline-primary ml-2';
+                        refreshButton.innerHTML = '<i class="fas fa-sync-alt mr-1"></i> Refresh Sample Videos';
+                        refreshButton.style.marginLeft = '10px';
+                        refreshButton.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            addSampleTikTokVideos();
+                            showToast('Sample TikTok videos refreshed!', 'success');
+                        });
+                        assetHeader.appendChild(refreshButton);
+                    }
+                }
+                
+            }, 500);
             break;
             
         case 4:
@@ -562,10 +709,21 @@ async function handleFormSubmit(e, summaryView) {
                     }
                 }
             }
+            
+            // Log the campaign IDs being submitted for this platform
+            console.log(`${platform.toUpperCase()} campaign IDs:`, Array.from(campaignIds));
         }
         
         // Log submission data for debugging (excluding large files)
         console.log('Form data collected, fields:', Array.from(formData.keys()));
+        
+        // Log actual field values for debugging
+        Array.from(formData.keys()).forEach(key => {
+            if (key.includes('ad_name') || key.includes('headline') || 
+                key.includes('tiktok_ad_names') || key.includes('tiktok_ad_headlines')) {
+                console.log(`Form field ${key} = "${formData.get(key)}"`);
+            }
+        });
         
         // Submit the form data
         const response = await fetch(elements.form.getAttribute('action'), {
@@ -582,14 +740,186 @@ async function handleFormSubmit(e, summaryView) {
         const responseData = await response.json();
         console.log('Response data:', responseData);
         
+        // Process response - tracking successful and failed ads
+        const adsStatus = responseData.ads || {};
+        let successfulAds = Object.values(adsStatus).filter(ad => ad && typeof ad === 'object' && ad.success).length;
+        let failedAds = Object.values(adsStatus).filter(ad => ad && typeof ad === 'object' && !ad.success).length;
+        
+        // Handle platform-wide errors (where the key is just the platform name)
+        let platformErrors = {};
+        let platformSuccesses = {};
+        
+        Object.entries(adsStatus).forEach(([key, value]) => {
+            if (!key.includes(':') && !key.includes('-')) {
+                // If this is an array response, process it specially
+                if (Array.isArray(value)) {
+                    // Extract successful and failed ads separately
+                    const successes = value.filter(ad => ad && ad.success === true);
+                    const failures = value.filter(ad => ad && ad.success === false);
+                    
+                    // Update our counts
+                    successfulAds = successes.length;
+                    failedAds = failures.length;
+                    
+                    // Store platform-wide successes and failures for UI
+                    platformSuccesses[key] = successes;
+                    platformErrors[key] = failures.length > 0 ? failures : null;
+                    
+                    console.log(`Platform ${key}: ${successes.length} successes, ${failures.length} failures`);
+                } else if (typeof value === 'string') {
+                    // String error message
+                    platformErrors[key] = value;
+                    failedAds++;
+                } else if (value && typeof value === 'object') {
+                    // Single object response
+                    if (value.success) {
+                        platformSuccesses[key] = [value];
+                        successfulAds++;
+                    } else {
+                        platformErrors[key] = [value];
+                        failedAds++;
+                    }
+                }
+            }
+        });
+        
+        // Extract individual ad errors 
+        let adErrors = {};
+        Object.entries(adsStatus).forEach(([key, ad]) => {
+            if (ad && typeof ad === 'object' && !ad.success) {
+                adErrors[key] = ad.error || 'Unknown error';
+            } else if (typeof ad === 'string') {
+                adErrors[key] = ad;
+            }
+        });
+        
+        // Log the per-ad status breakdown
+        console.log(`Ad creation results: ${successfulAds} successful, ${failedAds} failed`);
+        if (failedAds > 0) {
+            console.log('Failed ads details:', adErrors);
+            console.log('Platform-wide errors:', platformErrors);
+        }
+        if (successfulAds > 0) {
+            console.log('Platform-wide successes:', platformSuccesses);
+        }
+        
+        // Enhance the response data to make it easier to process on the UI side
+        if (!responseData.adResults) {
+            responseData.adResults = {
+                successful: platformSuccesses,
+                failed: platformErrors
+            };
+        }
+        
+        // Extract all ad IDs for display in success message
+        if (!responseData.ad_ids) {
+            const ad_ids = [];
+            // Extract from platform successes
+            Object.values(platformSuccesses).forEach(successList => {
+                if (Array.isArray(successList)) {
+                    successList.forEach(ad => {
+                        if (ad && ad.id) {
+                            ad_ids.push(ad.id);
+                        }
+                    });
+                }
+            });
+            responseData.ad_ids = ad_ids;
+        }
+        
         // Show success/error message
         if (responseData.success) {
-            showToast(responseData.message || 'Ads created successfully!', 'success');
+            // Clear any existing error messages
+            const existingErrorContainer = document.getElementById('adBuilderErrorContainer');
+            if (existingErrorContainer) {
+                existingErrorContainer.style.display = 'none';
+            }
+            
+            // Log success
             console.log('Success: Ads created with IDs:', responseData.ad_ids);
+            
+            // Create custom message with details when some ads failed
+            let message = responseData.message || 'Ads created successfully!';
+            if (failedAds > 0 && successfulAds > 0) {
+                message = `${successfulAds} ads created successfully! ${failedAds} ads failed - see details for each ad below.`;
+            } else if (failedAds > 0 && successfulAds === 0) {
+                message = `All ads failed to create - see details for each ad below.`;
+            }
+            
+            // Add ad IDs to the message if available
+            if (responseData.ad_ids && responseData.ad_ids.length > 0) {
+                // For single ad, directly incorporate the ID into the success message
+                if (responseData.ad_ids.length === 1) {
+                    // Ensure there's no colon and the ID is directly embedded in the message
+                    const adId = responseData.ad_ids[0];
+                    console.log(`Formatting success message with ad ID: ${adId}`);
+                    message = `Success! Ad ID ${adId} Created`;
+                } else {
+                    // For multiple ads, list the IDs clearly
+                    message = `Success! ${successfulAds} ads created with IDs: ${responseData.ad_ids.join(', ')}`;
+                }
+            }
+            
+            // Create or get success container
+            const successContainer = document.getElementById('adBuilderSuccessContainer') || createSuccessContainer();
+            
+            // Choose appropriate message and style based on overall success
+            let alertClass = 'alert-success';
+            let borderColor = '#28a745';
+            let bgColor = '#d4edda';
+            let icon = 'fa-check-circle';
+            
+            // If all ads failed but the request succeeded, show a warning
+            if (failedAds > 0 && successfulAds === 0) {
+                alertClass = 'alert-warning';
+                borderColor = '#ffc107';
+                bgColor = '#fff3cd';
+                icon = 'fa-exclamation-triangle';
+            }
+            
+            // Log the final message that will be displayed
+            console.log('Final success message being rendered:', message);
+            
+            // For single ad success, create a more explicit format using direct concatenation
+            if (responseData.ad_ids && responseData.ad_ids.length === 1) {
+                const adId = responseData.ad_ids[0];
+                // Use direct string concatenation instead of template literals
+                const successHtml = 
+                    '<div class="alert ' + alertClass + '" style="border-left: 5px solid ' + borderColor + '; background-color: ' + bgColor + '; padding: 15px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">' +
+                    '<i class="fas ' + icon + '"></i> <span style="font-weight: bold;">Success!</span> Ad ID: <span style="font-weight: bold;">' + adId + '</span> Created' +
+                    '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                    '</div>';
+                
+                successContainer.innerHTML = successHtml;
+                
+                // Double-check what was actually rendered
+                console.log('Rendered success message using direct HTML for ad ID:', adId);
+                console.log('Success container HTML:', successContainer.innerHTML);
+            } else {
+                // Otherwise use the dynamically generated message
+                successContainer.innerHTML = `
+                    <div class="alert ${alertClass}" style="border-left: 5px solid ${borderColor}; background-color: ${bgColor}; padding: 15px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <i class="fas ${icon}"></i> ${message}
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    </div>
+                `;
+            }
+            
+            // Make sure the success message is visible
+            successContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
             
             // Dispatch event to notify completion
             window.dispatchEvent(new CustomEvent('submissionComplete', {
-                detail: { success: true, data: responseData }
+                detail: { 
+                    success: true, 
+                    data: responseData,
+                    adStats: {
+                        successful: successfulAds,
+                        failed: failedAds,
+                        platformSuccesses: platformSuccesses,
+                        platformErrors: platformErrors
+                    }
+                }
             }));
             
             // Redirect if specified
@@ -598,11 +928,49 @@ async function handleFormSubmit(e, summaryView) {
             }
         } else {
             console.error('Error creating ads:', responseData.message || 'Unknown error');
-            showToast(responseData.message || 'Error creating ads. Please try again.', 'error');
+            
+            // Clear any existing success messages
+            const existingSuccessContainer = document.getElementById('adBuilderSuccessContainer');
+            if (existingSuccessContainer) {
+                existingSuccessContainer.style.display = 'none';
+            }
+            
+            // Check if we have detailed platform-specific errors
+            let errorMessage = responseData.message || 'Error creating ads. Please try again.';
+            
+            // Enhanced error handling for TikTok specific errors
+            if (responseData.error_details && responseData.error_details.tiktok) {
+                const tiktokError = responseData.error_details.tiktok;
+                
+                // Special handling for carousel ad errors
+                if (tiktokError.includes("Carousel ad requires at least 2 images")) {
+                    errorMessage = "TikTok Carousel Ad Error: At least 2 images are required for carousel ads. Please add more images to your TikTok ad.";
+                } else if (tiktokError.includes("asset")) {
+                    errorMessage = "TikTok Asset Error: " + tiktokError;
+                } else {
+                    errorMessage = "TikTok Error: " + tiktokError;
+                }
+            }
+            
+            // Display error to user (just for logging, we're not showing toast anymore)
+            console.log(`Error suppressed: ${errorMessage} (error)`);
+            
+            // Show error in UI - create or use an error container
+            const errorContainer = document.getElementById('adBuilderErrorContainer') || createErrorContainer();
+            errorContainer.innerHTML = `
+                <div class="alert alert-danger" style="border-left: 5px solid #dc3545; background-color: #f8d7da; padding: 15px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <strong><i class="fas fa-exclamation-triangle"></i> Error:</strong> ${errorMessage}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            `;
+            errorContainer.style.display = 'block';
+            
+            // Make sure the error is visible by scrolling to it
+            errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
             
             // Dispatch event to notify completion
             window.dispatchEvent(new CustomEvent('submissionComplete', {
-                detail: { success: false, error: responseData.message }
+                detail: { success: false, error: errorMessage }
             }));
             
             // Reset button state
@@ -629,6 +997,82 @@ async function handleFormSubmit(e, summaryView) {
     
     return true;
 }
+
+/**
+ * Create an error container element if it doesn't exist
+ * @returns {HTMLElement} The error container
+ */
+function createErrorContainer() {
+    const container = document.createElement('div');
+    container.id = 'adBuilderErrorContainer';
+    container.className = 'container mb-4';
+    container.style.marginTop = '20px';
+    
+    // Insert at the top of the summary view if it exists
+    const summaryView = document.querySelector('.summary-view-container');
+    if (summaryView) {
+        summaryView.insertBefore(container, summaryView.firstChild);
+    } else {
+        // Otherwise insert before the form
+        const form = document.getElementById('adsBuilderForm');
+        if (form && form.parentNode) {
+            form.parentNode.insertBefore(container, form);
+        } else {
+            // Last resort - append to body
+            document.body.appendChild(container);
+        }
+    }
+    
+    return container;
+}
+
+/**
+ * Create a success message container
+ * @returns {HTMLElement} The success container
+ */
+function createSuccessContainer() {
+    const container = document.createElement('div');
+    container.id = 'adBuilderSuccessContainer';
+    container.className = 'container mb-4';
+    container.style.marginTop = '20px';
+    
+    // Same insertion logic as error container
+    const summaryView = document.querySelector('.summary-view-container');
+    if (summaryView) {
+        summaryView.insertBefore(container, summaryView.firstChild);
+    } else {
+        const form = document.getElementById('adsBuilderForm');
+        if (form && form.parentNode) {
+            form.parentNode.insertBefore(container, form);
+        } else {
+            document.body.appendChild(container);
+        }
+    }
+    
+    return container;
+}
+
+/**
+ * Initialize dismissible alerts
+ * Manually adds click handlers to close buttons with data-dismiss="alert"
+ */
+function initDismissibleAlerts() {
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.getAttribute('data-dismiss') === 'alert') {
+            // Find the closest parent with class "alert"
+            const alert = e.target.closest('.alert');
+            if (alert) {
+                // Remove the alert from the DOM
+                alert.remove();
+            }
+        }
+    });
+}
+
+// Call this function when the document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    initDismissibleAlerts();
+});
 
 // Add this function back to the DragDropHandler.js file 
 function addDragDropStyles() {
@@ -676,6 +1120,18 @@ function initDragAndDrop() {
     window.isProcessingDrop = false;
     window.DROP_COOLDOWN_MS = 2000; // 2 second cooldown
     
+    // Remove any existing drag indicators
+    const removeExistingIndicators = () => {
+        const existingIndicators = document.querySelectorAll('.drag-indicator');
+        existingIndicators.forEach(indicator => {
+            indicator.remove();
+        });
+    };
+    
+    // Remove indicators now and after small delay to catch any late creations
+    removeExistingIndicators();
+    setTimeout(removeExistingIndicators, 500);
+    
     // Add a global dragstart listener
     document.addEventListener('dragstart', (e) => {
         console.log('*** Dragstart event detected ***');
@@ -683,6 +1139,12 @@ function initDragAndDrop() {
         // Reset the drop tracking state
         window.lastDropData = null;
         window.dropOccurred = false;
+        
+        // Remove any drag indicators that might be created
+        removeExistingIndicators();
+        
+        // Ensure no drag indicator will be shown by setting body class to not show it
+        document.body.classList.add('no-drag-indicator');
     });
     
     // Add a global dragend listener to clean up after dragging
@@ -696,6 +1158,9 @@ function initDragAndDrop() {
         
         // Reset the drop occurred flag for the next drag operation
         window.dropOccurred = false;
+        
+        // Remove drag indicators
+        removeExistingIndicators();
     });
     
     // Add a global drop listener to detect when drops happen anywhere
@@ -806,3 +1271,68 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Near the initialization code, add this function to set default video URLs
+function setDefaultVideoUrls() {
+    console.log("Setting default video URLs and dimensions for TikTok videos");
+    
+    // Sample video URLs - making sure these match exactly with asset_service.py
+    const sampleVideoUrls = {
+        'tiktok-video-0': "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+        'tiktok-video-1': "https://test-videos.co.uk/vids/jellyfish/mp4/h264/360/Jellyfish_360_10s_1MB.mp4",
+        'tiktok-video-2': "https://test-videos.co.uk/vids/sintel/mp4/h264/360/Sintel_360_10s_1MB.mp4",
+        'tiktok-video-3': "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        'tiktok-video-4': "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+        'tiktok-video-5': "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+        'tiktok-video-6': "https://test-videos.co.uk/vids/jellyfish/mp4/h264/360/Jellyfish_360_10s_1MB.mp4",
+        'tiktok-video-7': "https://test-videos.co.uk/vids/sintel/mp4/h264/360/Sintel_360_10s_1MB.mp4",
+        'tiktok-video-8': "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+    };
+    
+    // Corresponding dimensions that match TikTok requirements
+    const videoDimensions = {
+        'tiktok-video-0': { width: 1920, height: 1080 }, // 16:9 Horizontal
+        'tiktok-video-1': { width: 1920, height: 1080 }, // 16:9 Horizontal
+        'tiktok-video-2': { width: 720, height: 1280 },  // 9:16 Vertical
+        'tiktok-video-3': { width: 720, height: 1280 },  // 9:16 Vertical
+        'tiktok-video-4': { width: 1080, height: 1080 }, // 1:1 Square
+        'tiktok-video-5': { width: 1080, height: 1080 }, // 1:1 Square (repeated to match asset_service.py indexes)
+        'tiktok-video-6': { width: 1920, height: 1080 }, // 16:9 Horizontal (repeated to match asset_service.py indexes)
+        'tiktok-video-7': { width: 1920, height: 1080 }, // 16:9 Horizontal
+        'tiktok-video-8': { width: 1080, height: 1920 }  // 9:16 Vertical
+    };
+    
+    // Apply the URLs and dimensions to all video elements in the library
+    document.querySelectorAll('.asset-item[data-type="video"], .preview-item[data-type="video"]').forEach(videoAsset => {
+        const assetId = videoAsset.dataset.id;
+        if (assetId && sampleVideoUrls[assetId]) {
+            // Set URL
+            videoAsset.dataset.url = sampleVideoUrls[assetId];
+            console.log(`Set URL for ${assetId}: ${videoAsset.dataset.url}`);
+            
+            // Set dimensions
+            if (videoDimensions[assetId]) {
+                videoAsset.dataset.width = videoDimensions[assetId].width;
+                videoAsset.dataset.height = videoDimensions[assetId].height;
+                console.log(`Set dimensions for ${assetId}: ${videoAsset.dataset.width}x${videoAsset.dataset.height}`);
+            }
+            
+            // Update video elements if they exist
+            const videoElement = videoAsset.querySelector('video');
+            if (videoElement) {
+                const sourceElements = videoElement.querySelectorAll('source');
+                if (sourceElements.length > 0) {
+                    sourceElements.forEach(source => {
+                        source.src = sampleVideoUrls[assetId];
+                    });
+                } else {
+                    const source = document.createElement('source');
+                    source.src = sampleVideoUrls[assetId];
+                    source.type = 'video/mp4';
+                    videoElement.appendChild(source);
+                }
+                videoElement.load();
+            }
+        }
+    });
+}

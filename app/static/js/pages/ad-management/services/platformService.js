@@ -112,9 +112,12 @@ export const tiktokService = {
      */
     async fetchCampaigns(accountId) {
         try {
-            console.log(`Fetching TikTok campaigns for account ID: ${accountId}`);
+            // Be specific about the desired advertiser ID
+            const advertiserId = accountId || '7437092357411225617'; // Use the ID you want to see campaigns for
+            console.log(`Fetching TikTok campaigns for account ID: ${advertiserId}`);
+            
             // Changed to use advertiser_id which is what the backend expects
-            const apiUrl = `/api/tiktok/campaigns?advertiser_id=${accountId}`;
+            const apiUrl = `/api/tiktok/campaigns?advertiser_id=${advertiserId}`;
             const response = await get(apiUrl);
             
             // Add detailed logging of the response
@@ -123,10 +126,37 @@ export const tiktokService = {
             // Check if response has the expected structure
             if (response && response.campaigns) {
                 console.log(`Found ${response.campaigns.length} TikTok campaigns`);
+                
+                // Map TikTok campaign fields to standardized format
+                const standardizedCampaigns = response.campaigns.map(campaign => ({
+                    id: campaign.campaign_id || campaign.id,
+                    name: campaign.campaign_name || campaign.name,
+                    status: campaign.operation_status || campaign.status,
+                    // Preserve the original data for reference
+                    original: campaign
+                }));
+                
+                return { campaigns: standardizedCampaigns };
+            } else if (response && response.data) {
+                console.log(`Found ${response.data.length} TikTok campaigns (data format)`);
+                // Convert data response to expected object format with standardized fields
+                const standardizedCampaigns = response.data.map(campaign => ({
+                    id: campaign.campaign_id || campaign.id,
+                    name: campaign.campaign_name || campaign.name,
+                    status: campaign.operation_status || campaign.status,
+                    original: campaign
+                }));
+                return { campaigns: standardizedCampaigns };
             } else if (response && Array.isArray(response)) {
                 console.log(`Found ${response.length} TikTok campaigns (array format)`);
-                // Convert array response to expected object format
-                return { campaigns: response };
+                // Convert array response to expected object format with standardized fields
+                const standardizedCampaigns = response.map(campaign => ({
+                    id: campaign.campaign_id || campaign.id,
+                    name: campaign.campaign_name || campaign.name,
+                    status: campaign.operation_status || campaign.status,
+                    original: campaign
+                }));
+                return { campaigns: standardizedCampaigns };
             } else {
                 console.warn('TikTok campaigns response format is unexpected:', response);
             }
@@ -156,7 +186,39 @@ export const tiktokService = {
             console.log(`Fetching TikTok adsets for account ID: ${accountId}, campaign ID: ${campaignId}`);
             // Changed to use advertiser_id which is what the backend expects
             const apiUrl = `/api/tiktok/adsets?advertiser_id=${accountId}&campaign_id=${campaignId}`;
-            return await get(apiUrl);
+            const response = await get(apiUrl);
+            
+            // Log the raw response to debug status fields
+            console.log('TikTok adsets API raw response:', response);
+            
+            // Process the response to ensure consistent field names
+            if (response && response.adsets && Array.isArray(response.adsets)) {
+                // Standardize field names - TikTok uses adgroup_id and adgroup_name
+                response.adsets = response.adsets.map(adset => {
+                    // The priority order for status is: secondary_status > operation_status
+                    // secondary_status has more detailed information about why an adgroup might be paused or inactive
+                    const statusField = adset.secondary_status || adset.operation_status || adset.status || adset.adgroup_status;
+                    
+                    console.log(`Adset ${adset.adgroup_name || adset.name}: Status fields:`, { 
+                        status: adset.status,
+                        secondary_status: adset.secondary_status,
+                        operation_status: adset.operation_status,
+                        adgroup_status: adset.adgroup_status,
+                        selected: statusField
+                    });
+                    
+                    return {
+                        ...adset,
+                        // Ensure id and name are always present
+                        id: adset.id || adset.adgroup_id,
+                        name: adset.name || adset.adgroup_name || 'Unnamed Adset',
+                        // Ensure status is always present and uses the most informative status available
+                        status: statusField || 'UNKNOWN'
+                    };
+                });
+            }
+            
+            return response;
         } catch (error) {
             console.error('Error fetching TikTok adsets:', error);
             // Return mock data for development

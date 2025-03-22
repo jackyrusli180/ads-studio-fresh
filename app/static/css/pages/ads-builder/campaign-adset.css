@@ -286,9 +286,13 @@ body.dragging .adset-content::before {
 }
 
 .adset-name {
+    margin: 0;
     font-weight: 600;
-    color: #333;
-    margin-right: 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    width: 100%;
+    max-width: 100%;
 }
 
 .adset-status {

@@ -217,24 +217,16 @@ body.dragging .asset-drop-zone:not(.drag-over) {
 
 /* Dragging indicators */
 .drag-indicator {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    pointer-events: none;
-    opacity: 0;
-    z-index: 1000;
+    display: none !important; /* Hide completely */
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 body.dragging .drag-indicator {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
+    display: none !important; /* Override the display:block */
+    opacity: 0 !important;
+    visibility: hidden !important;
 }
 
 body.dragging .adsets-container {
@@ -630,4 +622,176 @@ body.dragging .ad-creation-container {
     padding-bottom: 10px;
     display: flex !important; /* Always display drop zones that have assets */
     width: 100%;
+}
+
+/* =============================================
+   DRAG INDICATORS
+   ============================================= */
+.drag-indicator {
+    display: none !important; /* Hide completely */
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.drag-indicator i {
+    margin-right: 5px;
+    color: #0d6efd;
+}
+
+.dragging .drag-indicator {
+    display: none !important; /* Override the display:block */
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* =============================================
+   DROP ZONE STYLING
+   ============================================= */
+.asset-drop-zone {
+    border: 2px dashed #ced4da;
+    border-radius: 6px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 15px;
+    margin-top: 15px;
+    background-color: rgba(242, 245, 250, 0.5);
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: pointer;
+}
+
+/* Enhanced drop zone for grid layout */
+.multiple-adsets .asset-drop-zone {
+    min-height: 100px;
+    padding: 10px;
+}
+
+.asset-drop-zone:hover {
+    background-color: rgba(230, 235, 245, 0.8);
+    border-color: #adb5bd;
+}
+
+.asset-drop-zone.drag-over {
+    background-color: rgba(204, 229, 255, 0.5);
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
+.drop-placeholder {
+    text-align: center;
+    color: #6c757d;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+/* Multiple adsets have more compact placeholders */
+.multiple-adsets .drop-placeholder {
+    font-size: 13px;
+}
+
+.multiple-adsets .drop-placeholder i {
+    font-size: 1.2rem !important;
+    margin-bottom: 5px !important;
+}
+
+/* =============================================
+   DRAGGABLE ASSET ITEMS
+   ============================================= */
+.asset-item {
+    cursor: grab;
+    transition: all 0.2s ease;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.asset-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.asset-item:active {
+    cursor: grabbing;
+}
+
+.asset-item img, 
+.asset-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+/* =============================================
+   ASSET PREVIEW IN DROP ZONES
+   ============================================= */
+.asset-preview-container {
+    display: inline-block;
+    margin: 5px;
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* More compact preview items when there are multiple adsets */
+.multiple-adsets .asset-preview-container {
+    margin: 3px;
+    max-width: 100px !important;
+}
+
+.multiple-adsets .asset-preview-container img,
+.multiple-adsets .asset-preview-container video {
+    max-height: 80px !important;
+}
+
+.asset-preview-container img,
+.asset-preview-container video {
+    max-height: 100px;
+    max-width: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+.assets-grid-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    padding-top: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    width: 100%;
+    justify-items: center;
+    align-items: center;
+}
+
+/* Adjust grid for multiple adsets */
+.multiple-adsets .assets-grid-container {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    max-height: 200px;
+}
+
+/* Ensure no drag indicator is shown when this class is present */
+body.no-drag-indicator .drag-indicator,
+body.no-drag-indicator.dragging .drag-indicator {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Also hide any dynamically added messages during drag */
+body.dragging::before,
+body.dragging::after,
+body.body-dragging::before,
+body.body-dragging::after {
+    content: none !important;
+    display: none !important;
 } 

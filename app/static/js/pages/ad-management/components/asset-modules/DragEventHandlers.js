@@ -5,6 +5,7 @@
 
 import { findDropZone, setupDropZone } from './DropZoneUtils.js';
 import { extractAssetData, createAssetPreview, incrementUsageCount, decrementUsageCount } from './AssetManager.js';
+import { showToast } from '../../../../utils/common.js';
 import { 
     createAdContainer, 
     createAdNameInput, 
@@ -13,7 +14,7 @@ import {
 } from './UIComponents.js';
 
 // Global drop event tracking
-const DROP_DEBOUNCE_MS = 2000; // Much longer debounce to prevent double counting
+const DROP_DEBOUNCE_MS = 500; // Changed from 2000ms to 500ms to reduce waiting time between drops
 let isProcessingDrop = false;
 
 // Global map to track the last drop time for each asset-dropzone combination
@@ -31,55 +32,114 @@ function generateDropKey(assetData, dropZone) {
 }
 
 /**
- * Check if a drop event should be processed or ignored
- * @param {Object} assetData - The asset data being dropped
+ * Determines if a drop event should be processed by checking
+ * if it's a valid asset for the target drop zone
+ * 
+ * @param {Object} assetData - The data of the asset being dropped
  * @param {HTMLElement} dropZone - The drop zone element
- * @returns {boolean} - Whether to process the drop
+ * @returns {boolean} - True if the drop should be processed
  */
-function shouldProcessDrop(assetData, dropZone) {
-    if (!assetData || !dropZone) return false;
+export function shouldProcessDrop(assetData, dropZone) {
+    console.log('Checking if drop should be processed:', assetData, dropZone);
     
-    const now = Date.now();
-    const dropKey = generateDropKey(assetData, dropZone);
-    
-    // Check if this asset is already in this dropzone's assets
-    if (dropZone.dataset.assets) {
-        try {
-            const existingAssets = JSON.parse(dropZone.dataset.assets);
-            // Check if this exact asset ID is already in this drop zone
-            const assetExists = existingAssets.some(asset => 
-                asset.id === assetData.id && 
-                asset.url === assetData.url
-            );
-            
-            if (assetExists) {
-                console.log('Asset already exists in this drop zone, skipping:', assetData.id);
-                return false;
-            }
-        } catch (err) {
-            console.warn('Error checking existing assets:', err);
-        }
+    // Handle Promise-like objects - this should never be called directly with a Promise
+    // Because handleDrop should await the Promise resolution before calling this function
+    if (assetData instanceof Promise || (assetData && typeof assetData.then === 'function')) {
+        console.warn('shouldProcessDrop received a Promise object directly - this should be awaited before validation');
+        return false;
     }
     
-    // Check if a similar drop was processed recently
-    if (lastDropTimeMap.has(dropKey)) {
-        const lastTime = lastDropTimeMap.get(dropKey);
-        if (now - lastTime < DROP_DEBOUNCE_MS) {
-            console.log(`Ignoring drop for ${dropKey} - too soon after previous drop (${now - lastTime}ms)`);
-            return false;
-        }
+    // Handle case where assetData could be just a URL string
+    if (typeof assetData === 'string') {
+        // Convert simple URL to asset data object
+        assetData = {
+            id: `url-${Date.now()}`,
+            type: assetData.match(/\.(mp4|mov|avi|webm)$/i) ? 'video' : 'image',
+            url: assetData,
+            name: assetData.split('/').pop()
+        };
     }
     
-    // Update the last drop time for this asset-dropzone combination
-    lastDropTimeMap.set(dropKey, now);
+    // If no asset data, reject the drop
+    if (!assetData || !assetData.id) {
+        console.warn('No asset data available, rejecting drop');
+        return false;
+    }
     
-    // Clear old entries to prevent memory leaks
-    if (lastDropTimeMap.size > 100) {
-        const oldestKey = Array.from(lastDropTimeMap.keys())[0];
-        lastDropTimeMap.delete(oldestKey);
+    // Get the platform and asset type from the drop zone
+    const platform = dropZone.dataset.platform;
+    const acceptsType = dropZone.dataset.accepts;
+    
+    console.log(`Drop zone accepts ${acceptsType} for ${platform}`);
+    
+    // Check if the asset type is accepted by this drop zone
+    if (assetData.type && acceptsType && !acceptsType.includes(assetData.type)) {
+        console.warn(`Asset type ${assetData.type} not accepted by this drop zone`);
+        showDropRejectionMessage(`This drop zone only accepts ${acceptsType}`);
+        return false;
+    }
+    
+    // For videos, check if URL exists (but don't validate specific URL format)
+    if (assetData.type === 'video' && !assetData.url) {
+        console.warn('Video asset has no URL');
+        showDropRejectionMessage('Video has no URL');
+        return false;
+    }
+    
+    // Special case for TikTok video ads - removed detailed validation
+    if (platform === 'tiktok' && assetData.type === 'video') {
+        console.log(`TikTok video dimensions: ${assetData.width}x${assetData.height}`);
+        
+        // Accept all videos regardless of dimensions or other validation
+        // We'll let the user see errors on Step 4 instead
+        console.log('Allowing TikTok video without validation');
+        return true;
     }
     
     return true;
+}
+
+/**
+ * Shows a message to the user when a drop is rejected
+ * @param {string} message - The message to display
+ */
+function showDropRejectionMessage(message) {
+    console.warn(`Drop rejected: ${message}`);
+    
+    // Create notification element if it doesn't exist
+    let notification = document.getElementById('drop-rejection-notification');
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'drop-rejection-notification';
+        notification.style.position = 'fixed';
+        notification.style.bottom = '20px';
+        notification.style.right = '20px';
+        notification.style.backgroundColor = '#f44336';
+        notification.style.color = 'white';
+        notification.style.padding = '10px 20px';
+        notification.style.borderRadius = '4px';
+        notification.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+        notification.style.zIndex = '9999';
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.3s ease';
+        document.body.appendChild(notification);
+    }
+    
+    // Set message and show notification
+    notification.textContent = message;
+    requestAnimationFrame(() => {
+        notification.style.opacity = '1';
+        
+        // Hide after 3 seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    });
 }
 
 /**
@@ -163,8 +223,10 @@ export function createDropHandler(state) {
      * Handle drop events on asset drop zones
      * @param {DragEvent} e - The drop event
      */
-    return function handleDrop(e) {
+    return async function handleDrop(e) {
         console.log('*** Drop event detected ***');
+        console.log('Drop event dataTransfer items:', Array.from(e.dataTransfer.items).map(item => item.type));
+        console.log('Drop event dataTransfer types:', e.dataTransfer.types);
         e.preventDefault();
         e.stopPropagation();
         
@@ -192,7 +254,21 @@ export function createDropHandler(state) {
             });
             
             // Extract asset data from the drop event
-            const assetData = extractAssetData(e);
+            let assetData = extractAssetData(e);
+            
+            // If assetData is a Promise, wait for it to resolve
+            if (assetData instanceof Promise) {
+                console.log('Waiting for asset data Promise to resolve...');
+                try {
+                    assetData = await assetData;
+                    console.log('Asset data Promise resolved:', assetData);
+                } catch (err) {
+                    console.error('Error resolving asset data Promise:', err);
+                    isProcessingDrop = false;
+                    return;
+                }
+            }
+            
             if (!assetData) {
                 console.error('Could not extract asset data from drop');
                 isProcessingDrop = false;
@@ -223,6 +299,9 @@ export function createDropHandler(state) {
                 isProcessingDrop = false;
                 return;
             }
+            
+            // Remove all TikTok validation code - we'll only do validation in Step 4
+            // Don't show TikTok video requirements or validation messages in Step 3
             
             // Initialize assets grid container if it doesn't exist
             let assetsGridContainer = dropZone.querySelector('.assets-grid-container');
@@ -314,13 +393,12 @@ export function createDropHandler(state) {
                 adNameInput.style.marginBottom = '10px';
                 adNameInput.style.width = '100%';
                 adNameInput.innerHTML = `
-                    <label for="ad-name-new-${Date.now()}" style="display: block; margin-bottom: 5px; font-weight: 500; color: #444;">Ad Name</label>
+                    <label for="ad-name-${Date.now()}" style="font-weight: 500; font-size: 13px; color: #444; margin-bottom: 5px; display: block;">Ad Name</label>
                     <input type="text" 
-                           id="ad-name-new-${Date.now()}" 
-                           name="ad_name" 
-                           class="form-control" 
-                           placeholder="Enter ad name"
-                           style="width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px;">
+                        id="ad-name-${Date.now()}" 
+                        name="tiktok_ad_names[${adsetItem.dataset.adsetId || adsetItem.id}][0]" 
+                        class="form-control" 
+                        placeholder="Enter ad name" style="font-size: 13px;">
                 `;
                 newAdContainer.appendChild(adNameInput);
                 
@@ -331,13 +409,12 @@ export function createDropHandler(state) {
                 headlineInput.style.marginBottom = '15px';
                 headlineInput.style.width = '100%';
                 headlineInput.innerHTML = `
-                    <label for="headline-new-${Date.now()}" style="display: block; margin-bottom: 5px; font-weight: 500; color: #444;">Headline</label>
+                    <label for="headline-${Date.now()}" style="font-weight: 500; font-size: 13px; color: #444; margin-bottom: 5px; display: block;">Ad Text</label>
                     <input type="text" 
-                           id="headline-new-${Date.now()}" 
-                           name="headline" 
-                           class="form-control headline-field" 
-                           placeholder="Enter ad headline"
-                           style="width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; background-color: white;">
+                        id="headline-${Date.now()}" 
+                        name="tiktok_ad_headlines[${adsetItem.dataset.adsetId || adsetItem.id}][0]" 
+                        class="form-control headline-field" 
+                        placeholder="Enter ad text" style="font-size: 13px;">
                 `;
                 newAdContainer.appendChild(headlineInput);
                 
@@ -569,9 +646,14 @@ function processAssetDrop(dropZone, assetData) {
     // Log the action
     console.log(`Added asset ${assetData.id} to adset ${adsetId} for platform ${platform}`);
     
+    // Special handling for TikTok to check if we've fixed a warning
+    if (platform === 'tiktok') {
+        checkTikTokImageRequirement(dropZone, assets);
+    }
+    
     // Ensure we refresh the application state (if available)
-    if (typeof refreshAppState === 'function') {
-        refreshAppState();
+    if (window.refreshAppState && typeof window.refreshAppState === 'function') {
+        window.refreshAppState();
     }
     
     console.log('Drop successfully processed');
@@ -582,100 +664,94 @@ function processAssetDrop(dropZone, assetData) {
  * @param {HTMLElement} dropZone - The drop zone element
  */
 function ensureInputFields(dropZone) {
-    // Find the containing ad creation container
-    const adCreationContainer = dropZone.closest('.ad-creation-container');
-    if (!adCreationContainer) return;
+    // Get the adset ID from the drop zone
+    const adsetId = dropZone.dataset.adsetId;
+    const platform = dropZone.dataset.platform || 'tiktok';
     
-    // Find the adset item
-    const adsetItem = dropZone.closest('.adset-item');
-    if (!adsetItem) return;
+    // Check if there's a parent ad creation container
+    let adContainer = dropZone.closest('.ad-creation-container');
     
-    // First look for the wrapper div with class ad-name-input in the ad-creation-container
-    // NOT in the drop zone itself, to avoid duplicates
-    let adNameInput = adCreationContainer.querySelector(':scope > .ad-name-input');
-    let adNameIsDirectInput = false;
-    
-    // If we don't find the wrapper, check for a direct input with class ad-name-input
-    if (!adNameInput) {
-        const directInput = adCreationContainer.querySelector(':scope > input.ad-name-input');
-        if (directInput) {
-            adNameIsDirectInput = true;
-            // Wrap it in a container for consistency
-            adNameInput = document.createElement('div');
-            adNameInput.className = 'ad-name-input-wrapper';
-            directInput.parentNode.insertBefore(adNameInput, directInput);
-            adNameInput.appendChild(directInput);
-            console.log('Wrapped existing direct ad-name-input in container');
-        }
-    }
-    
-    // If we still don't have an ad name input, create one
-    if (!adNameInput) {
-        adNameInput = document.createElement('div');
+    // If not, create one
+    if (!adContainer) {
+        // Create the container
+        adContainer = document.createElement('div');
+        adContainer.className = 'ad-creation-container';
+        adContainer.style.marginBottom = '15px';
+        adContainer.style.padding = '15px';
+        adContainer.style.backgroundColor = '#f9f9f9';
+        adContainer.style.borderRadius = '5px';
+        adContainer.style.border = '1px solid #eee';
+        
+        // Insert it before the drop zone
+        dropZone.parentNode.insertBefore(adContainer, dropZone);
+        
+        // Move the drop zone into the container
+        adContainer.appendChild(dropZone);
+        
+        // Create the Ad Name input field
+        const adNameInput = document.createElement('div');
         adNameInput.className = 'ad-name-input';
-        adNameInput.style.display = 'block';
         adNameInput.style.marginBottom = '10px';
         adNameInput.style.width = '100%';
+        adNameInput.style.zIndex = '10';
         adNameInput.innerHTML = `
-            <label for="ad-name-${adsetItem.dataset.adsetId || adsetItem.id}" style="display: block; margin-bottom: 5px; font-weight: 500; color: #444;">Ad Name</label>
+            <label for="ad-name-${Date.now()}" style="font-weight: 500; font-size: 13px; color: #444; margin-bottom: 5px; display: block;">Ad Name</label>
             <input type="text" 
-                   id="ad-name-${adsetItem.dataset.adsetId || adsetItem.id}" 
-                   name="ad_name" 
-                   class="form-control" 
-                   placeholder="Enter ad name"
-                   style="width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px;">
+                id="ad-name-${Date.now()}" 
+                name="tiktok_ad_names[${adsetId}][0]" 
+                class="form-control" 
+                placeholder="Enter ad name" style="font-size: 13px;">
         `;
         
-        // Insert at the top of the container
-        adCreationContainer.insertBefore(adNameInput, adCreationContainer.firstChild);
-        console.log('Created ad name input for adset', adsetItem.dataset.adsetId || adsetItem.id);
-    }
-    
-    // Remove any duplicate ad name inputs inside the drop zone
-    const dropZoneAdNameInputs = dropZone.querySelectorAll('.ad-name-input, input.ad-name-input');
-    dropZoneAdNameInputs.forEach(duplicateInput => {
-        console.log('Removing duplicate ad name input from drop zone');
-        duplicateInput.remove();
-    });
-    
-    // Check for headline input in the ad-creation-container, not in the drop zone
-    let headlineInput = adCreationContainer.querySelector(':scope > .headline-input');
-    if (!headlineInput) {
-        headlineInput = document.createElement('div');
+        adContainer.insertBefore(adNameInput, dropZone);
+        
+        // Create the Headline input field
+        const headlineInput = document.createElement('div');
         headlineInput.className = 'headline-input';
-        headlineInput.style.display = 'block';
-        headlineInput.style.marginBottom = '15px';
+        headlineInput.style.marginBottom = '10px';
         headlineInput.style.width = '100%';
-        headlineInput.style.paddingBottom = '10px';
-        headlineInput.style.borderBottom = '1px solid #eee';
-        headlineInput.style.position = 'relative';
         headlineInput.style.zIndex = '10';
         headlineInput.innerHTML = `
-            <label for="headline-${adsetItem.dataset.adsetId || adsetItem.id}" style="display: block; margin-bottom: 5px; font-weight: 500; color: #444;">Headline</label>
+            <label for="headline-${Date.now()}" style="font-weight: 500; font-size: 13px; color: #444; margin-bottom: 5px; display: block;">Ad Text</label>
             <input type="text" 
-                   id="headline-${adsetItem.dataset.adsetId || adsetItem.id}" 
-                   name="headline" 
-                   class="form-control headline-field" 
-                   placeholder="Enter ad headline"
-                   style="width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; background-color: white;">
+                id="headline-${Date.now()}" 
+                name="tiktok_ad_headlines[${adsetId}][0]" 
+                class="form-control headline-field" 
+                placeholder="Enter ad text" style="font-size: 13px;">
         `;
         
-        // Insert after ad name input
-        if (adNameIsDirectInput) {
-            // If we wrapped a direct input, insert after our wrapper
-            adNameInput.parentNode.insertBefore(headlineInput, adNameInput.nextSibling);
-            console.log('Inserted headline after wrapped ad-name-input');
-        } else {
-            // Standard insertion after the ad name input
-            adCreationContainer.insertBefore(headlineInput, adNameInput.nextSibling);
-            console.log('Created headline input after ad name input for adset', adsetItem.dataset.adsetId || adsetItem.id);
-        }
+        adContainer.insertBefore(headlineInput, dropZone);
     }
     
-    // Remove any duplicate headline inputs inside the drop zone
-    const dropZoneHeadlineInputs = dropZone.querySelectorAll('.headline-input');
-    dropZoneHeadlineInputs.forEach(duplicateInput => {
-        console.log('Removing duplicate headline input from drop zone');
-        duplicateInput.remove();
-    });
+    return adContainer;
+}
+
+/**
+ * Check if a TikTok dropzone now meets the image requirement
+ * and just log information about it, but don't block proceeding
+ * 
+ * @param {HTMLElement} dropZone - The drop zone that received an asset
+ * @param {Array} assets - The assets in the drop zone
+ */
+function checkTikTokImageRequirement(dropZone, assets) {
+    // Count image assets in this dropzone
+    const imageAssets = assets.filter(asset => asset.type === 'image' || !asset.type);
+    
+    // Just log information about the image count
+    if (imageAssets.length === 1) {
+        console.log('TikTok dropzone has 1 image - user will get warning at launch time');
+    } else if (imageAssets.length >= 2) {
+        console.log('TikTok dropzone meets requirement with', imageAssets.length, 'images');
+    }
+    
+    // Remove any class that indicates a warning
+    dropZone.classList.remove('needs-more-images');
+    
+    // No need to check all dropzones or manipulate the Next button
+    // Users will see validation errors at launch time if needed
+    
+    // Ensure we refresh the application state
+    if (window.refreshAppState && typeof window.refreshAppState === 'function') {
+        window.refreshAppState();
+    }
 } 

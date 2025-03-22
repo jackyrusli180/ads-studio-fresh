@@ -191,6 +191,7 @@ export function initCampaignSelector(elements, state, validateStep) {
                     // Create campaign item with proper structure
                     const campaignItem = document.createElement('div');
                     campaignItem.className = 'campaign-item';
+                    campaignItem.style.cursor = 'pointer'; // Add pointer cursor to indicate clickable
                     
                     // Create checkbox
                     const checkbox = document.createElement('input');
@@ -242,6 +243,19 @@ export function initCampaignSelector(elements, state, validateStep) {
                     campaignItem.appendChild(campaignDetails);
                     campaignItem.appendChild(statusBadge);
                     
+                    // Add click event to the entire campaign item
+                    campaignItem.addEventListener('click', function(e) {
+                        // Don't trigger when clicking directly on the checkbox (it already handles its own change event)
+                        if (e.target !== checkbox) {
+                            // Toggle the checkbox
+                            checkbox.checked = !checkbox.checked;
+                            
+                            // Trigger the change event programmatically
+                            const changeEvent = new Event('change');
+                            checkbox.dispatchEvent(changeEvent);
+                        }
+                    });
+                    
                     // Add event listener for checkbox
                     checkbox.addEventListener('change', function() {
                         if (this.checked) {
@@ -251,36 +265,45 @@ export function initCampaignSelector(elements, state, validateStep) {
                             // Store campaign ID and account ID
                             const campaignId = campaign.id;
                             
+                            // Normalize campaign ID (if it has any whitespace or inconsistencies)
+                            const normalizedCampaignId = campaignId.trim();
+                            
                             // Add campaign to selected campaigns if not already included
-                            if (!state.campaignSelections.meta.campaigns.includes(campaignId)) {
-                                state.campaignSelections.meta.campaigns.push(campaignId);
+                            if (!state.campaignSelections.meta.campaigns.includes(normalizedCampaignId)) {
+                                state.campaignSelections.meta.campaigns.push(normalizedCampaignId);
                                 
                                 // Store mapping between campaign and account
                                 if (!state.campaignSelections.meta.campaignAccountMap) {
                                     state.campaignSelections.meta.campaignAccountMap = {};
                                 }
-                                state.campaignSelections.meta.campaignAccountMap[campaignId] = accountId;
+                                state.campaignSelections.meta.campaignAccountMap[normalizedCampaignId] = accountId;
                                 
-                                fetchMetaAdsets(campaignId, accountId);
+                                // Log the selection to debug consistency
+                                console.log(`Selected Meta campaign: "${normalizedCampaignId}" from account ${accountId}`);
+                                
+                                fetchMetaAdsets(normalizedCampaignId, accountId);
                             }
                         } else {
                             // Remove selected class from the parent element
                             this.closest('.campaign-item').classList.remove('selected');
                             
+                            // Get normalized campaign ID
+                            const normalizedCampaignId = campaign.id.trim();
+                            
                             // Remove campaign from selected campaigns
                             state.campaignSelections.meta.campaigns = state.campaignSelections.meta.campaigns.filter(id => 
-                                id !== campaign.id);
+                                id !== normalizedCampaignId);
                             
                             // Remove account mapping
                             if (state.campaignSelections.meta.campaignAccountMap) {
-                                delete state.campaignSelections.meta.campaignAccountMap[campaign.id];
+                                delete state.campaignSelections.meta.campaignAccountMap[normalizedCampaignId];
                             }
                             
                             // Remove adsets for this campaign
-                            delete state.campaignSelections.meta.adsets[campaign.id];
+                            delete state.campaignSelections.meta.adsets[normalizedCampaignId];
                             
                             // Remove adset section for this campaign if it exists
-                            const adsetSection = document.getElementById(`meta-adsets-${campaign.id}`);
+                            const adsetSection = document.getElementById(`meta-adsets-${normalizedCampaignId}`);
                             if (adsetSection) {
                                 adsetSection.remove();
                             }
@@ -403,22 +426,27 @@ export function initCampaignSelector(elements, state, validateStep) {
             
             // Add campaign checkboxes
             campaigns.forEach(campaign => {
-                console.log(`Adding TikTok campaign option: ${campaign.id} - ${campaign.name}`);
+                // Map TikTok API fields to standardized format
+                const campaignId = campaign.campaign_id || campaign.id;
+                const campaignName = campaign.campaign_name || campaign.name;
+                
+                console.log(`Adding TikTok campaign option: ${campaignId} - ${campaignName}`);
                 
                 const campaignItem = document.createElement('div');
                 campaignItem.className = 'campaign-item';
+                campaignItem.style.cursor = 'pointer'; // Add pointer cursor to indicate clickable
                 
                 // Create checkbox
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.className = 'campaign-checkbox';
                 checkbox.name = 'tiktok_campaign_ids[]';
-                checkbox.value = campaign.id;
-                checkbox.id = `tiktok-campaign-${campaign.id}`;
+                checkbox.value = campaignId;
+                checkbox.id = `tiktok-campaign-${campaignId}`;
                 checkbox.dataset.accountId = accountId;
                 
                 // Check if this campaign is already selected in state
-                if (state.campaignSelections.tiktok.campaigns.includes(campaign.id)) {
+                if (state.campaignSelections.tiktok.campaigns.includes(campaignId)) {
                     checkbox.checked = true;
                     campaignItem.classList.add('selected');
                 }
@@ -433,8 +461,8 @@ export function initCampaignSelector(elements, state, validateStep) {
                 
                 // Create label
                 const label = document.createElement('label');
-                label.htmlFor = `tiktok-campaign-${campaign.id}`;
-                label.textContent = campaign.name;
+                label.htmlFor = `tiktok-campaign-${campaignId}`;
+                label.textContent = campaignName;
                 label.className = 'campaign-name';
                 
                 // Create campaign status badge
@@ -487,6 +515,19 @@ export function initCampaignSelector(elements, state, validateStep) {
                 campaignItem.appendChild(campaignDetails);
                 campaignItem.appendChild(statusBadge);
                 
+                // Add click event to the entire campaign item
+                campaignItem.addEventListener('click', function(e) {
+                    // Don't trigger when clicking directly on the checkbox (it already handles its own change event)
+                    if (e.target !== checkbox) {
+                        // Toggle the checkbox
+                        checkbox.checked = !checkbox.checked;
+                        
+                        // Trigger the change event programmatically
+                        const changeEvent = new Event('change');
+                        checkbox.dispatchEvent(changeEvent);
+                    }
+                });
+                
                 // Add event listener for checkbox
                 checkbox.addEventListener('change', function() {
                     if (this.checked) {
@@ -494,37 +535,39 @@ export function initCampaignSelector(elements, state, validateStep) {
                         this.closest('.campaign-item').classList.add('selected');
                         
                         // Store campaign ID and its associated account ID
-                        const campaignId = campaign.id;
+                        // Don't redeclare campaignId - it's already defined in the outer scope
                         
                         // Add campaign to selected campaigns if not already included
                         if (!state.campaignSelections.tiktok.campaigns.includes(campaignId)) {
                             state.campaignSelections.tiktok.campaigns.push(campaignId);
-                            // Store mapping between campaign and account
-                            if (!state.campaignSelections.tiktok.campaignAccountMap) {
-                                state.campaignSelections.tiktok.campaignAccountMap = {};
-                            }
-                            state.campaignSelections.tiktok.campaignAccountMap[campaignId] = accountId;
-                            
-                            fetchTikTokAdsets(accountId, campaignId);
                         }
+                        
+                        // Store the account mapping
+                        if (!state.campaignSelections.tiktok.campaignAccountMap) {
+                            state.campaignSelections.tiktok.campaignAccountMap = {};
+                        }
+                        state.campaignSelections.tiktok.campaignAccountMap[campaignId] = accountId;
+                        
+                        // Load and display adsets for this campaign
+                        fetchTikTokAdsets(accountId, campaignId);
                     } else {
                         // Remove selected class from the parent element
                         this.closest('.campaign-item').classList.remove('selected');
                         
                         // Remove campaign from selected campaigns
                         state.campaignSelections.tiktok.campaigns = state.campaignSelections.tiktok.campaigns.filter(id => 
-                            id !== campaign.id);
+                            id !== campaignId);
                         
                         // Remove account mapping
                         if (state.campaignSelections.tiktok.campaignAccountMap) {
-                            delete state.campaignSelections.tiktok.campaignAccountMap[campaign.id];
+                            delete state.campaignSelections.tiktok.campaignAccountMap[campaignId];
                         }
                         
                         // Remove adsets for this campaign
-                        delete state.campaignSelections.tiktok.adsets[campaign.id];
+                        delete state.campaignSelections.tiktok.adsets[campaignId];
                         
                         // Remove adset section for this campaign if it exists
-                        const adsetSection = document.getElementById(`tiktok-adsets-${campaign.id}`);
+                        const adsetSection = document.getElementById(`tiktok-adsets-${campaignId}`);
                         if (adsetSection) {
                             adsetSection.remove();
                         }
@@ -728,34 +771,50 @@ export function initCampaignSelector(elements, state, validateStep) {
             const campaignAdsetSection = elements.tiktokAdsetSection.querySelector(`#tiktok-adsets-${campaignId}`);
             campaignAdsetSection.querySelector('.loading-adsets')?.remove();
             
+            // Process adsets based on response format (could be adsets or adgroups)
+            let adsetsArray = [];
             if (adsets && adsets.adsets && adsets.adsets.length > 0) {
+                adsetsArray = adsets.adsets;
+            } else if (adsets && adsets.adgroups && adsets.adgroups.length > 0) {
+                // Map adgroups to adsets format
+                adsetsArray = adsets.adgroups.map(adgroup => ({
+                    id: adgroup.adgroup_id || adgroup.id,
+                    name: adgroup.adgroup_name || adgroup.name
+                }));
+            }
+            
+            if (adsetsArray.length > 0) {
                 // Create adset checkboxes
                 const adsetContainer = document.createElement('div');
                 adsetContainer.className = 'adset-checkbox-container';
                 
-                adsets.adsets.forEach(adset => {
+                adsetsArray.forEach(adset => {
+                    // Standardize adset ID and name
+                    const adsetId = adset.adgroup_id || adset.id;
+                    const adsetName = adset.adgroup_name || adset.name;
+                    
                     const adsetItem = document.createElement('div');
                     adsetItem.className = 'adset-item';
                     
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
                     checkbox.name = 'tiktok_adset_ids[]';
-                    checkbox.value = adset.id;
-                    checkbox.id = `tiktok-adset-${adset.id}`;
+                    checkbox.value = adsetId;
+                    checkbox.id = `tiktok-adset-${adsetId}`;
                     checkbox.className = 'adset-checkbox';
                     
                     // Check if this adset is already selected in state
                     if (state.campaignSelections.tiktok.adsets[campaignId] && 
-                        (state.campaignSelections.tiktok.adsets[campaignId] === adset.id || 
+                        (state.campaignSelections.tiktok.adsets[campaignId] === adsetId || 
                          (Array.isArray(state.campaignSelections.tiktok.adsets[campaignId]) && 
-                          state.campaignSelections.tiktok.adsets[campaignId].includes(adset.id)))) {
+                          state.campaignSelections.tiktok.adsets[campaignId].includes(adsetId)))) {
                         checkbox.checked = true;
                         adsetItem.classList.add('selected');
                     }
                     
                     const label = document.createElement('label');
-                    label.htmlFor = `tiktok-adset-${adset.id}`;
-                    label.textContent = adset.name;
+                    label.htmlFor = `tiktok-adset-${adsetId}`;
+                    label.textContent = adsetName;
                     
                     const statusBadge = document.createElement('span');
                     statusBadge.className = `adset-status status-${adset.status?.toLowerCase() || 'unknown'}`;
@@ -775,8 +834,8 @@ export function initCampaignSelector(elements, state, validateStep) {
                             state.campaignSelections.tiktok.adsets[campaignId] = 
                                 state.campaignSelections.tiktok.adsets[campaignId] || [];
                             
-                            if (!state.campaignSelections.tiktok.adsets[campaignId].includes(adset.id)) {
-                                state.campaignSelections.tiktok.adsets[campaignId].push(adset.id);
+                            if (!state.campaignSelections.tiktok.adsets[campaignId].includes(adsetId)) {
+                                state.campaignSelections.tiktok.adsets[campaignId].push(adsetId);
                             }
                         } else {
                             // Remove selected class from the parent element
@@ -784,7 +843,7 @@ export function initCampaignSelector(elements, state, validateStep) {
                             
                             // Remove adset selection
                             if (state.campaignSelections.tiktok.adsets[campaignId]) {
-                                const index = state.campaignSelections.tiktok.adsets[campaignId].indexOf(adset.id);
+                                const index = state.campaignSelections.tiktok.adsets[campaignId].indexOf(adsetId);
                                 if (index !== -1) {
                                     state.campaignSelections.tiktok.adsets[campaignId].splice(index, 1);
                                 }

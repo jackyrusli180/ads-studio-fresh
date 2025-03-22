@@ -18,6 +18,9 @@
     border-bottom: 1px solid #e9ecef;
     font-size: 1.2rem;
     color: #495057;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 
 .adsets-list {
@@ -35,13 +38,20 @@
 .adset-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 10px;
+    flex-wrap: wrap;
 }
 
 .adset-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
     margin: 0;
-    font-size: 1.1rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    width: 100%;
 }
 
 .adset-status {
@@ -49,6 +59,7 @@
     border-radius: 3px;
     font-size: 0.75rem;
     color: white;
+    margin-top: 4px;
 }
 
 .adset-status.active { background-color: #28a745; }
@@ -501,4 +512,49 @@ body.dragging .ad-creation-container {
     text-align: center;
     padding: 5px;
     box-sizing: border-box;
+}
+
+/* Hide "Drop Zone Paused" text on hover */
+.adset-item:hover .drop-placeholder::before,
+.adset-item:hover .drop-placeholder::after,
+.adset-item:hover .asset-drop-zone::before,
+.adset-item:hover .asset-drop-zone::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Make sure the drop zone doesn't show any hover content */
+.adset-item:hover .asset-drop-zone {
+    color: transparent !important;
+}
+
+.adset-item .asset-drop-zone::before,
+.adset-item .asset-drop-zone::after {
+    display: none !important;
+}
+
+/* Style for adset ID */
+.adset-id {
+    font-size: 0.8em;
+    color: #6c757d;
+    font-weight: normal;
+    display: inline-block;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    width: 100%;
+    margin-top: 2px;
+}
+
+/* Summary view styles */
+.summary-container h2, .summary-container h3 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.ad-card-header h3 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
 } 

@@ -1,0 +1,47 @@
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Override dragstart events to ensure video dimensions are included
+    document.addEventListener('dragstart', function(e) {
+      const target = e.target.closest('.asset-item, .preview-item');
+      if (target && target.dataset.type === 'video') {
+        // Prevent default handler so our custom one can run
+        e.stopPropagation();
+        
+        // Use our own custom handler that properly sets dimensions
+        handleDragStart(e);
+      }
+    }, true);
+    
+    // Generate sample videos dynamically
+    const videoContainer = document.createElement('div');
+    videoContainer.style.display = 'none';
+    videoContainer.id = 'sample-video-container';
+    document.body.appendChild(videoContainer);
+    
+    // Generate fake video elements with dimensions that match TikTok requirements
+    const videoFormats = [
+      { type: 'horizontal', width: 1920, height: 1080 }, // 16:9
+      { type: 'vertical', width: 1080, height: 1920 },   // 9:16
+      { type: 'square', width: 1080, height: 1080 }      // 1:1
+    ];
+    
+    videoFormats.forEach(format => {
+      const videoElem = document.createElement('video');
+      videoElem.width = format.width;
+      videoElem.height = format.height;
+      videoElem.id = `sample-${format.type}-video`;
+      
+      const source = document.createElement('source');
+      source.src = `/static/videos/demo-${format.type}.mp4`;
+      source.type = 'video/mp4';
+      
+      videoElem.appendChild(source);
+      videoContainer.appendChild(videoElem);
+      
+      console.log(`Created sample ${format.type} video with dimensions ${format.width}x${format.height}`);
+    });
+    
+    // Log ready message
+    console.log('Video dimension helper initialized');
+  });
+</script> 

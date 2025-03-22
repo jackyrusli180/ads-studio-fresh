@@ -130,9 +130,28 @@ export function initPlatformSelector(elements, state, validateStep) {
                 </label>
             `;
             
+            // Add click event listener to the entire account-item div
+            accountItem.addEventListener('click', (event) => {
+                // Don't handle if clicking on the checkbox itself (to avoid double toggling)
+                if (event.target.type === 'checkbox') return;
+                
+                const checkbox = accountItem.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                
+                // Toggle selected class on the parent
+                accountItem.classList.toggle('selected', checkbox.checked);
+                
+                // Dispatch change event to trigger the existing change handler
+                const changeEvent = new Event('change');
+                checkbox.dispatchEvent(changeEvent);
+            });
+            
             // Add click event listener to update state
             const checkbox = accountItem.querySelector('input[type="checkbox"]');
             checkbox.addEventListener('change', () => {
+                // Update selected class
+                accountItem.classList.toggle('selected', checkbox.checked);
+                
                 updateSelectedAccounts();
                 
                 // Validate step

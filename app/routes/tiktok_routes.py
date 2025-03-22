@@ -42,8 +42,30 @@ def api_get_adgroups():
     
     try:
         tiktok_service = TikTokService(advertiser_id=advertiser_id)
-        adgroups = tiktok_service.get_adgroups(campaign_id=campaign_id)
+        adgroups = tiktok_service.get_adgroups(campaign_ids=campaign_id)
         return jsonify({'adgroups': adgroups})
     except Exception as e:
         logging.error(f"Error fetching TikTok adgroups: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@tiktok_bp.route('/adsets', methods=['GET'])
+def api_get_adsets():
+    """
+    API endpoint to get adsets for a specific campaign.
+    This is an alias for adgroups to maintain compatibility with the frontend.
+    In TikTok's terminology, 'adgroups' are equivalent to 'adsets' in Meta.
+    """
+    advertiser_id = request.args.get('advertiser_id')
+    campaign_id = request.args.get('campaign_id')
+    
+    if not advertiser_id:
+        return jsonify({'error': 'Advertiser ID is required'}), 400
+    
+    try:
+        tiktok_service = TikTokService(advertiser_id=advertiser_id)
+        adgroups = tiktok_service.get_adgroups(campaign_ids=campaign_id)
+        # Return as 'adsets' for frontend compatibility
+        return jsonify({'adsets': adgroups})
+    except Exception as e:
+        logging.error(f"Error fetching TikTok adsets: {str(e)}")
         return jsonify({'error': str(e)}), 500 

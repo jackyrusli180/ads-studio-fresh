@@ -37,6 +37,46 @@ export function initStepNavigation(elements, state, validateStepFn, prepareStepF
             return;
         }
         
+        // If we're in fix errors mode and going from Step 3 to Step 4, mark the fixed ads
+        if (window.fixErrorsMode && state.currentStep === 3) {
+            // Create a collection for fixed ads
+            window.fixedAds = window.fixedAds || {};
+            
+            // Iterate through currently visible failed adgroups and capture the fixed ads
+            const adsetItems = document.querySelectorAll('.adset-item');
+            adsetItems.forEach(adsetItem => {
+                const adsetId = adsetItem.dataset.adsetId;
+                
+                // Skip if this adgroup didn't have errors or is hidden
+                if (!window.failedAdgroups || !window.failedAdgroups.has(adsetId) || 
+                    adsetItem.style.display === 'none') {
+                    return;
+                }
+                
+                // Get all drop zones with assets in this adset
+                const dropZones = adsetItem.querySelectorAll('.asset-drop-zone.has-asset');
+                
+                // Process each drop zone to see if it was one of the failed ads and is now fixed
+                dropZones.forEach((dropZone, dzIndex) => {
+                    // Check if this was a failed ad and is now visible with assets
+                    if (window.failedAds && window.failedAds[adsetId] && 
+                        window.failedAds[adsetId].has(dzIndex.toString()) && 
+                        dropZone.style.display !== 'none') {
+                        
+                        // Mark this ad as fixed and needing submission
+                        if (!window.fixedAds[adsetId]) {
+                            window.fixedAds[adsetId] = new Set();
+                        }
+                        
+                        window.fixedAds[adsetId].add(dzIndex.toString());
+                        console.log(`Marked ad at index ${dzIndex} in adgroup ${adsetId} as fixed`);
+                    }
+                });
+            });
+            
+            console.log('Fixed ads that will be sent for creation:', window.fixedAds);
+        }
+        
         // Move to next step
         navigateToStep(state.currentStep + 1);
     }
@@ -50,6 +90,46 @@ export function initStepNavigation(elements, state, validateStepFn, prepareStepF
         
         // Move to previous step if possible
         if (state.currentStep > 1) {
+            // Reset fix errors mode when going back via prev button
+            if (state.currentStep === 4 && state.currentStep - 1 === 3) {
+                // Clear fix errors mode when using regular navigation
+                window.fixErrorsMode = false;
+                
+                // Remove any filtering of adgroups and ads
+                setTimeout(() => {
+                    const adsetItems = document.querySelectorAll('.adset-item');
+                    adsetItems.forEach(adsetItem => {
+                        // Show the adgroup
+                        adsetItem.style.display = 'block';
+                        
+                        // Show all ads within this adgroup
+                        const dropZones = adsetItem.querySelectorAll('.asset-drop-zone');
+                        dropZones.forEach(dropZone => {
+                            dropZone.style.display = 'flex';
+                            
+                            // Show the ad creation container
+                            const adCreationContainer = dropZone.closest('.ad-creation-container');
+                            if (adCreationContainer) {
+                                adCreationContainer.style.display = 'block';
+                            }
+                        });
+                        
+                        // Remove any filtered ad notes
+                        const filteredNotes = adsetItem.querySelectorAll('.filtered-ads-note');
+                        filteredNotes.forEach(note => note.remove());
+                    });
+                    
+                    // Also reset the failedAds tracking
+                    window.failedAds = {};
+                    
+                    // Remove any fix-errors-message
+                    const errorMessage = document.getElementById('fix-errors-message');
+                    if (errorMessage) {
+                        errorMessage.remove();
+                    }
+                }, 100);
+            }
+            
             navigateToStep(state.currentStep - 1);
         }
     }
