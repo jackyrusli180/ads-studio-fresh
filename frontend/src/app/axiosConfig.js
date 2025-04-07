@@ -65,7 +65,12 @@ axiosInstance.interceptors.response.use(
 );
 
 // Set up global default axios
-axios.defaults.baseURL = window.location.origin;
+// Use environment variable for API URL, fallback to window.location.origin
+// axios.defaults.baseURL = process.env.REACT_APP_API_URL || window.location.origin;
+// Use relative URLs for API endpoints
+axios.defaults.baseURL = '';
+
+console.log('API URL:', axios.defaults.baseURL || 'Using relative URLs');
 
 // Apply interceptors to global axios
 axios.interceptors.request.use(

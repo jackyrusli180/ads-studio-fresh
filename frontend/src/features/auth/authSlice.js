@@ -18,9 +18,13 @@ const initialState = {
 export const login = createAsyncThunk(
   'auth/login',
   async ({ username, password }, { rejectWithValue }) => {
+    console.log('LOGIN ATTEMPT - Username:', username);
+    console.log('API URL being used:', axios.defaults.baseURL);
+    
     try {
       // First try the custom login endpoint
       try {
+        console.log('Attempting custom login endpoint: /api/users/login/');
         const userLoginResponse = await axios.post(
           '/api/users/login/',
           { username, password },
@@ -31,10 +35,13 @@ export const login = createAsyncThunk(
           }
         );
         
+        console.log('Custom login successful:', userLoginResponse.data);
         // If successful, return the data
         return userLoginResponse.data;
       } catch (userLoginError) {
-        console.log('Custom login failed, trying JWT token endpoint');
+        console.log('Custom login failed with error:', userLoginError.response?.data || userLoginError.message);
+        console.log('Status code:', userLoginError.response?.status);
+        console.log('Trying JWT token endpoint');
         
         // If custom login fails, try the JWT token endpoint
         const tokenResponse = await axios.post(
@@ -47,6 +54,8 @@ export const login = createAsyncThunk(
           }
         );
         
+        console.log('JWT token endpoint successful:', tokenResponse.data);
+        
         // Get user info after obtaining token
         const config = {
           headers: {
@@ -55,6 +64,7 @@ export const login = createAsyncThunk(
         };
         
         const userResponse = await axios.get('/api/users/current/', config);
+        console.log('User info retrieved:', userResponse.data);
         
         return {
           token: tokenResponse.data.access,
@@ -63,7 +73,12 @@ export const login = createAsyncThunk(
         };
       }
     } catch (error) {
-      console.error('Login error:', error.response?.data || error.message);
+      console.error('Login error details:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+        config: error.config
+      });
       return rejectWithValue(
         error.response?.data?.detail || error.response?.data?.error || 'Authentication failed'
       );

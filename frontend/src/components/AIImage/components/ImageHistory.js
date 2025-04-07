@@ -65,7 +65,7 @@ const ImageHistory = ({
     const fetchAttributes = async () => {
       try {
         const response = await getAxiosInstance().get('/api/aigc/attributes/');
-        if (response?.data) {
+        if (response?.data && Array.isArray(response.data)) {
           setAttributeCategories(response.data);
           
           // Initialize expanded state for each category
@@ -74,9 +74,13 @@ const ImageHistory = ({
             expanded[category.id] = false;
           });
           setExpandedCategories(expanded);
+        } else {
+          console.error('Received invalid attribute categories format:', response?.data);
+          setAttributeCategories([]); // Initialize with empty array if response is not an array
         }
       } catch (error) {
         console.error('Error fetching attributes:', error);
+        setAttributeCategories([]); // Initialize with empty array on error
       }
     };
     
@@ -407,7 +411,7 @@ const ImageHistory = ({
               )}
               
               <Box sx={{ display: 'flex', flexWrap: 'nowrap', gap: 2 }}>
-                {attributeCategories.map(category => (
+                {Array.isArray(attributeCategories) && attributeCategories.map(category => (
                   <Box key={category.id} sx={{ minWidth: '200px' }}>
                     <Box 
                       sx={{ 

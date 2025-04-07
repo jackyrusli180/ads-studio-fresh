@@ -61,6 +61,11 @@ const Login = () => {
   
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log('Login form submitted with data:', formData);
+    console.log('Environment variables:', {
+      REACT_APP_API_URL: process.env.REACT_APP_API_URL,
+      NODE_ENV: process.env.NODE_ENV
+    });
     dispatch(login(formData));
   };
 

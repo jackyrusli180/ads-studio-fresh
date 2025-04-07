@@ -232,7 +232,19 @@ const ImageEditor = ({
       }
     } catch (err) {
       console.error('Error editing image:', err);
-      setError('Failed to edit image. Please try again.');
+      
+      // Extract detailed error message from API response if available
+      let errorMessage = 'Failed to edit image. Please try again.';
+      if (err.response && err.response.data && err.response.data.error) {
+        errorMessage = err.response.data.error;
+        // If it's a long error message, truncate it for display
+        if (errorMessage.length > 150) {
+          errorMessage = errorMessage.substring(0, 150) + '...';
+        }
+        console.error('API error details:', err.response.data);
+      }
+      
+      setError(errorMessage);
       
       // Add error message to conversation
       setConversation(prev => [
@@ -240,7 +252,7 @@ const ImageEditor = ({
         {
           role: 'system',
           type: 'text',
-          text: 'Sorry, there was an error processing your request. Please try again.'
+          text: `Error: ${errorMessage}`
         }
       ]);
     } finally {
