@@ -15,14 +15,14 @@ from django.contrib.auth.models import User
 
 def create_test_superuser():
     """Create a test superuser if it doesn't exist"""
-    username = 'admin'
-    email = 'admin@example.com'
-    password = 'adminpassword'
+    username = 'jackyrusli'
+    email = 'jackyrusli180@gmail.com'
+    password = 'Okx12345678!'
     
     if not User.objects.filter(username=username).exists():
         print(f"Creating superuser '{username}'...")
         User.objects.create_superuser(username, email, password)
-        print(f"Superuser created successfully. Use username: '{username}' and password: '{password}' to log in.")
+        print(f"Superuser created successfully. Use username: '{username}' to log in.")
     else:
         print(f"Superuser '{username}' already exists.")
 
