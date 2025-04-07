@@ -1,0 +1,17 @@
+[phases.setup]
+nixPkgs = ["python311", "gcc", "python311Packages.pip", "python311Packages.setuptools", "nodejs_20"]
+
+[phases.install]
+cmds = [
+  "python -m pip install -r requirements.txt",
+  "cd frontend && npm install"
+]
+
+[phases.build]
+cmds = [
+  "cd frontend && npm run build",
+  "python manage.py collectstatic --noinput"
+]
+
+[start]
+cmd = "gunicorn ads_studio.wsgi:application --bind 0.0.0.0:8000"
