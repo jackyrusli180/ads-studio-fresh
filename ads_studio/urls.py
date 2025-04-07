@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
@@ -25,6 +25,7 @@ from accounts.api.views import UserViewSet, test_auth
 from integrations.okx.views import TokenListingView
 from integrations.lyzr.views import LyzrTokenListingView
 from integrations.meta.views import CompetitorAdsView
+from django.http import HttpResponse
 
 # API router setup
 router = routers.DefaultRouter()
@@ -44,13 +45,28 @@ urlpatterns = [
     path('api/integrations/lyzr/token-listings/', LyzrTokenListingView.as_view(), name='lyzr_token_listings'),
     path('api/integrations/meta/competitor-ads/', CompetitorAdsView.as_view(), name='competitor_ads'),
     
-    # AIGC API
-    path('api/aigc/', include('aigc.urls')),
-    
-    # React App - serve the index.html for all non-API routes
-    path('', TemplateView.as_view(template_name='index.html'), name='home'),
+    # Health check endpoint
+    path('health/', lambda request: HttpResponse("OK"), name='health_check'),
 ]
+
+# Add AIGC URLs if module is available
+try:
+    # Try to import AIGC module
+    path('api/aigc/', include('aigc.urls')),
+except Exception as e:
+    # Log the error but continue without it
+    print(f"AIGC module not available: {e}")
 
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+# In production, media files should be served through a proper storage solution or CDN
+else:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Add React frontend route - This should be at the end to not interfere with API routes
+urlpatterns += [
+    path('', TemplateView.as_view(template_name='index.html'), name='react_app'),
+    path('<path:path>', TemplateView.as_view(template_name='index.html'), name='react_catchall'),
+]
