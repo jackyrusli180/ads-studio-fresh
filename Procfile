@@ -1,1 +1,1 @@
-web: gunicorn ads_studio.wsgi --log-file - 
+web: gunicorn ads_studio.wsgi --log-file -

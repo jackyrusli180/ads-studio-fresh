@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["python311", "gcc", "python311Packages.pip", "python311Packages.setuptools"]
+
+[phases.install]
+cmds = ["python3 -m pip install -r requirements.txt"]
+
+[phases.build]
+cmds = ["python3 manage.py collectstatic --noinput"]
+
+[start]
+cmd = "gunicorn ads_studio.wsgi:application"
