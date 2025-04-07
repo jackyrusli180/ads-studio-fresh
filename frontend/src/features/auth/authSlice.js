@@ -124,6 +124,28 @@ const authSlice = createSlice({
     resetError: (state) => {
       state.error = null;
     },
+    bypassLogin: (state) => {
+      // Create a mock user and token for development
+      const mockUser = {
+        id: 1,
+        username: 'jackyrusli',
+        email: 'jackyrusli180@gmail.com',
+        first_name: 'Jacky',
+        last_name: 'Rusli'
+      };
+      const mockToken = 'mock-token-for-development';
+      
+      // Update state
+      state.isLoading = false;
+      state.isAuthenticated = true;
+      state.token = mockToken;
+      state.user = mockUser;
+      state.error = null;
+      
+      // Save to localStorage
+      localStorage.setItem('token', mockToken);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -170,5 +192,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { resetError } = authSlice.actions;
+export const { resetError, bypassLogin } = authSlice.actions;
 export default authSlice.reducer; 

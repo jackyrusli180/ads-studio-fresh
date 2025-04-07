@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../features/auth/authSlice';
+import { login, bypassLogin } from '../features/auth/authSlice';
 import { 
   Box, 
   Typography, 
@@ -71,6 +71,10 @@ const Login = () => {
 
   const handleLogoError = () => {
     setLogoError(true);
+  };
+
+  const handleBypassLogin = () => {
+    dispatch(bypassLogin());
   };
   
   return (
@@ -164,6 +168,20 @@ const Login = () => {
               startIcon={<LockIcon />}
             >
               {loading ? 'Signing In...' : 'Sign In'}
+            </Button>
+            
+            {/* Development bypass login button */}
+            <Button
+              fullWidth
+              variant="outlined"
+              size="large"
+              onClick={handleBypassLogin}
+              sx={{ 
+                mb: 2,
+                py: 1.5
+              }}
+            >
+              Bypass Login (Development Only)
             </Button>
             
             <Box sx={{ mt: 2, textAlign: 'center' }}>
