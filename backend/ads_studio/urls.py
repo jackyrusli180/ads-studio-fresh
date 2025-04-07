@@ -32,7 +32,8 @@ router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
 # Register API viewsets here
 
-urlpatterns = [
+# Define API URLs first
+api_urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
@@ -52,21 +53,26 @@ urlpatterns = [
 # Add AIGC URLs if module is available
 try:
     # Try to import AIGC module
-    urlpatterns += [path('api/aigc/', include('aigc.urls'))]
+    api_urlpatterns += [path('api/aigc/', include('aigc.urls'))]
 except Exception as e:
     # Log the error but continue without it
     print(f"AIGC module not available: {e}")
 
+# Define static file serving
+static_urlpatterns = []
 # Serve media files in development
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    static_urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    static_urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 # In production, media files should be served through a proper storage solution or CDN
 else:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    static_urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Add React frontend route - This should be at the end to not interfere with API routes
-urlpatterns += [
+frontend_urlpatterns = [
     path('', TemplateView.as_view(template_name='index.html'), name='react_app'),
     path('<path:path>', TemplateView.as_view(template_name='index.html'), name='react_catchall'),
 ]
+
+# Combine all URL patterns in the correct order
+urlpatterns = api_urlpatterns + static_urlpatterns + frontend_urlpatterns
