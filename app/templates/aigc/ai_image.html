@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}AI Image Generator{% endblock %}
+
+{% block breadcrumb %}
+    <span>AIGC</span> / <span>AI Image</span>
+{% endblock %}
+
+{% block content %}
+{% if regeneration_data %}
+<div class="regeneration-banner">
+    <div class="regeneration-info">
+        <h3>Regenerating Image</h3>
+        <p>You are regenerating an image that was rejected. You can modify the prompt below.</p>
+        <p><strong>Original asset:</strong> {{ regeneration_data.name }}</p>
+    </div>
+    <div class="regeneration-preview">
+        <img src="{{ regeneration_data.file_path }}" alt="Original image">
+    </div>
+    <input type="hidden" id="regenerationAssetId" value="{{ regeneration_data.id }}">
+</div>
+{% endif %}
+
+<div class="ai-image-container">
+    <div class="generator-section">
+        <div class="prompt-section">
+            <div class="prompt-editor">
+                <textarea id="imagePrompt" placeholder="Enter prompt here..." class="prompt-textarea" maxlength="1000"></textarea>
+                <div class="char-count">
+                    <span id="imagePromptCount">0</span>/1000
+                </div>
+            </div>
+            
+            <div class="generator-controls">
+                <div class="control-group">
+                    <label>Resolution</label>
+                    <select id="resolution">
+                        <option value="1:1">1:1</option>
+                        <option value="16:9">16:9</option>
+                        <option value="9:16">9:16</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>Model</label>
+                    <select id="fluxModel">
+                        <option value="flux-pro-1.1">Flux Pro 1.1</option>
+                    </select>
+                </div>
+                
+                <button id="generateBtn" class="btn btn-primary">
+                    <i class="fas fa-wand-magic-sparkles"></i> Generate
+                </button>
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <div class="images-container">
+                <div id="imagePreview" class="preview-area result-image">
+                    <div class="placeholder">Generated image will appear here</div>
+                </div>
+                <div id="brandedImagePreview" class="preview-area" style="display: none;">
+                    <div class="placeholder">Branded image will appear here</div>
+                </div>
+            </div>
+            <div class="result-actions">
+                <button class="btn btn-accent" id="applyBrandingBtn">Apply Branding</button>
+                <button class="btn btn-success" id="sendForApprovalBtn" style="display: none;">
+                    <i class="fas fa-paper-plane"></i> Send for Approval
+                </button>
+                {% if regeneration_data %}
+                <button class="btn btn-primary" id="resubmitRegeneratedBtn" style="display: none;">
+                    <i class="fas fa-check-circle"></i> Resubmit for Approval
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="headline-section">
+            <h3>AI Headlines</h3>
+            <div class="headline-prompt">
+                <textarea id="headlinePrompt" placeholder="Customize your headline prompt here..." maxlength="500">Generate 3 compelling headlines for this image that would work well for a crypto/trading advertisement. Make them action-focused and create FOMO.</textarea>
+                <div class="char-count">
+                    <span id="headlinePromptCount">0</span>/500
+                </div>
+                <button id="generateHeadlines" class="btn btn-primary" disabled>
+                    <i class="fas fa-sparkles"></i> Generate Headlines
+                </button>
+            </div>
+            <div id="headlineSuggestions" class="headline-suggestions">
+                <div class="placeholder-message">
+                    Generate an image to get AI-powered headline suggestions
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="history-section">
+        <h3>Image History</h3>
+        <div id="imageHistory" class="history-grid"></div>
+    </div>
+</div>
+
+<!-- Add this modal at the end of the template, before closing body tag -->
+<div class="modal" id="brandingModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add Text for Branding</h3>
+            <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="brandingHeadline">Enter headline for your branded image:</label>
+                <input type="text" id="brandingHeadline" class="form-control" placeholder="Enter your headline text" maxlength="80">
+                <div class="char-count">
+                    <span id="headlineCharCount">0</span>/80
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="brandingTcText">Enter T&C text for your branded image:</label>
+                <textarea id="brandingTcText" class="form-control" placeholder="Enter your T&C text" maxlength="300" rows="4">OKX is de handelsnaam van OKCoin Europe Ltd, een in Malta geregistreerd bedrijf, dat een licentie heeft van de MFSA als VASP (Virtual Asset Service Provider). Dit is geen aanbod of uitnodiging om digitale activa te kopen, verkopen of aan te houden, die onderhevig zijn aan volatiliteit en risico met zich meebrengen. Voorwaarden van toepassing. Afbeelding gemaakt met AI.</textarea>
+                <div class="char-count">
+                    <span id="tcTextCharCount">0</span>/300
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary close-modal">Cancel</button>
+            <button class="btn btn-accent" id="confirmBrandingBtn">Apply Branding</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ai_image.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/ai_image.js') }}"></script>
+{% endblock %} 

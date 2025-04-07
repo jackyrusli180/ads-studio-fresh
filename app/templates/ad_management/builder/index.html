@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Ads Builder{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('ad_management.create_ad') }}">Ad Management</a></li>
+<li class="breadcrumb-item active">Ads Builder</li>
+{% endblock %}
+
+{% block content %}
+<div class="ads-builder-container">
+    <div class="ads-builder-card">
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step-item active" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-text">Select Platform & Account</div>
+            </div>
+            <div class="step-item" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-text">Select Campaign</div>
+            </div>
+            <div class="step-item" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-text">Select Assets</div>
+            </div>
+            <div class="step-item" data-step="4">
+                <div class="step-number">4</div>
+                <div class="step-text">Launch</div>
+            </div>
+        </div>
+        
+        <form id="adsBuilderForm" method="post" action="{{ url_for('ad_management.create_ad') }}">
+            <!-- Step 1: Platform & Account Selection -->
+            <div class="form-step" data-step="1">
+                
+                <!-- Platform Selection -->
+                <div class="form-group">
+                    <label class="form-label">Select Platforms</label>
+                    <div class="platform-selection">
+                        <div class="platform-item">
+                            <input type="checkbox" name="platforms" value="meta" class="platform-checkbox" id="metaPlatform">
+                            <div class="platform-icon">
+                                <i class="fab fa-facebook"></i>
+                            </div>
+                            <div class="platform-name">Meta</div>
+                        </div>
+                        <div class="platform-item">
+                            <input type="checkbox" name="platforms" value="tiktok" class="platform-checkbox" id="tiktokPlatform">
+                            <div class="platform-icon">
+                                <i class="fab fa-tiktok"></i>
+                            </div>
+                            <div class="platform-name">TikTok</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Advertiser Account Selection -->
+                <div class="form-group account-selection">
+                    <label class="form-label">Select Advertiser Account(s)</label>
+                    <div id="advertiserAccountContainer" class="account-checkbox-container">
+                        <!-- Account checkboxes will be populated by JavaScript -->
+                        <div class="loading-accounts">Please select a platform first</div>
+                    </div>
+                </div>
+                
+                <!-- Step 1 Navigation -->
+                <div class="step-navigation">
+                    <div></div> <!-- Empty div for flex alignment -->
+                    <button type="button" id="step1NextBtn" class="btn next-step" disabled>Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 2: Campaign & Ad Set Selection -->
+            <div class="form-step" data-step="2" style="display: none;">
+                
+                <!-- Meta Campaign Selection -->
+                <div id="metaCampaignSection" class="campaign-section" style="display: none;">
+                    <h3 class="section-title">Meta Campaign</h3>
+                    <div class="form-group">
+                        <label for="metaCampaignId" class="form-label">Select Campaign</label>
+                        <select class="form-control" id="metaCampaignId" name="meta_campaign_id">
+                            <option value="">Select Campaign</option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div id="metaAdsetSection" class="adset-section" style="display: none;">
+                        <div class="form-group">
+                            <label for="metaAdsetId" class="form-label">Select Ad Set</label>
+                            <select class="form-control" id="metaAdsetId" name="meta_adset_id">
+                                <option value="">Select Ad Set</option>
+                                <!-- Options will be populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- TikTok Campaign Selection -->
+                <div id="tiktokCampaignSection" class="campaign-section" style="display: none;">
+                    <h3 class="section-title">TikTok Campaign</h3>
+                    <div class="form-group">
+                        <label for="tiktokCampaignId" class="form-label">Select Campaign</label>
+                        <select class="form-control" id="tiktokCampaignId" name="tiktok_campaign_id">
+                            <option value="">Select Campaign</option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div id="tiktokAdgroupSection" class="adset-section" style="display: none;">
+                        <div class="form-group">
+                            <label for="tiktokAdgroupId" class="form-label">Select Ad Group</label>
+                            <select class="form-control" id="tiktokAdgroupId" name="tiktok_adgroup_id">
+                                <option value="">Select Ad Group</option>
+                                <!-- Options will be populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 2 Navigation -->
+                <div class="step-navigation">
+                    <button type="button" class="btn prev-step">Previous</button>
+                    <button type="button" id="step2NextBtn" class="btn next-step" disabled>Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Asset Selection -->
+            <div class="form-step" data-step="3" style="display: none;">
+                
+                <div class="asset-selection">
+                    <div class="form-group">
+                        <div id="selectFromLibraryBtn" class="asset-library-btn">
+                            <div class="asset-library-icon">
+                                <i class="fas fa-images"></i>
+                            </div>
+                            <div>Select Assets from Library</div>
+                        </div>
+                        
+                        <div id="uploadPreview" class="upload-preview">
+                            <!-- Selected assets will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Drag indicator -->
+                <div class="drag-indicator">
+                    <i class="fas fa-arrows-alt"></i> Dragging asset - Drop in an adset below
+                </div>
+                
+                <!-- Step 3 Navigation -->
+                <div class="step-navigation">
+                    <button type="button" class="btn prev-step">Previous</button>
+                    <button type="button" id="step3NextBtn" class="btn next-step" disabled>Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 4: Launch -->
+            <div class="form-step" data-step="4" style="display: none;">
+                
+                <div id="campaignSummary" class="campaign-summary">
+                    <!-- Summary will be populated by JavaScript -->
+                </div>
+                
+                <!-- Note: Navigation buttons are now generated in the SummaryView.js component -->
+            </div>
+            
+            <!-- Hidden Fields for selected assets -->
+            <input type="hidden" name="selected_asset_ids" id="selectedAssetIds" value="">
+        </form>
+    </div>
+</div>
+
+<!-- Asset Selector Modal -->
+<div id="assetSelectorModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Select Assets from Library</h3>
+            <div class="close-modal">&times;</div>
+        </div>
+        <div class="modal-body">
+            <div class="library-filters">
+                <div class="form-group library-search">
+                    <input type="text" class="form-control" id="librarySearch" placeholder="Search assets...">
+                </div>
+                <div class="form-group library-type-filter">
+                    <select class="form-control" id="libraryTypeFilter">
+                        <option value="">All Assets</option>
+                        <option value="image">Images</option>
+                        <option value="video">Videos</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="libraryAssets" class="library-grid">
+                <!-- Assets will be loaded here via JavaScript -->
+                <div class="loading">Loading assets...</div>
+            </div>
+            
+            <div class="asset-selection-actions">
+                <button type="button" class="btn btn-primary btn-lg" id="selectAssetsBtn">
+                    <i class="fas fa-check-circle"></i> Select Assets
+                </button>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn close-modal">Cancel</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/ads-builder/main.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{{ url_for('static', filename='js/pages/ad-management/ads_builder.js') }}"></script>
+{% endblock %} 

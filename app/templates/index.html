@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Ads Studio{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <section class="dashboard__hero">
+        <div class="dashboard__welcome-card">
+            <h1>Welcome to <span class="text-primary">Ads Studio</span></h1>
+            <p class="dashboard__subtitle">Your comprehensive platform for managing advertising campaigns across multiple platforms.</p>
+            <div class="dashboard__hero-actions">
+                <a href="{{ url_for('ad_management.ads_builder') }}" class="btn btn-primary">Create Campaign</a>
+                <a href="{{ url_for('analytics.analytics_performance') }}" class="btn btn-outline">View Analytics</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="dashboard__stats">
+        <div class="dashboard__stats-grid">
+            <div class="dashboard__stat-card">
+                <div class="dashboard__stat-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <div class="dashboard__stat-content">
+                    <h3 class="dashboard__stat-value">10</h3>
+                    <p class="dashboard__stat-label">Active Campaigns</p>
+                </div>
+            </div>
+            
+            <div class="dashboard__stat-card">
+                <div class="dashboard__stat-icon">
+                    <i class="fas fa-image"></i>
+                </div>
+                <div class="dashboard__stat-content">
+                    <h3 class="dashboard__stat-value">45</h3>
+                    <p class="dashboard__stat-label">Creative Assets</p>
+                </div>
+            </div>
+            
+            <div class="dashboard__stat-card">
+                <div class="dashboard__stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="dashboard__stat-content">
+                    <h3 class="dashboard__stat-value">3.2K</h3>
+                    <p class="dashboard__stat-label">Total Conversions</p>
+                </div>
+            </div>
+            
+            <div class="dashboard__stat-card">
+                <div class="dashboard__stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="dashboard__stat-content">
+                    <h3 class="dashboard__stat-value">$1.2K</h3>
+                    <p class="dashboard__stat-label">Total Spend</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="dashboard__features">
+        <h2 class="dashboard__section-title">What would you like to do today?</h2>
+        
+        <div class="dashboard__action-cards">
+            <a href="{{ url_for('ad_management.ads_builder') }}" class="dashboard__action-card">
+                <i class="fas fa-ad"></i>
+                <h3>Create Ads</h3>
+                <p>Build and manage your advertising campaigns across Meta and TikTok platforms.</p>
+            </a>
+            
+            <a href="{{ url_for('asset.asset_library') }}" class="dashboard__action-card">
+                <i class="fas fa-photo-film"></i>
+                <h3>Asset Library</h3>
+                <p>Manage your creative assets for use in advertising campaigns.</p>
+            </a>
+            
+            <a href="{{ url_for('analytics.analytics_performance') }}" class="dashboard__action-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Analytics</h3>
+                <p>View performance reports and analytics for your campaigns.</p>
+            </a>
+            
+            <a href="{{ url_for('template.templates_comfy') }}" class="dashboard__action-card">
+                <i class="fas fa-diagram-project"></i>
+                <h3>Templates</h3>
+                <p>Access and customize templates for your campaigns.</p>
+            </a>
+        </div>
+    </section>
+    
+    <section class="dashboard__recent">
+        <h2 class="dashboard__section-title">Recent Activity</h2>
+        
+        <div class="dashboard__recent-list">
+            <div class="dashboard__recent-item">
+                <div class="dashboard__recent-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="dashboard__recent-content">
+                    <h4>New Campaign Created</h4>
+                    <p>Summer Sale 2023 - Meta</p>
+                    <span class="dashboard__recent-time">2 hours ago</span>
+                </div>
+            </div>
+            
+            <div class="dashboard__recent-item">
+                <div class="dashboard__recent-icon">
+                    <i class="fas fa-upload"></i>
+                </div>
+                <div class="dashboard__recent-content">
+                    <h4>Assets Uploaded</h4>
+                    <p>5 new creative assets added</p>
+                    <span class="dashboard__recent-time">Yesterday</span>
+                </div>
+            </div>
+            
+            <div class="dashboard__recent-item">
+                <div class="dashboard__recent-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <div class="dashboard__recent-content">
+                    <h4>Report Generated</h4>
+                    <p>Monthly Performance Report</p>
+                    <span class="dashboard__recent-time">3 days ago</span>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/dashboard.css') }}">
+{% endblock %} 

@@ -1,0 +1,147 @@
+/**
+ * Ads Builder Platform and Account Selection Styles
+ * Contains styles for platform selection and advertiser accounts
+ */
+
+/* =============================================
+   PLATFORM SELECTION
+   ============================================= */
+.platform-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.platform-item {
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: calc(25% - 20px);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.platform-item:hover {
+    border-color: #007bff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.platform-item.selected {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.platform-icon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: #666;
+}
+
+.platform-item.selected .platform-icon {
+    color: #007bff;
+}
+
+.platform-name {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.platform-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* =============================================
+   ACCOUNT SELECTION
+   ============================================= */
+.account-selection {
+    margin-top: 30px;
+}
+
+.account-checkbox-container {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.account-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: white;
+    border: 1px solid #eee;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.account-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: #ddd;
+}
+
+.account-item.selected {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.account-checkbox {
+    margin-right: 15px;
+    cursor: pointer;
+}
+
+.account-details {
+    flex-grow: 1;
+}
+
+.account-name {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.account-id {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.account-platform-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 15px;
+    color: #666;
+}
+
+/* Platform specific colors */
+.platform-meta {
+    color: #1877F2;
+    background-color: rgba(24, 119, 242, 0.1);
+}
+
+.platform-tiktok {
+    color: #000000;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.loading-accounts {
+    text-align: center;
+    padding: 30px;
+    color: #666;
+    font-style: italic;
+} 

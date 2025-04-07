@@ -1,0 +1,227 @@
+/* Ad Creator Component Styles */
+
+.ad-creator {
+    margin-top: 2rem;
+}
+
+.platform-section {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.platform-section h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #ddd;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.account-section {
+    margin-bottom: 1.5rem;
+    padding: 0.5rem;
+    border-left: 3px solid #2c7be5;
+    background-color: #f5f5f5;
+}
+
+.account-section h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #2c7be5;
+    font-size: 1.2rem;
+}
+
+.campaign-section {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-left: 3px solid #6c757d;
+    background-color: #f8f9fa;
+}
+
+.campaign-section h4 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+.ad-container {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.ad-container-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.ad-container-header h5 {
+    margin: 0;
+    font-size: 1rem;
+    color: #495057;
+}
+
+.add-ad-btn {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #28a745;
+    border-radius: 4px;
+    background-color: #28a745;
+    color: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.add-ad-btn:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.ads-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.ad-item {
+    padding: 0.5rem;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+.ad-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.ad-header h6 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.remove-ad-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background-color: #dc3545;
+    color: white;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.remove-ad-btn:hover {
+    background-color: #c82333;
+}
+
+.ad-assets {
+    min-height: 100px;
+    padding: 0.5rem;
+    border: 1px dashed #ddd;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.ad-assets.drag-over {
+    background-color: #e9ecef;
+    border-color: #2c7be5;
+}
+
+.mini-asset {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.mini-asset img,
+.mini-asset video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mini-asset .asset-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: #e9ecef;
+    color: #495057;
+    font-size: 0.8rem;
+    text-align: center;
+    padding: 0.25rem;
+}
+
+.remove-asset-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 16px;
+    height: 16px;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(220, 53, 69, 0.8);
+    color: white;
+    font-size: 0.8rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.remove-asset-btn:hover {
+    background-color: rgba(200, 35, 51, 1);
+}
+
+/* Drop placeholder */
+.drop-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    color: #6c757d;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Dragging styles */
+.dragging {
+    opacity: 0.5;
+}
+
+.drag-over {
+    background-color: rgba(44, 123, 229, 0.1);
+    border-color: #2c7be5;
+} 

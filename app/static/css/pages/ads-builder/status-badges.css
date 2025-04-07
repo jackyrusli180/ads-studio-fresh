@@ -1,0 +1,80 @@
+/**
+ * Ads Builder Status Badge Styles
+ * Contains styles for status badges used in campaigns and adsets
+ */
+
+/* =============================================
+   STATUS BADGES
+   ============================================= */
+/* Adset status variations */
+.adset-status.active { background-color: #00b894; color: white; }
+.adset-status.paused { background-color: #fdcb6e; color: #594315; }
+.adset-status.deleted { background-color: #636e72; color: white; }
+.adset-status.failed { background-color: #d63031; color: white; }
+.adset-status.review { background-color: #0984e3; color: white; }
+.adset-status.pending { background-color: #fdcb6e; color: #594315; }
+.adset-status.restricted { background-color: #e17055; color: white; }
+.adset-status.budget-exceeded { background-color: #e84393; color: white; }
+.adset-status.insufficient-funds { background-color: #fd79a8; color: white; }
+.adset-status.frozen { background-color: #74b9ff; color: #2d3436; }
+.adset-status.scheduled { background-color: #55efc4; color: #2d3436; }
+.adset-status.partial-approval { background-color: #ffeaa7; color: #594315; }
+.adset-status.completed { background-color: #6c5ce7; color: white; }
+.adset-status.closed { background-color: #b2bec3; color: #2d3436; }
+.adset-status.terminated { background-color: #ff7675; color: white; }
+.adset-status.withdrawn { background-color: #a29bfe; color: white; }
+.adset-status.invalid { background-color: #dfe6e9; color: #636e72; }
+.adset-status.incomplete { background-color: #fab1a0; color: #2d3436; }
+
+/* General status classes used elsewhere */
+.status-active, .status-delivery-ok {
+    color: #00b894;
+}
+
+.status-paused, .status-disabled {
+    color: #fdcb6e;
+}
+
+.status-deleted {
+    color: #636e72;
+}
+
+.status-unknown {
+    color: #95a5a6;
+}
+
+.status-failed, .status-rejected {
+    color: #d63031;
+}
+
+.status-review {
+    color: #0984e3;
+}
+
+.status-scheduled, .status-pending {
+    color: #fdcb6e;
+}
+
+.status-budget-exceeded, .status-insufficient-funds {
+    color: #e84393;
+}
+
+.status-restricted {
+    color: #e17055;
+}
+
+.status-unavailable, .status-invalid {
+    color: #dfe6e9;
+}
+
+.status-frozen {
+    color: #74b9ff;
+}
+
+.status-completed {
+    color: #6c5ce7;
+}
+
+.status-all, .status-not-deleted {
+    color: #2d3436;
+} 

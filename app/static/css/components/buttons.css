@@ -1,0 +1,107 @@
+/* 
+ * Button Components
+ * Styles for buttons across the application
+ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius-sm);
+    transition: all var(--transition-fast);
+    gap: var(--spacing-xs);
+}
+
+.btn:disabled {
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+.btn--primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn--primary:hover {
+    background-color: var(--secondary-color);
+}
+
+.btn--secondary {
+    background-color: white;
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.btn--secondary:hover {
+    background-color: var(--background-color);
+}
+
+.btn--success {
+    background-color: #34C759;
+    color: white;
+}
+
+.btn--success:hover {
+    background-color: #2EB350;
+}
+
+.btn--danger {
+    background-color: #FF3B30;
+    color: white;
+}
+
+.btn--danger:hover {
+    background-color: #E0352B;
+}
+
+.btn--sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.btn--lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+.btn--icon {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+}
+
+.btn--icon-sm {
+    width: 28px;
+    height: 28px;
+}
+
+.btn--icon-lg {
+    width: 44px;
+    height: 44px;
+}
+
+.btn-group {
+    display: inline-flex;
+}
+
+.btn-group .btn:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.btn-group .btn:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+} 

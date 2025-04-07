@@ -1,0 +1,764 @@
+/* Variables */
+:root {
+    /* Colors */
+    --color-primary: #1877f2;
+    --color-secondary: #64748b;
+    --color-border: #e2e8f0;
+    --color-background: #f8fafc;
+    --color-text: #1e293b;
+    --color-text-secondary: #64748b;
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-normal: 250ms ease;
+}
+
+/* Layout */
+.asset-library-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 20px !important;
+}
+
+.card {
+    width: 100% !important;
+    margin: 0 !important;
+    max-width: none !important;
+}
+
+/* Content area */
+.asset-content {
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Virtual Scrolling */
+.virtual-scroll-container {
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: calc(100vh - 200px);
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    will-change: transform;  /* Optimize performance */
+}
+
+.virtual-scroll-content {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 16px !important;
+    padding: 16px !important;
+    margin: 0 !important;
+    width: 100% !important;
+    grid-auto-flow: row !important;
+}
+
+/* Asset Items */
+.asset-item {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.asset-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.asset-preview {
+    width: 100% !important;
+    aspect-ratio: 16/9;
+    background: var(--color-background);
+    overflow: hidden;
+    position: relative;
+}
+
+.asset-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-normal);
+}
+
+.asset-item:hover .asset-preview img {
+    transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .virtual-scroll-content {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .library-controls {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+}
+
+/* Loading States */
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: none;
+    place-items: center;
+    z-index: 1000;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-overlay p {
+    margin-top: 16px;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+}
+
+/* Add better accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+.asset-item:focus-within {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px !important;
+}
+
+.view-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid var(--color-border);
+    background: white;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+}
+
+.btn-icon:hover {
+    background: var(--color-background);
+    color: var(--color-primary);
+}
+
+.btn-icon.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+/* Library Controls */
+.library-controls {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    margin-bottom: 16px !important;
+}
+
+.search-filters {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 16px !important;
+    flex: 1 !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+}
+
+.search-bar {
+    width: 300px !important;
+    max-width: 300px !important;
+    min-width: 200px !important;
+    margin-right: 16px !important;
+}
+
+.search-bar i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-secondary);
+}
+
+.search-bar input {
+    padding-left: 36px;
+}
+
+.filters {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+}
+
+.filters select {
+    width: auto !important;
+    min-width: 120px !important;
+}
+
+/* Grid View */
+.asset-grid {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+}
+
+.asset-details {
+    padding: 12px;
+}
+
+.asset-name {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.asset-meta {
+    display: flex;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    margin-bottom: 8px;
+}
+
+.asset-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.tag {
+    font-size: 12px;
+    padding: 2px 8px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    color: var(--color-text-secondary);
+}
+
+/* List View */
+.asset-list {
+    width: 100%;
+}
+
+.asset-list table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.asset-list th,
+.asset-list td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.asset-list th {
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    background-color: #f8fafc;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.preview-cell {
+    width: 100px;
+}
+
+.preview-cell img,
+.preview-cell video {
+    width: 80px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.status-badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-approved {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Select Overlay */
+.select-overlay {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.asset-item:hover .select-overlay {
+    opacity: 1;
+}
+
+/* Modals */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    position: relative;
+    width: 90%;
+    max-width: 1200px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+}
+
+.preview-container {
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: var(--shadow-md);
+}
+
+.preview-video {
+    max-width: 100%;
+    max-height: 80vh;
+    border-radius: 4px;
+    box-shadow: var(--shadow-md);
+}
+
+.preview-sidebar {
+    flex: 1;
+    min-width: 300px;
+    overflow-y: auto;
+}
+
+.upload-dropzone {
+    border: 2px dashed var(--color-border);
+    border-radius: 8px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+}
+
+.upload-dropzone.dragover {
+    border-color: var(--color-primary);
+    background-color: rgba(24, 119, 242, 0.05);
+}
+
+.upload-prompt {
+    color: var(--color-text-secondary);
+}
+
+.upload-prompt i {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.upload-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.upload-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.upload-item-name {
+    flex: 1;
+}
+
+.upload-progress {
+    width: 100px;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.upload-progress-bar {
+    height: 100%;
+    background: var(--color-primary);
+    transition: width 0.3s ease;
+}
+
+.upload-item img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 48px;
+    color: var(--color-text-secondary);
+}
+
+.empty-state i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: var(--color-border);
+}
+
+.empty-state p {
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Asset item improvements */
+.asset-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.asset-item:hover .asset-overlay {
+    opacity: 1;
+}
+
+.asset-overlay .btn-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+}
+
+.asset-overlay .btn-icon:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Smaller floating button */
+.floating-upload-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    transition: transform var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    z-index: 100;
+}
+
+/* Pagination styles */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 16px;
+    margin-bottom: 24px;
+}
+
+.page-info {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+}
+
+.pagination .btn-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.pagination .btn-icon:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Make sure item info is consistent */
+.asset-info {
+    padding: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Media query for mobile screens */
+@media (max-width: 768px) {
+    .search-filters {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+    
+    .search-bar {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .filters {
+        width: 100% !important;
+        overflow-x: auto !important;
+        padding-bottom: 8px !important;
+    }
+}
+
+/* Checkbox styling - updated selectors to match the HTML structure */
+.asset-item-checkbox {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 4px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Make the checkbox itself larger and more visible */
+.asset-checkbox {
+    width: 18px !important;
+    height: 18px !important;
+    cursor: pointer;
+}
+
+/* Style for hover states */
+.asset-item:hover .asset-item-checkbox {
+    background: white;
+    transform: scale(1.1);
+}
+
+/* Ensure checkbox is properly styled based on status */
+.asset-item[data-status="approved"] .asset-checkbox {
+    border: 2px solid #10b981;
+}
+
+.asset-item:not([data-status="approved"]) .asset-checkbox {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border: 2px solid #d1d5db;
+}
+
+/* Styling for selected items */
+.asset-item.selected {
+    border: 2px solid var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.2);
+}
+
+/* HARD OVERRIDE - Hide checkboxes on non-approved assets */
+.asset-item:not([data-status="approved"]) .asset-item-checkbox {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+}
+
+/* Make sure approved asset checkboxes are clearly visible */
+.asset-item[data-status="approved"] .asset-item-checkbox {
+    display: block !important;
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    z-index: 999 !important; /* Very high z-index to ensure visibility */
+    pointer-events: auto !important;
+}
+
+/* Action controls layout */
+.action-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Create Ads button styling */
+.create-ads-btn {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    border-radius: 4px;
+    background-color: var(--color-primary);
+    color: white;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.create-ads-btn:hover {
+    background-color: #0b5ed7;
+}
+
+.create-ads-btn i {
+    font-size: 14px;
+}
+
+/* Selection controls styling */
+.selection-controls {
+    background-color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.selection-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.selection-info span {
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.selection-info small {
+    color: var(--color-text-secondary);
+    font-size: 12px;
+}
+
+.selection-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* Style for asset items when in selection mode */
+body.selection-mode .asset-item {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+body.selection-mode .asset-item[data-status="approved"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+body.selection-mode .asset-item:not([data-status="approved"]) {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Selected asset styling */
+body.selection-mode .asset-item.selected {
+    border: 2px solid var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.2);
+}
+
+/* Make the checkboxes only visible in selection mode */
+.asset-item-checkbox {
+    display: none !important;
+}
+
+body.selection-mode .asset-item[data-status="approved"] .asset-item-checkbox {
+    display: block !important;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+} 
