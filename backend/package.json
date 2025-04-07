@@ -1,4 +1,13 @@
 {
+  "name": "ads-studio-backend",
+  "version": "1.0.0",
+  "description": "Django backend for Ads Studio V1",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "build": "echo 'No build step required for Django backend'"
+  },
   "dependencies": {
     "@mui/lab": "^7.0.0-beta.10"
   }
