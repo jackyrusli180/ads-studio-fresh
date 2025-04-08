@@ -1,0 +1,8 @@
+This file forces Railway to rebuild the backend service.
+Added: April 8, 2025
+Purpose: Deploy new debug endpoints and CORS settings
+Changes:
+- Added debug endpoint to aigc/views.py
+- Modified permissions in aigc/views.py for image_history
+- Updated CORS settings in ads_studio/settings.py
+- Fixed authentication issues in generate_image 
