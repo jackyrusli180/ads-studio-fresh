@@ -2,6 +2,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # Debug endpoint
+    path('debug/', views.debug_api, name='debug_api'),
+    
     path('image-history/', views.image_history, name='image_history'),
     path('generate-image/', views.generate_image, name='generate_image'),
     path('generate-headlines/', views.generate_headlines, name='generate_headlines'),

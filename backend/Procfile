@@ -1,1 +1,1 @@
-web: gunicorn ads_studio.wsgi --log-file -
+web: gunicorn ads_studio.wsgi:application --bind 0.0.0.0:${PORT:-8000} --log-file -
